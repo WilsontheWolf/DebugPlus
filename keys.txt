@@ -1,0 +1,23 @@
+Built in:
+tab: menu
+1: unlock card
+2: discover card
+3: spawn card 
+q: Switch edition
+h: toggle UI
+b: new run
+l: load run 
+j: go to menu (might break)
+8: toggle mouse visiblity
+9: toggle tooltips
+space: live_test (Seems to just be a localthunk code tester)
+v: profile 
+p: performance mod
+
+modded :
+W: Set enhancement
+E: Set seal
+A: Toggle eternal
+S: Toggle perishable
+D: Toggle rental
+F: Toggle coupon shop card

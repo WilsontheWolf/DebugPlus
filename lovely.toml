@@ -1,0 +1,96 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = "conf.lua"
+pattern = "_RELEASE_MODE = true"
+position = "at"
+payload = '_RELEASE_MODE = false'
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = 'if key == "p" then'
+position = "before"
+payload = '''
+local debugplus = require("debugplus")
+debugplus.handleKeys(self, key, dt)
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = 'if _card.ability.consumeable and G.consumeables and #G.consumeables.cards < G.consumeables.config.card_limit then'
+position = "before"
+payload = '''
+local debugplus = require("debugplus")
+debugplus.handleSpawn(self, _card)
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'function create_UIBox_debug_tools()'
+position = "after"
+payload = '''
+local debugplus = require("debugplus")
+debugplus.registerButtons()
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Background"}, button = "DT_toggle_background", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "after"
+payload = '''
+UIBox_button{ label = {"Win Blind"}, button = "DT_win_blind", minw = 1.7, minh = 0.4, scale = 0.35},
+UIBox_button{ label = {"Double Tag"}, button = "DT_double_tag", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "and press [Q] to cycle Edition", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
+position = "after"
+# This patch is super jank 
+payload = '''
+}},
+{n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
+    {n=G.UIT.T, config={text = "press [W] to cycle Enhancement", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+}},
+{n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
+    {n=G.UIT.T, config={text = "press [E] to cycle Seal", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+}},
+{n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
+    {n=G.UIT.T, config={text = "press [A] to toggle Eternal", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+}},
+{n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
+    {n=G.UIT.T, config={text = "press [S] to toggle Perishable", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+}},
+{n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
+    {n=G.UIT.T, config={text = "press [D] to toggle Rental", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+}},
+{n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
+    {n=G.UIT.T, config={text = "press [F] to toggle Coupon (make free)", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.module]
+source = "core.lua"
+before = "main.lua"
+name = "debugplus"
