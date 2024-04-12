@@ -118,7 +118,7 @@ function global.handleSpawn(controller, _card)
             })
 
         create_shop_card_ui(card, 'Booster', G.shop_booster)
-        card.abilty.booster_pos = G.shop_booster.config.card_limit
+        card.ability.booster_pos = G.shop_booster.config.card_limit
         G.shop_booster:emplace(card)
 
     end
