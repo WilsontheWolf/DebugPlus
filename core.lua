@@ -65,7 +65,6 @@ function global.handleKeys(controller, key, dt)
     if _element and _element.config and _element.config.tag then
         local _tag = _element.config.tag
         if key == "2" then
-            print(_tag.key)
             G.P_TAGS[_tag.key].unlocked = true
             G.P_TAGS[_tag.key].discovered = true
             G.P_TAGS[_tag.key].alerted = true
@@ -111,7 +110,6 @@ function global.handleSpawn(controller, _card)
     end
     if _card.ability.set == 'Booster' and G.shop_booster then
         local center = _card.config.center
-        print(inspect(key))
         G.shop_booster.config.card_limit = G.shop_booster.config.card_limit + 1
         local card = Card(G.shop_booster.T.x + G.shop_booster.T.w / 2, G.shop_booster.T.y, G.CARD_W * 1.27,
             G.CARD_H * 1.27, G.P_CARDS.empty, center, {
