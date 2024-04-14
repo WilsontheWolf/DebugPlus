@@ -1,8 +1,22 @@
 local global = {}
 
 local enhancments = {"c_base", "m_bonus", "m_mult", "m_wild", "m_glass", "m_steel", "m_stone", "m_gold", "m_lucky"}
-local seals = {"None", "Red", "Blue", "Gold", "Purple"}
+local seals = nil
 local saveStateKeys = {"1", "2", "3"}
+
+local function getSeals() 
+    if seals then
+        return seals
+    end
+    seals = {"None"}
+    print(inspect(G.P_SEALS))
+    for i, v in pairs(G.P_SEALS) do
+        seals[v.order + 1] = i
+    end
+
+    return seals
+end
+
 function global.handleKeys(controller, key, dt)
     if controller.hovering.target and controller.hovering.target:is(Card) then
         local _card = controller.hovering.target
@@ -22,7 +36,7 @@ function global.handleKeys(controller, key, dt)
         end
         if key == "e" then
             if _card.playing_card then
-                for i, v in ipairs(seals) do
+                for i, v in ipairs(getSeals()) do
                     if (_card:get_seal(true) or "None") == v then
                         local next = i + 1
                         if next > #seals then
