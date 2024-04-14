@@ -2,6 +2,7 @@ local global = {}
 
 local enhancments = {"c_base", "m_bonus", "m_mult", "m_wild", "m_glass", "m_steel", "m_stone", "m_gold", "m_lucky"}
 local seals = {"None", "Red", "Blue", "Gold", "Purple"}
+local saveStateKeys = {"1", "2", "3"}
 function global.handleKeys(controller, key, dt)
     if controller.hovering.target and controller.hovering.target:is(Card) then
         local _card = controller.hovering.target
@@ -79,10 +80,31 @@ function global.handleKeys(controller, key, dt)
             end
         end
     end
+
+    for i, v in ipairs(saveStateKeys) do
+        if key == v and love.keyboard.isDown("z") then
+            if G.STAGE == G.STAGES.RUN then
+                compress_and_save(G.SETTINGS.profile .. '/' .. 'debugsave' .. v .. '.jkr', G.ARGS.save_run)
+            end
+        end
+        if key == v and love.keyboard.isDown("x") then
+            G:delete_run()
+            G.SAVED_GAME = get_compressed(G.SETTINGS.profile .. '/' .. 'debugsave' .. v .. '.jkr')
+            if G.SAVED_GAME ~= nil then
+                G.SAVED_GAME = STR_UNPACK(G.SAVED_GAME)
+            end
+            G:start_run({
+                savetext = G.SAVED_GAME
+            })
+        end
+    end
 end
 
 function global.registerButtons()
     G.FUNCS.DT_win_blind = function()
+        if G.STATE ~= G.STATES.SELECTING_HAND then
+            return
+        end
         G.GAME.chips = G.GAME.blind.chips
         G.STATE = G.STATES.HAND_PLAYED
         G.STATE_COMPLETE = true
