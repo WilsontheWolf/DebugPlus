@@ -1,6 +1,6 @@
 local global = {}
 
-local enhancments = {"c_base", "m_bonus", "m_mult", "m_wild", "m_glass", "m_steel", "m_stone", "m_gold", "m_lucky"}
+local enhancements = nil
 local seals = nil
 local saveStateKeys = {"1", "2", "3"}
 
@@ -17,18 +17,33 @@ local function getSeals()
     return seals
 end
 
+local function getEnhancements() 
+    if enhancements then
+        return enhancements
+    end
+    enhancements = {"c_base"}
+    for k, v in pairs(G.P_CENTER_POOLS["Enhanced"]) do
+	    sendDebugMessage("Adding "..v.name.." from G.P_CENTER_POOLS["..k.."]")
+        enhancements[v.order] = v.key
+    end
+	print_table(enhancements)
+    return enhancements
+end
+
 function global.handleKeys(controller, key, dt)
     if controller.hovering.target and controller.hovering.target:is(Card) then
         local _card = controller.hovering.target
         if key == 'w' then
             if _card.playing_card then
-                for i, v in ipairs(enhancments) do
+                for i, v in ipairs(getEnhancements()) do
                     if _card.config.center == G.P_CENTERS[v] then
-                        local next = i + 1
-                        if next > #enhancments then
-                            next = 1
+                        local _next = i + 1
+                        if _next > #enhancements then
+                            _card:set_ability(G.P_CENTERS[enhancements[1]], nil, true)
+							_card:set_sprites(nil, "cards_"..(G.SETTINGS.colourblind_option and 2 or 1))
+					    else
+                            _card:set_ability(G.P_CENTERS[enhancements[_next]], nil, true)
                         end
-                        _card:set_ability(G.P_CENTERS[enhancments[next]], nil, true)
                         break
                     end
                 end
@@ -38,14 +53,14 @@ function global.handleKeys(controller, key, dt)
             if _card.playing_card then
                 for i, v in ipairs(getSeals()) do
                     if (_card:get_seal(true) or "None") == v then
-                        local next = i + 1
-                        if next > #seals then
-                            next = 1
+                        local _next = i + 1
+                        if _next > #seals then
+                            _next = 1
                         end
-                        if next == 1 then
+                        if _next == 1 then
                             _card:set_seal(nil, true)
                         else
-                            _card:set_seal(seals[next], true)
+                            _card:set_seal(seals[_next], true)
                         end
                         break
                     end
