@@ -9,7 +9,6 @@ local function getSeals()
         return seals
     end
     seals = {"None"}
-    print(inspect(G.P_SEALS))
     for i, v in pairs(G.P_SEALS) do
         seals[v.order + 1] = i
     end
