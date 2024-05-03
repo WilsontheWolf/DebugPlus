@@ -23,10 +23,8 @@ local function getEnhancements()
     end
     enhancements = {"c_base"}
     for k, v in pairs(G.P_CENTER_POOLS["Enhanced"]) do
-	    sendDebugMessage("Adding "..v.name.." from G.P_CENTER_POOLS["..k.."]")
         enhancements[v.order] = v.key
     end
-	print_table(enhancements)
     return enhancements
 end
 
