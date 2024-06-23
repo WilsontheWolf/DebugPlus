@@ -87,6 +87,32 @@ function global.handleKeys(controller, key, dt)
                 _card:set_cost()
             end
         end
+        if key == "c" then 
+            local _area
+            if _card.ability.set == 'Joker' then _area = G.jokers 
+            elseif _card.playing_card then _area = G.hand
+            elseif _card.ability.consumeable then _area = G.consumeables
+            end
+            if _area == nil then return print("Trying to dup card without an area") end
+            local new_card = copy_card(_card, nil, nil, _card.playing_card, _card.edition)
+            new_card:add_to_deck()
+            if _card.playing_card then
+                table.insert(G.playing_cards, new_card)
+            end
+            _area:emplace(new_card)
+
+        end
+        if key == "r" then
+            if _card.ability.name == "Glass Card" then
+               _card.shattered = true      
+            end
+            _card:remove()
+            if _card.playing_card then
+                for j=1, #G.jokers.cards do
+                    eval_card(G.jokers.cards[j], {cardarea = G.jokers, remove_playing_cards = true, removed = { _card }})
+                end
+            end 
+        end
     end
     local _element = controller.hovering.target
     if _element and _element.config and _element.config.tag then
