@@ -94,7 +94,7 @@ function global.handleKeys(controller, key, dt)
             elseif _card.ability.consumeable then _area = G.consumeables
             end
             if _area == nil then return print("Trying to dup card without an area") end
-            local new_card = copy_card(_card, nil, nil, _card.playing_card, _card.edition)
+            local new_card = copy_card(_card, nil, nil, _card.playing_card)
             new_card:add_to_deck()
             if _card.playing_card then
                 table.insert(G.playing_cards, new_card)
