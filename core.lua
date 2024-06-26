@@ -3,8 +3,9 @@ local global = {}
 local enhancements = nil
 local seals = nil
 local saveStateKeys = {"1", "2", "3"}
+local showLogs = false
 
-local function getSeals() 
+local function getSeals()
     if seals then
         return seals
     end
@@ -16,7 +17,7 @@ local function getSeals()
     return seals
 end
 
-local function getEnhancements() 
+local function getEnhancements()
     if enhancements then
         return enhancements
     end
@@ -26,6 +27,8 @@ local function getEnhancements()
     end
     return enhancements
 end
+
+local old_print = print
 
 function global.handleKeys(controller, key, dt)
     if controller.hovering.target and controller.hovering.target:is(Card) then
@@ -37,8 +40,8 @@ function global.handleKeys(controller, key, dt)
                         local _next = i + 1
                         if _next > #enhancements then
                             _card:set_ability(G.P_CENTERS[enhancements[1]], nil, true)
-							_card:set_sprites(nil, "cards_"..(G.SETTINGS.colourblind_option and 2 or 1))
-					    else
+                            _card:set_sprites(nil, "cards_" .. (G.SETTINGS.colourblind_option and 2 or 1))
+                        else
                             _card:set_ability(G.P_CENTERS[enhancements[_next]], nil, true)
                         end
                         break
@@ -87,13 +90,18 @@ function global.handleKeys(controller, key, dt)
                 _card:set_cost()
             end
         end
-        if key == "c" then 
+        if key == "c" then
             local _area
-            if _card.ability.set == 'Joker' then _area = G.jokers 
-            elseif _card.playing_card then _area = G.hand
-            elseif _card.ability.consumeable then _area = G.consumeables
+            if _card.ability.set == 'Joker' then
+                _area = G.jokers
+            elseif _card.playing_card then
+                _area = G.hand
+            elseif _card.ability.consumeable then
+                _area = G.consumeables
             end
-            if _area == nil then return print("Trying to dup card without an area") end
+            if _area == nil then
+                return print("Trying to dup card without an area")
+            end
             local new_card = copy_card(_card, nil, nil, _card.playing_card)
             new_card:add_to_deck()
             if _card.playing_card then
@@ -104,15 +112,22 @@ function global.handleKeys(controller, key, dt)
         end
         if key == "r" then
             if _card.ability.name == "Glass Card" then
-               _card.shattered = true      
+                _card.shattered = true
             end
             _card:remove()
             if _card.playing_card then
-                for j=1, #G.jokers.cards do
-                    eval_card(G.jokers.cards[j], {cardarea = G.jokers, remove_playing_cards = true, removed = { _card }})
+                for j = 1, #G.jokers.cards do
+                    eval_card(G.jokers.cards[j], {
+                        cardarea = G.jokers,
+                        remove_playing_cards = true,
+                        removed = {_card}
+                    })
                 end
-            end 
+            end
         end
+    end
+    if key == '`' then
+        showLogs = not showLogs
     end
     local _element = controller.hovering.target
     if _element and _element.config and _element.config.tag then
@@ -197,6 +212,56 @@ function global.handleSpawn(controller, _card)
 
     end
 
+end
+
+local logs = nil
+
+local function calcHeight(text, width)
+    local font = love.graphics.getFont()
+    local rw, lines = font:getWrap(text, width)
+    local lineHeight = font:getHeight()
+    return lineHeight
+end
+
+
+global.registerLogHandler = function()
+    if logs then
+        return
+    end
+    logs = {}
+    print = function(...)
+        old_print(...)
+        local _str = ""
+        for i, v in ipairs({...}) do
+            _str = _str .. tostring(v) .. " "
+        end
+        table.insert(logs, _str)
+        if #logs > 100 then
+            table.remove(logs, 1)
+        end
+    end
+end
+
+global.doConsoleRender = function()
+    if not showLogs then
+        return
+    end
+    local width, height = love.graphics.getDimensions()
+    local padding = 10
+    local lineWidth = width - padding * 2
+    local bottom = height - padding * 2
+    love.graphics.setColor(0, 0, 0, .5)
+    love.graphics.rectangle("fill", padding, padding, lineWidth, height - padding * 2)
+    love.graphics.setColor(0, 1, 1, 1)
+    for i = #logs, 1, -1 do
+        local v = logs[i]
+        local lineHeight = calcHeight(v, lineWidth)
+        bottom = bottom - lineHeight
+        if bottom < padding then
+            break
+        end
+        love.graphics.printf(v, padding * 2, bottom, lineWidth)
+    end
 end
 
 return global

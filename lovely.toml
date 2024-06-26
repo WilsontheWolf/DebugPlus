@@ -107,3 +107,33 @@ overwrite = true
 source = "core.lua"
 before = "main.lua"
 name = "debugplus"
+
+# Console Stuff:
+
+[[patches]]
+[patches.pattern]
+target = "main.lua"
+pattern = 'require "engine/object"'
+position = "before"
+payload = '''
+do
+    local debugplus = require("debugplus")
+    debugplus.registerLogHandler()
+end
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "main.lua"
+pattern = 'G:draw()'
+position = "after"
+payload = '''
+do
+    local debugplus = require("debugplus")
+    debugplus.doConsoleRender()
+end
+'''
+match_indent = true
+overwrite = true
