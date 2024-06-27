@@ -3,7 +3,33 @@ local global = {}
 local enhancements = nil
 local seals = nil
 local saveStateKeys = {"1", "2", "3"}
-local showLogs = false
+local consoleOpen = false
+local showNewLogs = true
+local firstConsoleRender
+local old_print = print
+local logs = nil
+
+local function handleLog(colour, ...) 
+    old_print(...)
+    local _str = ""
+    for i, v in ipairs({...}) do
+        _str = _str .. tostring(v) .. " "
+    end
+    local meta = {
+        str = _str,
+        time = love.timer.getTime(),
+        colour = colour
+    }
+    table.insert(logs, meta)
+    if #logs > 100 then
+        table.remove(logs, 1)
+    end
+
+end
+
+local function log(...) 
+    handleLog({.65, .36, 1}, "[DebugPlus]", ...) 
+end
 
 local function getSeals()
     if seals then
@@ -28,7 +54,6 @@ local function getEnhancements()
     return enhancements
 end
 
-local old_print = print
 
 function global.handleKeys(controller, key, dt)
     if controller.hovering.target and controller.hovering.target:is(Card) then
@@ -100,7 +125,7 @@ function global.handleKeys(controller, key, dt)
                 _area = G.consumeables
             end
             if _area == nil then
-                return print("Trying to dup card without an area")
+                return log("Error: Trying to dup card without an area")
             end
             local new_card = copy_card(_card, nil, nil, _card.playing_card)
             new_card:add_to_deck()
@@ -126,8 +151,13 @@ function global.handleKeys(controller, key, dt)
             end
         end
     end
-    if key == '`' then
-        showLogs = not showLogs
+
+    if key == '/' then
+        if love.keyboard.isDown('lshift') then
+            showNewLogs = not showNewLogs
+        else
+            consoleOpen = not consoleOpen
+        end
     end
     local _element = controller.hovering.target
     if _element and _element.config and _element.config.tag then
@@ -152,6 +182,7 @@ function global.handleKeys(controller, key, dt)
         if key == v and love.keyboard.isDown("z") then
             if G.STAGE == G.STAGES.RUN then
                 compress_and_save(G.SETTINGS.profile .. '/' .. 'debugsave' .. v .. '.jkr', G.ARGS.save_run)
+                log("Saved to slot", v)
             end
         end
         if key == v and love.keyboard.isDown("x") then
@@ -163,6 +194,7 @@ function global.handleKeys(controller, key, dt)
             G:start_run({
                 savetext = G.SAVED_GAME
             })
+            log("Loaded slot", v)
         end
     end
 end
@@ -214,15 +246,16 @@ function global.handleSpawn(controller, _card)
 
 end
 
-local logs = nil
+local showTime = 5
+local fadeTime = 1
 
 local function calcHeight(text, width)
     local font = love.graphics.getFont()
     local rw, lines = font:getWrap(text, width)
     local lineHeight = font:getHeight()
-    return lineHeight
+    
+    return #lines * lineHeight, rw
 end
-
 
 global.registerLogHandler = function()
     if logs then
@@ -230,37 +263,54 @@ global.registerLogHandler = function()
     end
     logs = {}
     print = function(...)
-        old_print(...)
-        local _str = ""
-        for i, v in ipairs({...}) do
-            _str = _str .. tostring(v) .. " "
-        end
-        table.insert(logs, _str)
-        if #logs > 100 then
-            table.remove(logs, 1)
-        end
+        handleLog({0, 1, 1}, ...)
     end
 end
 
 global.doConsoleRender = function()
-    if not showLogs then
+    if not consoleOpen and not showNewLogs then
         return
     end
     local width, height = love.graphics.getDimensions()
     local padding = 10
     local lineWidth = width - padding * 2
     local bottom = height - padding * 2
+    local now = love.timer.getTime()
+    if firstConsoleRender == nil then
+        firstConsoleRender = now
+        log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
+    end
     love.graphics.setColor(0, 0, 0, .5)
-    love.graphics.rectangle("fill", padding, padding, lineWidth, height - padding * 2)
-    love.graphics.setColor(0, 1, 1, 1)
+    if consoleOpen then
+        love.graphics.rectangle("fill", padding, padding, lineWidth, height - padding * 2)
+    end
     for i = #logs, 1, -1 do
         local v = logs[i]
-        local lineHeight = calcHeight(v, lineWidth)
+        if not consoleOpen and v.time < firstConsoleRender then
+            break
+        end
+        local age = now - v.time
+        if not consoleOpen and age > showTime + fadeTime then
+            break
+        end
+        local lineHeight, realWidth = calcHeight(v.str, lineWidth)
         bottom = bottom - lineHeight
         if bottom < padding then
             break
         end
-        love.graphics.printf(v, padding * 2, bottom, lineWidth)
+
+        local opacityPercent = 1
+        if not consoleOpen and age > showTime then 
+            opacityPercent = (fadeTime - (age - showTime)) / fadeTime
+        end
+        
+        if not consoleOpen then
+            love.graphics.setColor(0, 0, 0, .5 * opacityPercent)
+            love.graphics.rectangle("fill", padding, bottom, lineWidth, lineHeight)
+        end
+        love.graphics.setColor(v.colour[1], v.colour[2], v.colour[3], opacityPercent)
+
+        love.graphics.printf(v.str, padding * 2, bottom, lineWidth - padding * 2)
     end
 end
 
