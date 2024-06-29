@@ -1,15 +1,22 @@
 local global = {}
 
+-- Main Variables 
 local enhancements = nil
 local seals = nil
 local suits = nil
 local ranks = nil
 local saveStateKeys = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
+
+-- Console Variables
+local showTime = 5 -- Amount of time new console messages show up 
+local fadeTime = 1 -- Amount of time it takes for a message to fade
 local consoleOpen = false
 local showNewLogs = true
-local firstConsoleRender
-local old_print = print
+local firstConsoleRender = nil
 local logs = nil
+local inputText = ""
+local old_print = print
+
 
 local function handleLog(colour, ...)
     old_print(...)
@@ -301,6 +308,9 @@ function global.handleKeys(controller, key, dt)
             showNewLogs = not showNewLogs
         else
             consoleOpen = not consoleOpen
+            if not consoleOpen then
+                inputText = ""
+            end
         end
     end
     local _element = controller.hovering.target
@@ -489,9 +499,6 @@ function global.handleSpawn(controller, _card)
 
 end
 
-local showTime = 5
-local fadeTime = 1
-
 local function calcHeight(text, width)
     local font = love.graphics.getFont()
     local rw, lines = font:getWrap(text, width)
@@ -514,6 +521,7 @@ global.doConsoleRender = function()
     if not consoleOpen and not showNewLogs then
         return
     end
+    -- Setup
     local width, height = love.graphics.getDimensions()
     local padding = 10
     local lineWidth = width - padding * 2
@@ -523,6 +531,10 @@ global.doConsoleRender = function()
         firstConsoleRender = now
         log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
     end
+    -- Input Box
+    
+
+    -- Main window
     love.graphics.setColor(0, 0, 0, .5)
     if consoleOpen then
         love.graphics.rectangle("fill", padding, padding, lineWidth, height - padding * 2)
