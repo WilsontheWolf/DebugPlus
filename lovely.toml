@@ -28,7 +28,7 @@ target = "engine/controller.lua"
 pattern = "if key == 'v' then"
 position = "before"
 payload = '''
-local debugplus = require("debugplus")
+local debugplus = require("debugplus-core")
 debugplus.handleKeys(self, key, dt)
 '''
 match_indent = true
@@ -40,7 +40,7 @@ target = "engine/controller.lua"
 pattern = 'if _card.ability.consumeable and G.consumeables and #G.consumeables.cards < G.consumeables.config.card_limit then'
 position = "before"
 payload = '''
-local debugplus = require("debugplus")
+local debugplus = require("debugplus-core")
 debugplus.handleSpawn(self, _card)
 '''
 match_indent = true
@@ -52,7 +52,7 @@ target = "functions/UI_definitions.lua"
 pattern = 'function create_UIBox_debug_tools()'
 position = "after"
 payload = '''
-local debugplus = require("debugplus")
+local debugplus = require("debugplus-core")
 debugplus.registerButtons()
 '''
 match_indent = true
@@ -116,7 +116,7 @@ overwrite = true
 [patches.module]
 source = "core.lua"
 before = "main.lua"
-name = "debugplus"
+name = "debugplus-core"
 
 [[patches]] # Readds the debug info to v1.0.1g+
 [patches.pattern]
@@ -136,7 +136,7 @@ pattern = 'require "engine/object"'
 position = "before"
 payload = '''
 do
-    local debugplus = require("debugplus")
+    local debugplus = require("debugplus-core")
     debugplus.registerLogHandler()
 end
 '''
@@ -150,7 +150,7 @@ pattern = 'G:draw()'
 position = "after"
 payload = '''
 do
-    local debugplus = require("debugplus")
+    local debugplus = require("debugplus-core")
     debugplus.doConsoleRender()
 end
 '''
