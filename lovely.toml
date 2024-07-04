@@ -146,3 +146,15 @@ pattern = 'love.graphics.print("Current FPS: "..fps, 10, 10)'
 position = "at"
 payload = '''
 love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {})), 10, 10)'''
+
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = 'function Controller:key_press_update(key, dt)'
+position = "after"
+payload = '''
+local debugplus = require("debugplus-core")
+if not debugplus.consoleHandleKey(self, key) then return end
+'''
+match_indent = true
+overwrite = false

@@ -1,3 +1,5 @@
+local utf8 = require("utf8")
+
 local global = {}
 
 -- Main Variables 
@@ -11,12 +13,12 @@ local saveStateKeys = {"1", "2", "3"}
 local showTime = 5 -- Amount of time new console messages show up 
 local fadeTime = 1 -- Amount of time it takes for a message to fade
 local consoleOpen = false
+local openNextFrame = false
 local showNewLogs = true
 local firstConsoleRender = nil
 local logs = nil
 local inputText = ""
 local old_print = print
-
 
 local function handleLog(colour, ...)
     old_print(...)
@@ -97,6 +99,53 @@ local function getRanks()
         end
     end
     return ranks
+end
+
+function global.consoleHandleKey(controller, key, dt)
+    if not consoleOpen then
+        if key == '/' then
+            if love.keyboard.isDown('lshift') then
+                showNewLogs = not showNewLogs
+            else
+                openNextFrame = true -- This is to prevent the keyboad handler from typing this key
+            end
+        end
+        return true
+    end
+
+    log("Key:", key)
+    if key == "escape" then
+        consoleOpen = false
+        inputText = ""
+    end
+    -- This bit stolen from https://love2d.org/wiki/love.textinput
+    if key == "backspace" then
+        -- get the byte offset to the last UTF-8 character in the string.
+        local byteoffset = utf8.offset(inputText, -1)
+
+        if byteoffset then
+            -- remove the last UTF-8 character.
+            -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+            inputText = string.sub(inputText, 1, byteoffset - 1)
+        end
+    end
+
+    if key == "return" then
+
+    end
+
+end
+
+local orig_textinput = love.textinput
+function love.textinput(t)
+    if orig_textinput then
+        orig_textinput(t)
+    end -- That way if another mod uses this, I don't clobber it's implementation
+    if not consoleOpen then
+        return
+    end
+    log("text:", t)
+    inputText = inputText .. t
 end
 
 function global.handleKeys(controller, key, dt)
@@ -310,16 +359,6 @@ function global.handleKeys(controller, key, dt)
         log("Reloaded Atlases")
     end
 
-    if key == '/' then
-        if controller.held_keys['lshift'] or controller.held_keys['rshift'] then
-            showNewLogs = not showNewLogs
-        else
-            consoleOpen = not consoleOpen
-            if not consoleOpen then
-                inputText = ""
-            end
-        end
-    end
     local _element = controller.hovering.target
     if _element and _element.config and _element.config.tag then
         local _tag = _element.config.tag
@@ -483,6 +522,10 @@ global.registerLogHandler = function()
 end
 
 global.doConsoleRender = function()
+    if openNextFrame then
+        consoleOpen = true
+        openNextFrame = false
+    end
     if not consoleOpen and not showNewLogs then
         return
     end
@@ -497,12 +540,21 @@ global.doConsoleRender = function()
         log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
     end
     -- Input Box
-    
-
-    -- Main window
     love.graphics.setColor(0, 0, 0, .5)
     if consoleOpen then
-        love.graphics.rectangle("fill", padding, padding, lineWidth, height - padding * 2)
+        bottom = bottom - padding * 2
+        local lineHeight, realWidth = calcHeight(inputText, lineWidth)
+        love.graphics.rectangle("fill", padding, bottom - lineHeight + padding, lineWidth, lineHeight + padding * 2)
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.printf(inputText, padding * 2, bottom, lineWidth - padding * 2)
+
+        bottom = bottom - lineHeight - padding * 2
+    end
+
+    -- Main window
+    if consoleOpen then
+        love.graphics.setColor(0, 0, 0, .5)
+        love.graphics.rectangle("fill", padding, padding, lineWidth, bottom)
     end
     for i = #logs, 1, -1 do
         local v = logs[i]
