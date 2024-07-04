@@ -159,6 +159,18 @@ overwrite = true
 
 [[patches]]
 [patches.pattern]
+target = "engine/controller.lua"
+pattern = 'function Controller:key_press_update(key, dt)'
+position = "after"
+payload = '''
+local debugplus = require("debugplus-core")
+if not debugplus.consoleHandleKey(self, key) then return end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
 target = "game.lua"
 match_indent = true
 pattern = 'love.graphics.print("Current FPS: "..fps, 10, 10)'
