@@ -14,6 +14,15 @@ overwrite = true
 
 [[patches]]
 [patches.pattern]
+target = "main.lua"
+pattern = "if self.real_dt > 0.05 then print('LONG DT @ '..math.floor(G.TIMERS.REAL)..': '..self.real_dt) end"
+position = "at"
+payload = ''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
 target = "engine/controller.lua"
 pattern = 'if key == "p" then'
 position = "before"
