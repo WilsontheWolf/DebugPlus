@@ -19,6 +19,33 @@ local firstConsoleRender = nil
 local logs = nil
 local inputText = ""
 local old_print = print
+local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: (%S+) :: (.*)"
+local SMODSLevelMeta = {
+    TRACE = {
+        level = 'DEBUG',
+        colour = {1, 0, 1}
+    },
+    DEBUG = {
+        level = 'DEBUG',
+        colour = {1, 0, 1}
+    },
+    INFO = {
+        level = 'INFO',
+        colour = {0, 1, 1}
+    },
+    WARN = {
+        level = 'WARN',
+        colour = {1, 1, 0}
+    },
+    ERROR = {
+        level = 'ERROR',
+        colour = {1, 0, 0}
+    },
+    FATAL = {
+        level = 'ERROR',
+        colour = {1, 0, 0}
+    }
+}
 
 local function handleLog(colour, ...)
     old_print(...)
@@ -26,11 +53,25 @@ local function handleLog(colour, ...)
     for i, v in ipairs({...}) do
         _str = _str .. tostring(v) .. " "
     end
-    local meta = {
-        str = _str,
-        time = love.timer.getTime(),
-        colour = colour
-    }
+    local level, source, msg = string.match(_str, SMODSLogPattern)
+    local meta;
+
+    if not level then
+        meta = {
+            str = _str,
+            time = love.timer.getTime(),
+            colour = colour,
+            level = "INFO"
+        }
+    else
+        local levelMeta = SMODSLevelMeta[level] or SMODSLevelMeta.INFO
+        meta = {
+            str = "[" .. source .. "] " .. msg,
+            time = love.timer.getTime(),
+            colour = levelMeta.colour,
+            level = levelMeta.level
+        }
+    end
     table.insert(logs, meta)
     if #logs > 100 then
         table.remove(logs, 1)
@@ -101,8 +142,10 @@ local function getRanks()
     return ranks
 end
 
-local function runCommand() 
-    if inputText == "" then return end
+local function runCommand()
+    if inputText == "" then
+        return
+    end
     handleLog({1, 0, 1}, "> " .. inputText)
 
     local args = {}
@@ -112,7 +155,6 @@ local function runCommand()
     local cmd = table.remove(args, 1)
     log("Command:", cmd)
     log("args:", inspect(args))
-
 
     -- Cleanup
     inputText = ""
@@ -592,6 +634,12 @@ global.doConsoleRender = function()
     if firstConsoleRender == nil then
         firstConsoleRender = now
         log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
+        sendTraceMessage("Hello chat.", 'ExampleLogger')
+        sendDebugMessage("Hello chat.", 'ExampleLogger')
+        sendInfoMessage("Hello chat.", 'ExampleLogger')
+        sendWarnMessage("Hello chat.", 'ExampleLogger')
+        sendErrorMessage("Hello chat.", 'ExampleLogger')
+        sendFatalMessage("Hello chat.", 'ExampleLogger')
     end
     -- Input Box
     love.graphics.setColor(0, 0, 0, .5)
@@ -619,7 +667,11 @@ global.doConsoleRender = function()
         if not consoleOpen and age > showTime + fadeTime then
             break
         end
-        local lineHeight, realWidth = calcHeight(v.str, lineWidth)
+        local msg = v.str
+        if consoleOpen then 
+            msg = "[" .. string.sub(v.level, 1, 1) .. "] " .. msg
+        end
+        local lineHeight, realWidth = calcHeight(msg, lineWidth)
         bottom = bottom - lineHeight
         if bottom < padding then
             break
@@ -636,7 +688,7 @@ global.doConsoleRender = function()
         end
         love.graphics.setColor(v.colour[1], v.colour[2], v.colour[3], opacityPercent)
 
-        love.graphics.printf(v.str, padding * 2, bottom, lineWidth - padding * 2)
+        love.graphics.printf(msg, padding * 2, bottom, lineWidth - padding * 2)
     end
 end
 
