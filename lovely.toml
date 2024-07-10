@@ -14,7 +14,7 @@ overwrite = true
 
 [[patches]]
 [patches.pattern]
-target = "main.lua"
+target = "game.lua"
 pattern = "if self.real_dt > 0.05 then print('LONG DT @ '..math.floor(G.TIMERS.REAL)..': '..self.real_dt) end"
 position = "at"
 payload = ''
