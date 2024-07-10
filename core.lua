@@ -181,6 +181,16 @@ function global.handleKeys(controller, key, dt)
     for i, v in ipairs(saveStateKeys) do
         if key == v and love.keyboard.isDown("z") then
             if G.STAGE == G.STAGES.RUN then
+                if not (
+                    G.STATE == G.STATES.TAROT_PACK
+                    or G.STATE == G.STATES.PLANET_PACK
+                    or G.STATE == G.STATES.SPECTRAL_PACK
+                    or G.STATE == G.STATES.STANDARD_PACK
+                    or G.STATE == G.STATES.BUFFOON_PACK
+                    or G.STATE == G.STATES.SMODS_BOOSTER_OPENED
+                ) then
+                    save_run()
+                end
                 compress_and_save(G.SETTINGS.profile .. '/' .. 'debugsave' .. v .. '.jkr', G.ARGS.save_run)
                 log("Saved to slot", v)
             end
