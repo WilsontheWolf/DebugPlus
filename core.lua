@@ -101,7 +101,24 @@ local function getRanks()
     return ranks
 end
 
-function global.consoleHandleKey(controller, key, dt)
+local function runCommand() 
+    if inputText == "" then return end
+    handleLog({1, 0, 1}, "> " .. inputText)
+
+    local args = {}
+    for w in string.gmatch(inputText, "%a+") do
+        table.insert(args, w)
+    end
+    local cmd = table.remove(args, 1)
+    log("Command:", cmd)
+    log("args:", inspect(args))
+
+
+    -- Cleanup
+    inputText = ""
+end
+
+function global.consoleHandleKey(controller, key)
     if not consoleOpen then
         if key == '/' then
             if love.keyboard.isDown('lshift') then
@@ -113,7 +130,6 @@ function global.consoleHandleKey(controller, key, dt)
         return true
     end
 
-    log("Key:", key)
     if key == "escape" then
         consoleOpen = false
         inputText = ""
@@ -131,7 +147,11 @@ function global.consoleHandleKey(controller, key, dt)
     end
 
     if key == "return" then
-
+        if love.keyboard.isDown('lshift') then
+            inputText = inputText .. "\n"
+        else
+            runCommand()
+        end
     end
 
 end
@@ -144,7 +164,6 @@ function love.textinput(t)
     if not consoleOpen then
         return
     end
-    log("text:", t)
     inputText = inputText .. t
 end
 
@@ -508,7 +527,7 @@ local function calcHeight(text, width)
     local rw, lines = font:getWrap(text, width)
     local lineHeight = font:getHeight()
 
-    return #lines * lineHeight, rw
+    return #lines * lineHeight, rw, lineHeight
 end
 
 global.registerLogHandler = function()
@@ -543,10 +562,10 @@ global.doConsoleRender = function()
     love.graphics.setColor(0, 0, 0, .5)
     if consoleOpen then
         bottom = bottom - padding * 2
-        local lineHeight, realWidth = calcHeight(inputText, lineWidth)
+        local lineHeight, realWidth, singleLineHeight = calcHeight(inputText, lineWidth)
         love.graphics.rectangle("fill", padding, bottom - lineHeight + padding, lineWidth, lineHeight + padding * 2)
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.printf(inputText, padding * 2, bottom, lineWidth - padding * 2)
+        love.graphics.printf(inputText, padding * 2, bottom - lineHeight + singleLineHeight, lineWidth - padding * 2)
 
         bottom = bottom - lineHeight - padding * 2
     end
