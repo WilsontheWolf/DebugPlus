@@ -20,12 +20,8 @@ local logs = nil
 local commands = {{
     name = "echo",
     source = "debugplus",
-    exec = function(args)
-        local out = ""
-        for i, v in ipairs(args) do
-            out = out .. " " .. v
-        end
-        return out
+    exec = function(args, rawArgs)
+        return rawArgs
     end
 }}
 local inputText = ""
@@ -160,11 +156,12 @@ local function runCommand()
 
     handleLog({1, 0, 1}, "INFO", "> " .. inputText)
 
+    local cmdName = string.lower(string.gsub(inputText, "^(%S+).*", "%1"))
+    local rawArgs = string.gsub(inputText, "^%S+%s*(.*)", "%1")
     local args = {}
-    for w in string.gmatch(inputText, "%S+") do
+    for w in string.gmatch(rawArgs, "%S+") do
         table.insert(args, w)
     end
-    local cmdName = string.lower(table.remove(args, 1))
 
     inputText = ""
     consoleOpen = false
@@ -183,7 +180,7 @@ local function runCommand()
     if not cmd then
         return handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
     end
-    local success, result = pcall(cmd.exec, args)
+    local success, result = pcall(cmd.exec, args, rawArgs)
     if not success then
         return handleLog({1, 0, 0}, "ERROR", "< An error occured processing the command:", result)
     end
