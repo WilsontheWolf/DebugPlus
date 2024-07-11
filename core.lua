@@ -17,6 +17,17 @@ local openNextFrame = false
 local showNewLogs = true
 local firstConsoleRender = nil
 local logs = nil
+local commands = {{
+    name = "echo",
+    source = "debugplus",
+    exec = function(args)
+        local out = ""
+        for i, v in ipairs(args) do
+            out = out .. " " .. v
+        end
+        return out
+    end
+}}
 local inputText = ""
 local old_print = print
 local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: (%S+) :: (.*)"
@@ -47,7 +58,7 @@ local SMODSLevelMeta = {
     }
 }
 
-local function handleLog(colour, ...)
+local function handleLog(colour, _level, ...)
     old_print(...)
     local _str = ""
     for i, v in ipairs({...}) do
@@ -61,7 +72,7 @@ local function handleLog(colour, ...)
             str = _str,
             time = love.timer.getTime(),
             colour = colour,
-            level = "INFO"
+            level = _level
         }
     else
         local levelMeta = SMODSLevelMeta[level] or SMODSLevelMeta.INFO
@@ -80,7 +91,7 @@ local function handleLog(colour, ...)
 end
 
 local function log(...)
-    handleLog({.65, .36, 1}, "[DebugPlus]", ...)
+    handleLog({.65, .36, 1}, "INFO", "[DebugPlus]", ...)
 end
 
 local function has_value(tab, val)
@@ -146,18 +157,41 @@ local function runCommand()
     if inputText == "" then
         return
     end
-    handleLog({1, 0, 1}, "> " .. inputText)
+
+    handleLog({1, 0, 1}, "INFO", "> " .. inputText)
 
     local args = {}
-    for w in string.gmatch(inputText, "%a+") do
+    for w in string.gmatch(inputText, "%S+") do
         table.insert(args, w)
     end
-    local cmd = table.remove(args, 1)
-    log("Command:", cmd)
-    log("args:", inspect(args))
+    local cmdName = string.lower(table.remove(args, 1))
 
-    -- Cleanup
     inputText = ""
+    consoleOpen = false
+
+    local cmd
+    for i, c in ipairs(commands) do
+        if c.source .. ":" .. c.name == cmdName then
+            cmd = c
+            break
+        end
+        if c.name == cmdName then
+            cmd = c
+            break
+        end
+    end
+    if not cmd then
+        return handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
+    end
+    local success, result = pcall(cmd.exec, args)
+    if not success then
+        return handleLog({1, 0, 0}, "ERROR", "< An error occured processing the command:", result)
+    end
+    if success and success ~= "" then
+        return handleLog({1, 1, 1}, "INFO", "<", result)
+    else
+        return handleLog({1, 1, 1}, "INFO", "< Command exited without a response.")
+    end
 end
 
 function global.consoleHandleKey(controller, key)
@@ -613,7 +647,7 @@ global.registerLogHandler = function()
     end
     logs = {}
     print = function(...)
-        handleLog({0, 1, 1}, ...)
+        handleLog({0, 1, 1}, "INFO", ...)
     end
 end
 
@@ -668,7 +702,7 @@ global.doConsoleRender = function()
             break
         end
         local msg = v.str
-        if consoleOpen then 
+        if consoleOpen then
             msg = "[" .. string.sub(v.level, 1, 1) .. "] " .. msg
         end
         local lineHeight, realWidth = calcHeight(msg, lineWidth)
