@@ -150,6 +150,77 @@ function global.handleKeys(controller, key, dt)
                 end
             end
         end
+		-- this might break things
+        -- or it might WORK ON MY FIRST F#CKING TRY LETS GOOOOOOOOOOOO
+		-- randomaster13 here, this is taken from the strength tarot card
+        if key == 'up' then
+            if _card.playing_card then
+                local suit_prefix = string.sub(_card.base.suit, 1, 1)..'_'
+                local rank_suffix = _card.base.id == 14 and 2 or math.min(_card.base.id+1, 14) -- the rank of the card is increased here.
+                if rank_suffix < 10 then rank_suffix = tostring(rank_suffix)
+                elseif rank_suffix == 10 then rank_suffix = 'T'
+                elseif rank_suffix == 11 then rank_suffix = 'J'
+                elseif rank_suffix == 12 then rank_suffix = 'Q'
+                elseif rank_suffix == 13 then rank_suffix = 'K'
+                elseif rank_suffix == 14 then rank_suffix = 'A'
+                end
+                _card:set_base(G.P_CARDS[suit_prefix..rank_suffix])
+            end
+        end
+        if key == 'down' then
+            if _card.playing_card then
+                local suit_prefix = string.sub(_card.base.suit, 1, 1)..'_'
+                if _card.base.id == 2 then _card.base.id = 15
+                end
+                local rank_suffix = _card.base.id == 2 and 14 or math.min(_card.base.id-1, 14) -- the rank of the card is decreased here.
+                if rank_suffix < 10 then rank_suffix = tostring(rank_suffix)
+                elseif rank_suffix == 10 then rank_suffix = 'T'
+                elseif rank_suffix == 11 then rank_suffix = 'J'
+                elseif rank_suffix == 12 then rank_suffix = 'Q'
+                elseif rank_suffix == 13 then rank_suffix = 'K'
+                elseif rank_suffix == 14 then rank_suffix = 'A'
+                end
+                _card:set_base(G.P_CARDS[suit_prefix..rank_suffix]) -- like in the strength tarot card this just applies the changes.
+            end
+        end
+        if key == 'right' then
+            if _card.playing_card then
+                local suit_prefix = string.sub(_card.base.suit, 1, 1)..'_'
+                local rank_suffix = _card.base.id
+                if rank_suffix < 10 then rank_suffix = tostring(rank_suffix) -- I think this is nessecary because the _card:set_base
+                elseif rank_suffix == 10 then rank_suffix = 'T'				 -- function needs the rank suffix for the card.
+                elseif rank_suffix == 11 then rank_suffix = 'J'
+                elseif rank_suffix == 12 then rank_suffix = 'Q'
+                elseif rank_suffix == 13 then rank_suffix = 'K'
+                elseif rank_suffix == 14 then rank_suffix = 'A'
+                end
+                if suit_prefix == 'D_' then suit_prefix = 'C_' -- this part is probably inefficient and messy becasue I wrote it-
+                elseif suit_prefix == 'C_' then suit_prefix = 'H_' -- and didn't wanna make a table for good reasons. (I'm lazy)
+                elseif suit_prefix == 'H_' then suit_prefix = 'S_' -- the if / elseif statements take the suits and
+                elseif suit_prefix == 'S_' then suit_prefix = 'D_' --  just change it to the next one in the arbitrary sequence I came up with
+                end
+                _card:set_base(G.P_CARDS[suit_prefix..rank_suffix]) -- like in the strength tarot card this just applies the changes.
+            end
+        end
+        if key == 'left' then
+            if _card.playing_card then
+                local suit_prefix = string.sub(_card.base.suit, 1, 1)..'_'
+                local rank_suffix = _card.base.id
+                if rank_suffix < 10 then rank_suffix = tostring(rank_suffix)
+                elseif rank_suffix == 10 then rank_suffix = 'T'
+                elseif rank_suffix == 11 then rank_suffix = 'J'
+                elseif rank_suffix == 12 then rank_suffix = 'Q'
+                elseif rank_suffix == 13 then rank_suffix = 'K'
+                elseif rank_suffix == 14 then rank_suffix = 'A'
+                end
+                if suit_prefix == 'D_' then suit_prefix = 'S_'
+                elseif suit_prefix == 'S_' then suit_prefix = 'H_'
+                elseif suit_prefix == 'H_' then suit_prefix = 'C_'
+                elseif suit_prefix == 'C_' then suit_prefix = 'D_'
+                end
+                _card:set_base(G.P_CARDS[suit_prefix..rank_suffix])
+            end
+        end
     end
 
     if key == '/' then
