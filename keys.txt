@@ -25,3 +25,5 @@ Hold z + 1-3: Save state to slot
 hold x + 1-3: Load state from slot
 R: Destroy Card
 C: Duplicate Card
+up / down: increase / decrease rank
+left / right: cycle suit
