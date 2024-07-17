@@ -2,6 +2,8 @@ local global = {}
 
 local enhancements = nil
 local seals = nil
+local suits = nil
+local ranks = nil
 local saveStateKeys = {"1", "2", "3"}
 local consoleOpen = false
 local showNewLogs = true
@@ -9,7 +11,7 @@ local firstConsoleRender
 local old_print = print
 local logs = nil
 
-local function handleLog(colour, ...) 
+local function handleLog(colour, ...)
     old_print(...)
     local _str = ""
     for i, v in ipairs({...}) do
@@ -27,8 +29,18 @@ local function handleLog(colour, ...)
 
 end
 
-local function log(...) 
-    handleLog({.65, .36, 1}, "[DebugPlus]", ...) 
+local function log(...)
+    handleLog({.65, .36, 1}, "[DebugPlus]", ...)
+end
+
+local function has_value(tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function getSeals()
@@ -54,6 +66,31 @@ local function getEnhancements()
     return enhancements
 end
 
+local function getSuits()
+    if suits then
+        return suits
+    end
+    suits = {}
+    for k, v in pairs(G.C.SUITS) do
+        table.insert(suits, k)
+    end
+    return suits
+end
+
+local function getRanks()
+    if ranks then
+        return ranks
+    end
+    ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"} -- No built in api for this, yippe
+    if SMODS and SMODS.Ranks then
+        for k, v in pairs(SMODS.Ranks) do
+            if not has_value(ranks, v.key) then
+                table.insert(ranks, v.key)
+            end
+        end
+    end
+    return ranks
+end
 
 function global.handleKeys(controller, key, dt)
     if controller.hovering.target and controller.hovering.target:is(Card) then
@@ -150,75 +187,112 @@ function global.handleKeys(controller, key, dt)
                 end
             end
         end
-		-- this might break things
-        -- or it might WORK ON MY FIRST F#CKING TRY LETS GOOOOOOOOOOOO
-		-- randomaster13 here, this is taken from the strength tarot card
         if key == 'up' then
             if _card.playing_card then
-                local suit_prefix = string.sub(_card.base.suit, 1, 1)..'_'
-                local rank_suffix = _card.base.id == 14 and 2 or math.min(_card.base.id+1, 14) -- the rank of the card is increased here.
-                if rank_suffix < 10 then rank_suffix = tostring(rank_suffix)
-                elseif rank_suffix == 10 then rank_suffix = 'T'
-                elseif rank_suffix == 11 then rank_suffix = 'J'
-                elseif rank_suffix == 12 then rank_suffix = 'Q'
-                elseif rank_suffix == 13 then rank_suffix = 'K'
-                elseif rank_suffix == 14 then rank_suffix = 'A'
+                for i, v in ipairs(getRanks()) do
+                    if _card.base.value == v then
+                        local _next = i + 1
+                        if _next > #ranks then
+                            local new_card
+                            for i, c in pairs(G.P_CARDS) do
+                                if c.value == ranks[1] and c.suit == _card.base.suit then
+                                    new_card = c
+                                    break
+                                end
+                            end
+                            if not new_card then
+                                log("Error: Could not find card with rank", ranks[1], "and suit", _card.base.suit)
+                                return
+                            end
+                            _card:set_base(new_card)
+                            G.GAME.blind:debuff_card(_card)
+                        else
+                            local new_card
+                            for i, c in pairs(G.P_CARDS) do
+                                if c.value == ranks[_next] and c.suit == _card.base.suit then
+                                    new_card = c
+                                    break
+                                end
+                            end
+                            if not new_card then
+                                log("Error: Could not find card with rank", ranks[_next], "and suit", _card.base.suit)
+                                return
+                            end
+                            _card:set_base(new_card)
+                            G.GAME.blind:debuff_card(_card)
+                        end
+                        break
+                    end
                 end
-                _card:set_base(G.P_CARDS[suit_prefix..rank_suffix])
             end
         end
         if key == 'down' then
             if _card.playing_card then
-                local suit_prefix = string.sub(_card.base.suit, 1, 1)..'_'
-                if _card.base.id == 2 then _card.base.id = 15
+                for i, v in ipairs(getRanks()) do
+                    if _card.base.value == v then
+                        local _next = i - 1
+                        if _next < 1 then
+                            local new_card
+                            for i, c in pairs(G.P_CARDS) do
+                                if c.value == ranks[#ranks] and c.suit == _card.base.suit then
+                                    new_card = c
+                                    break
+                                end
+                            end
+                            if not new_card then
+                                log("Error: Could not find card with rank", ranks[#ranks], "and suit", _card.base.suit)
+                                return
+                            end
+                            _card:set_base(new_card)
+                            G.GAME.blind:debuff_card(_card)
+                        else
+                            local new_card
+                            for i, c in pairs(G.P_CARDS) do
+                                if c.value == ranks[_next] and c.suit == _card.base.suit then
+                                    new_card = c
+                                    break
+                                end
+                            end
+                            if not new_card then
+                                log("Error: Could not find card with rank", ranks[_next], "and suit", _card.base.suit)
+                                return
+                            end
+                            _card:set_base(new_card)
+                            G.GAME.blind:debuff_card(_card)
+                        end
+                        break
+                    end
                 end
-                local rank_suffix = _card.base.id == 2 and 14 or math.min(_card.base.id-1, 14) -- the rank of the card is decreased here.
-                if rank_suffix < 10 then rank_suffix = tostring(rank_suffix)
-                elseif rank_suffix == 10 then rank_suffix = 'T'
-                elseif rank_suffix == 11 then rank_suffix = 'J'
-                elseif rank_suffix == 12 then rank_suffix = 'Q'
-                elseif rank_suffix == 13 then rank_suffix = 'K'
-                elseif rank_suffix == 14 then rank_suffix = 'A'
-                end
-                _card:set_base(G.P_CARDS[suit_prefix..rank_suffix]) -- like in the strength tarot card this just applies the changes.
             end
         end
         if key == 'right' then
             if _card.playing_card then
-                local suit_prefix = string.sub(_card.base.suit, 1, 1)..'_'
-                local rank_suffix = _card.base.id
-                if rank_suffix < 10 then rank_suffix = tostring(rank_suffix) -- I think this is nessecary because the _card:set_base
-                elseif rank_suffix == 10 then rank_suffix = 'T'				 -- function needs the rank suffix for the card.
-                elseif rank_suffix == 11 then rank_suffix = 'J'
-                elseif rank_suffix == 12 then rank_suffix = 'Q'
-                elseif rank_suffix == 13 then rank_suffix = 'K'
-                elseif rank_suffix == 14 then rank_suffix = 'A'
+                for i, v in ipairs(getSuits()) do
+                    if _card.base.suit == v then
+                        local _next = i + 1
+                        if _next > #suits then
+                            _card:change_suit(suits[1])
+                        else
+                            _card:change_suit(suits[_next])
+                        end
+                        break
+                    end
                 end
-                if suit_prefix == 'D_' then suit_prefix = 'C_' -- this part is probably inefficient and messy becasue I wrote it-
-                elseif suit_prefix == 'C_' then suit_prefix = 'H_' -- and didn't wanna make a table for good reasons. (I'm lazy)
-                elseif suit_prefix == 'H_' then suit_prefix = 'S_' -- the if / elseif statements take the suits and
-                elseif suit_prefix == 'S_' then suit_prefix = 'D_' --  just change it to the next one in the arbitrary sequence I came up with
-                end
-                _card:set_base(G.P_CARDS[suit_prefix..rank_suffix]) -- like in the strength tarot card this just applies the changes.
             end
         end
         if key == 'left' then
             if _card.playing_card then
-                local suit_prefix = string.sub(_card.base.suit, 1, 1)..'_'
-                local rank_suffix = _card.base.id
-                if rank_suffix < 10 then rank_suffix = tostring(rank_suffix)
-                elseif rank_suffix == 10 then rank_suffix = 'T'
-                elseif rank_suffix == 11 then rank_suffix = 'J'
-                elseif rank_suffix == 12 then rank_suffix = 'Q'
-                elseif rank_suffix == 13 then rank_suffix = 'K'
-                elseif rank_suffix == 14 then rank_suffix = 'A'
+                for i, v in ipairs(getSuits()) do
+                    if _card.base.suit == v then
+                        local _next = i - 1
+                        if _next < 1 then
+                            _card:change_suit(suits[#suits])
+                        else
+                            _card:change_suit(suits[_next])
+                        end
+                        break
+                    end
                 end
-                if suit_prefix == 'D_' then suit_prefix = 'S_'
-                elseif suit_prefix == 'S_' then suit_prefix = 'H_'
-                elseif suit_prefix == 'H_' then suit_prefix = 'C_'
-                elseif suit_prefix == 'C_' then suit_prefix = 'D_'
-                end
-                _card:set_base(G.P_CARDS[suit_prefix..rank_suffix])
             end
         end
     end
@@ -334,7 +408,7 @@ local function calcHeight(text, width)
     local font = love.graphics.getFont()
     local rw, lines = font:getWrap(text, width)
     local lineHeight = font:getHeight()
-    
+
     return #lines * lineHeight, rw
 end
 
@@ -381,10 +455,10 @@ global.doConsoleRender = function()
         end
 
         local opacityPercent = 1
-        if not consoleOpen and age > showTime then 
+        if not consoleOpen and age > showTime then
             opacityPercent = (fadeTime - (age - showTime)) / fadeTime
         end
-        
+
         if not consoleOpen then
             love.graphics.setColor(0, 0, 0, .5 * opacityPercent)
             love.graphics.rectangle("fill", padding, bottom, lineWidth, lineHeight)
