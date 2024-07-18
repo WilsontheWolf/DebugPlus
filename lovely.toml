@@ -3,6 +3,20 @@ version = "1.0.0"
 dump_lua = true
 priority = 0
 
+# Modules
+[[patches]]
+[patches.module]
+source = "console.lua"
+before = "main.lua"
+name = "debugplus-console"
+
+[[patches]]
+[patches.module]
+source = "core.lua"
+before = "engine/controller.lua"
+name = "debugplus-core"
+
+# Core 
 [[patches]]
 [patches.pattern]
 target = "conf.lua"
@@ -111,12 +125,6 @@ payload = '''
 match_indent = true
 overwrite = true
 
-[[patches]]
-[patches.module]
-source = "core.lua"
-before = "main.lua"
-name = "debugplus-core"
-
 # Console Stuff:
 
 [[patches]]
@@ -126,8 +134,8 @@ pattern = 'require "engine/object"'
 position = "before"
 payload = '''
 do
-    local debugplus = require("debugplus-core")
-    debugplus.registerLogHandler()
+    local console = require("debugplus-console")
+    console.registerLogHandler()
 end
 '''
 match_indent = true
@@ -140,8 +148,8 @@ pattern = 'G:draw()'
 position = "after"
 payload = '''
 do
-    local debugplus = require("debugplus-core")
-    debugplus.doConsoleRender()
+    local console = require("debugplus-console")
+    console.doConsoleRender()
 end
 '''
 match_indent = true
@@ -162,8 +170,8 @@ target = "engine/controller.lua"
 pattern = 'function Controller:key_press_update(key, dt)'
 position = "after"
 payload = '''
-local debugplus = require("debugplus-core")
-if not debugplus.consoleHandleKey(self, key) then return end
+local console = require("debugplus-console")
+if not console.consoleHandleKey(self, key) then return end
 '''
 match_indent = true
 overwrite = false
