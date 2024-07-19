@@ -1,3 +1,4 @@
+local util = require("debugplus-util")
 local utf8 = require("utf8")
 
 local global = {}
@@ -12,18 +13,36 @@ local logs = nil
 local commands = {{
     name = "echo",
     source = "debugplus",
-    exec = function(args, rawArgs)
+    exec = function(args, rawArgs, dp)
         return rawArgs
+    end
+},
+{
+    name = "eval",
+    source = "debugplus",
+    exec = function(args, rawArgs, dp)
+        local env = {}
+        for k,v in pairs(_G) do 
+            env[k] = v
+        end
+        env.dp = dp
+        local func, err = load("return " .. rawArgs, "DebugPlus Eval", "t", env)
+        if not func then
+            func, err = load(rawArgs, "DebugPlus Eval", "t", env)
+        end
+        if not func then 
+            return "Syntax Error: " .. err, "ERROR"
+        end
+        local success, res = pcall(func)
+        if not success then
+            return "Error: " .. res, "ERROR"
+        end
+        return util.stringifyTable(res)
     end
 }}
 local inputText = ""
 local old_print = print
-local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: (%S+) :: (.*)"
-local SMODSLevelMeta = {
-    TRACE = {
-        level = 'DEBUG',
-        colour = {1, 0, 1}
-    },
+local levelMeta = {
     DEBUG = {
         level = 'DEBUG',
         colour = {1, 0, 1}
@@ -40,10 +59,15 @@ local SMODSLevelMeta = {
         level = 'ERROR',
         colour = {1, 0, 0}
     },
-    FATAL = {
-        level = 'ERROR',
-        colour = {1, 0, 0}
-    }
+}
+local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: (%S+) :: (.*)"
+local SMODSLevelMeta = {
+    TRACE = levelMeta.DEBUG,
+    DEBUG = levelMeta.DEBUG,
+    INFO = levelMeta.INFO,
+    WARN = levelMeta.WARN,
+    ERROR = levelMeta.ERROR,
+    FATAL = levelMeta.ERROR
 }
 
 local function handleLog(colour, _level, ...)
@@ -114,21 +138,24 @@ local function runCommand()
     if not cmd then
         return handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
     end
-    local success, result = pcall(cmd.exec, args, rawArgs)
+    local dp = {test = "testing"}
+    local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
         return handleLog({1, 0, 0}, "ERROR", "< An error occured processing the command:", result)
     end
+    local level = loglevel or "INFO" -- TODO: verify correctness
+    local colour = colourOverride or levelMeta[level].colour
     if success and success ~= "" then
-        return handleLog({1, 1, 1}, "INFO", "<", result)
+        return handleLog(colour, level, "<", result)
     else
-        return handleLog({1, 1, 1}, "INFO", "< Command exited without a response.")
+        return handleLog(colour, level, "< Command exited without a response.")
     end
 end
 
 function global.consoleHandleKey(controller, key)
     if not consoleOpen then
         if key == '/' then
-            if love.keyboard.isDown('lshift') then
+            if util.isShiftDown() then
                 showNewLogs = not showNewLogs
             else
                 openNextFrame = true -- This is to prevent the keyboad handler from typing this key
@@ -154,11 +181,15 @@ function global.consoleHandleKey(controller, key)
     end
 
     if key == "return" then
-        if love.keyboard.isDown('lshift') then
+        if util.isShiftDown() then
             inputText = inputText .. "\n"
         else
             runCommand()
         end
+    end
+
+    if key == "v" and util.isCtrlDown() then
+        inputText = inputText .. love.system.getClipboardText()
     end
 
 end
@@ -209,12 +240,6 @@ global.doConsoleRender = function()
     if firstConsoleRender == nil then
         firstConsoleRender = now
         log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
-        sendTraceMessage("Hello chat.", 'ExampleLogger')
-        sendDebugMessage("Hello chat.", 'ExampleLogger')
-        sendInfoMessage("Hello chat.", 'ExampleLogger')
-        sendWarnMessage("Hello chat.", 'ExampleLogger')
-        sendErrorMessage("Hello chat.", 'ExampleLogger')
-        sendFatalMessage("Hello chat.", 'ExampleLogger')
     end
     -- Input Box
     love.graphics.setColor(0, 0, 0, .5)
