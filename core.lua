@@ -1,4 +1,5 @@
 local console = require("debugplus-console")
+local util = require("debugplus-util")
 local global = {}
 
 local enhancements = nil
@@ -7,16 +8,6 @@ local suits = nil
 local ranks = nil
 local saveStateKeys = {"1", "2", "3"}
 local log = console.log
-
-local function has_value(tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return true
-        end
-    end
-
-    return false
-end
 
 local function getSeals()
     if seals then
@@ -59,7 +50,7 @@ local function getRanks()
     ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"} -- No built in api for this, yippe
     if SMODS and SMODS.Ranks then
         for k, v in pairs(SMODS.Ranks) do
-            if not has_value(ranks, v.key) then
+            if not util.hasValue(ranks, v.key) then
                 table.insert(ranks, v.key)
             end
         end
