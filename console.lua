@@ -213,7 +213,7 @@ local function calcHeight(text, width)
     return #lines * lineHeight, rw, lineHeight
 end
 
-global.registerLogHandler = function()
+function global.registerLogHandler()
     if logs then
         return
     end
@@ -223,7 +223,7 @@ global.registerLogHandler = function()
     end
 end
 
-global.doConsoleRender = function()
+function global.doConsoleRender()
     if openNextFrame then
         consoleOpen = true
         openNextFrame = false
@@ -289,6 +289,12 @@ global.doConsoleRender = function()
         love.graphics.setColor(v.colour[1], v.colour[2], v.colour[3], opacityPercent)
 
         love.graphics.printf(msg, padding * 2, bottom, lineWidth - padding * 2)
+    end
+end
+
+function global.createLogFn(name, level)
+    return function(...)
+        handleLog(levelMeta[level].colour, level, "[" .. name .. "]", ...)
     end
 end
 
