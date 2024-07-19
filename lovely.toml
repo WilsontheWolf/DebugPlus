@@ -6,6 +6,12 @@ priority = 0
 # Modules
 [[patches]]
 [patches.module]
+source = "util.lua"
+before = "main.lua"
+name = "debugplus-util"
+
+[[patches]]
+[patches.module]
 source = "console.lua"
 before = "main.lua"
 name = "debugplus-console"
