@@ -18,6 +18,12 @@ name = "debugplus-console"
 
 [[patches]]
 [patches.module]
+source = "api.lua"
+before = "main.lua"
+name = "debugplus-api"
+
+[[patches]]
+[patches.module]
 source = "core.lua"
 before = "engine/controller.lua"
 name = "debugplus-core"
