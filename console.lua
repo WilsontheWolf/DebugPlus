@@ -11,6 +11,8 @@ local showNewLogs = true
 local firstConsoleRender = nil
 local logs = nil
 local commands = nil
+local controller = nil
+
 commands = {{
     name = "echo",
     source = "debugplus",
@@ -175,7 +177,8 @@ local function runCommand()
         return handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
     end
     local dp = {
-        test = "testing"
+        test = "testing",
+        hovered = controller.hovering.target,
     }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
@@ -190,13 +193,14 @@ local function runCommand()
     end
 end
 
-function global.consoleHandleKey(controller, key)
+function global.consoleHandleKey(_controller, key)
     if not consoleOpen then
         if key == '/' then
             if util.isShiftDown() then
                 showNewLogs = not showNewLogs
             else
-                openNextFrame = true -- This is to prevent the keyboad handler from typing this key
+                controller = _controller
+                openNextFrame = true -- This is to prevent the keyboard handler from typing this key
             end
         end
         return true
