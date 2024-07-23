@@ -26,6 +26,12 @@ local function createLogger(name)
     }
 end
 
+local function createCommandRegister(id) 
+    return function (options) 
+        return console.registerCommand(id, options)
+    end
+end
+
 function global.registerID(name)
     if not name then
         return false, "Name not provided"
@@ -35,7 +41,8 @@ function global.registerID(name)
         return false, "ID " .. id .." already exists"
     end
     local ret = {
-        logger = createLogger(name)
+        logger = createLogger(name),
+        addCommand = createCommandRegister(id)
     }
     return ret
 end
