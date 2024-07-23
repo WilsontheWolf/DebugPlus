@@ -10,12 +10,22 @@ local logger = {
     debug = print,
     info = print,
     warn = print,
-    error = print, 
+    error = print
 }
 
 if success and dpAPI.isVersionCompatible(0) then
     local debugplus = dpAPI.registerID("Example")
     logger = debugplus.logger
+
+    debugplus.addCommand({
+        name = "test",
+        shortDesc = "Testing Comamnd",
+        desc = "COmmand to test all the things",
+        exec = function (args, rawArgs, dp)
+            error("Shit's erroring")
+            return "Hello chat", "INFO", {1, 0, 1}
+        end
+    })
 end
 
 logger.log("Hi")
