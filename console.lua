@@ -10,19 +10,55 @@ local openNextFrame = false
 local showNewLogs = true
 local firstConsoleRender = nil
 local logs = nil
-local commands = {{
+local commands = nil
+commands = {{
     name = "echo",
     source = "debugplus",
+    shortDesc = "Repeat's what you say",
+    desc = "Mostly just a testing command. Outputs what you input.",
     exec = function(args, rawArgs, dp)
         return rawArgs
     end
-},
-{
+}, {
+    name = "help",
+    source = "debugplus",
+    shortDesc = "Get command info",
+    desc = "Get's help about commands. When run without args, lists all commands and their short descriptions. When run with a command name, shows info about that command.",
+    exec = function(args, rawArgs, dp)
+        local toLookup = args[1]
+        if not toLookup then
+            local out = "Help:\nBelow is a list of commands.\n"
+            for k, v in ipairs(commands) do
+                out = out .. v.name .. ": " .. v.shortDesc .. "\n"
+            end
+            out = out .. "\nFor more information about a specific command, run 'help <commandName>'"
+            return out
+        end
+        local cmdName = string.lower(string.gsub(toLookup, "^(%S+).*", "%1"))
+        local cmd
+        for i, c in ipairs(commands) do
+            if c.source .. ":" .. c.name == cmdName then
+                cmd = c
+                break
+            end
+            if c.name == cmdName then
+                cmd = c
+                break
+            end
+        end
+        if not cmd then
+            return '"' .. cmdName .. '" could not be found. To see a list of all commands, run "help" without any args', "ERROR"
+        end
+        return cmd.name .. ":\n" .. cmd.desc .. "\n\nThis command can be run by typing '" .. cmd.name .. "'' or '" .. cmd.source .. ":" .. cmd.name .. "'."
+    end
+}, {
     name = "eval",
     source = "debugplus",
+    shortDesc = "Evaluate lua code",
+    desc = "Execute's lua code. This code has access to all the globals that the game has, as well as a dp object, with some DebugPlus specific stuff.",
     exec = function(args, rawArgs, dp)
         local env = {}
-        for k,v in pairs(_G) do 
+        for k, v in pairs(_G) do
             env[k] = v
         end
         env.dp = dp
@@ -30,7 +66,7 @@ local commands = {{
         if not func then
             func, err = load(rawArgs, "DebugPlus Eval", "t", env)
         end
-        if not func then 
+        if not func then
             return "Syntax Error: " .. err, "ERROR"
         end
         local success, res = pcall(func)
@@ -58,7 +94,7 @@ local levelMeta = {
     ERROR = {
         level = 'ERROR',
         colour = {1, 0, 0}
-    },
+    }
 }
 local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: (%S+) :: (.*)"
 local SMODSLevelMeta = {
@@ -138,7 +174,9 @@ local function runCommand()
     if not cmd then
         return handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
     end
-    local dp = {test = "testing"}
+    local dp = {
+        test = "testing"
+    }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
         return handleLog({1, 0, 0}, "ERROR", "< An error occured processing the command:", result)
@@ -296,6 +334,37 @@ function global.createLogFn(name, level)
     return function(...)
         handleLog(levelMeta[level].colour, level, "[" .. name .. "]", ...)
     end
+end
+
+function global.registerCommand(id, options)
+    if not options then
+        error("Options must be provided")
+    end
+    if not options.name and not string.match(options.name, "^[%l%d_-]$") then
+        error("Options.name must be provided and match pattern `^[%l%d_-]$`.")
+    end
+    if not options.exec or type(options.exec) ~= "function" then
+        error("Options.exec must be a function")
+    end
+    if not options.shortDesc or type(options.shortDesc) ~= "string" then
+        error("Options.shortDesc must be a string")
+    end
+    if not options.desc or type(options.desc) ~= "string" then
+        error("Options.desc must be a string")
+    end
+    local cmd = {
+        source = id,
+        name = options.name,
+        exec = options.exec,
+        shortDesc = options.shortDesc,
+        desc = options.desc
+    }
+    for k, v in ipairs(commands) do
+        if v.source == cmd.source and v.name == cmd.name then
+            error("This command already exists")
+        end
+    end
+    table.insert(commands, cmd)
 end
 
 return global
