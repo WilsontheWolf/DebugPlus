@@ -19,7 +19,7 @@ if success and dpAPI.isVersionCompatible(0) then
 
     debugplus.addCommand({
         name = "test",
-        shortDesc = "Testing Comamnd",
+        shortDesc = "Testing Command",
         desc = "COmmand to test all the things",
         exec = function (args, rawArgs, dp)
             error("Shit's erroring")
