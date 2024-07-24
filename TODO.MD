@@ -8,15 +8,17 @@ Todo list cause i have to much to remember
 - [x] Binding to id
 
 ## Commands
-- [ ] money
-- [ ] round
+- [x] eval
+- [x] money
+- [x] round
 - [ ] hand
 - [ ] discard
 - [ ] ante
-- [ ] help
+- [x] help
 - [ ] rank? 
 - [ ] bind (probably long term)
 - [ ] free rerolls (maybe more difficult)
+- [ ] spawn card?
 
 ## Misc
 - [ ] Config writing
