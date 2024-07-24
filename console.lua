@@ -49,9 +49,11 @@ commands = {{
             end
         end
         if not cmd then
-            return '"' .. cmdName .. '" could not be found. To see a list of all commands, run "help" without any args', "ERROR"
+            return '"' .. cmdName .. '" could not be found. To see a list of all commands, run "help" without any args',
+                "ERROR"
         end
-        return cmd.name .. ":\n" .. cmd.desc .. "\n\nThis command can be run by typing '" .. cmd.name .. "'' or '" .. cmd.source .. ":" .. cmd.name .. "'."
+        return cmd.name .. ":\n" .. cmd.desc .. "\n\nThis command can be run by typing '" .. cmd.name .. "'' or '" ..
+                   cmd.source .. ":" .. cmd.name .. "'."
     end
 }, {
     name = "eval",
@@ -76,6 +78,58 @@ commands = {{
             return "Error: " .. res, "ERROR"
         end
         return util.stringifyTable(res)
+    end
+}, {
+    name = "money",
+    source = "debugplus",
+    shortDesc = "Set or add money",
+    desc = "Set or add to your money. Usage:\nmoney set [amount] - Set your money to the given amount\nmoney add [amount] - Adds the given amount to your money.",
+    exec = function(args, rawArgs, dp)
+        if G.STAGE ~= G.STAGES.RUN then
+            return "This command must be run during a run.", "ERROR"
+        end
+        local subCmd = args[1]
+        local amount = tonumber(args[2])
+        if subCmd == "set" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.dollars = amount
+        elseif subCmd == "add" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.dollars = G.GAME.dollars + amount
+        else
+            return "Please choose whether you want to add or set. For more info, run 'help money'"
+        end
+        return "Money is now $" .. G.GAME.dollars
+    end
+}, {
+    name = "round",
+    source = "debugplus",
+    shortDesc = "Set or add to your round",
+    desc = "Set or add to your round. Usage:\nround set [amount] - Set the current round to the given amount\nround add [amount] - Adds the given number of rounds.",
+    exec = function(args, rawArgs, dp)
+        if G.STAGE ~= G.STAGES.RUN then
+            return "This command must be run during a run.", "ERROR"
+        end
+        local subCmd = args[1]
+        local amount = tonumber(args[2])
+        if subCmd == "set" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.round = amount
+        elseif subCmd == "add" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.round = G.GAME.round + amount
+        else
+            return "Please choose whether you want to add or set. For more info, run 'help money'"
+        end
+        return "Round is now " .. G.GAME.round
     end
 }}
 local inputText = ""
@@ -178,7 +232,7 @@ local function runCommand()
     end
     local dp = {
         test = "testing",
-        hovered = controller.hovering.target,
+        hovered = controller.hovering.target
     }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
