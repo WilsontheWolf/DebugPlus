@@ -10,6 +10,8 @@ local openNextFrame = false
 local showNewLogs = true
 local firstConsoleRender = nil
 local logs = nil
+local history = {}
+local currentHistory = nil
 local commands = nil
 local controller = nil
 
@@ -224,6 +226,9 @@ local function runCommand()
     end
 
     handleLog({1, 0, 1}, "INFO", "> " .. inputText)
+    if history[1] ~= inputText then
+        table.insert(history, 1, inputText)
+    end
 
     local cmdName = string.lower(string.gsub(inputText, "^(%S+).*", "%1"))
     local rawArgs = string.gsub(inputText, "^%S+%s*(.*)", "%1")
@@ -307,6 +312,29 @@ function global.consoleHandleKey(_controller, key)
         inputText = inputText .. love.system.getClipboardText()
     end
 
+    if key == "up" then
+        if currentHistory.index >= #history then
+            return
+        end
+        if currentHistory.index == 0 then
+            currentHistory.val = inputText
+        end
+        currentHistory.index = currentHistory.index + 1
+        inputText = history[currentHistory.index]
+    end
+
+    if key == "down" then
+        if currentHistory.index <= 0 then
+            return
+        end
+        currentHistory.index = currentHistory.index - 1
+        if currentHistory.index == 0 then
+           inputText = currentHistory.val
+        else
+           inputText = history[currentHistory.index]
+        end
+    end
+
 end
 
 local orig_textinput = love.textinput
@@ -342,6 +370,7 @@ function global.doConsoleRender()
     if openNextFrame then
         consoleOpen = true
         openNextFrame = false
+        currentHistory = {index = 0, val = ""}
     end
     if not consoleOpen and not showNewLogs then
         return
@@ -360,10 +389,11 @@ function global.doConsoleRender()
     love.graphics.setColor(0, 0, 0, .5)
     if consoleOpen then
         bottom = bottom - padding * 2
-        local lineHeight, realWidth, singleLineHeight = calcHeight(inputText, lineWidth)
+        local text = "> " .. inputText
+        local lineHeight, realWidth, singleLineHeight = calcHeight(text, lineWidth)
         love.graphics.rectangle("fill", padding, bottom - lineHeight + padding, lineWidth, lineHeight + padding * 2)
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.printf(inputText, padding * 2, bottom - lineHeight + singleLineHeight, lineWidth - padding * 2)
+        love.graphics.printf(text, padding * 2, bottom - lineHeight + singleLineHeight, lineWidth - padding * 2)
 
         bottom = bottom - lineHeight - padding * 2
     end
