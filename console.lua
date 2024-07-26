@@ -187,9 +187,28 @@ local function handleLog(colour, _level, ...)
             level = levelMeta.level
         }
     end
-    table.insert(logs, meta)
-    if #logs > 100 then
-        table.remove(logs, 1)
+    -- Dirty hack to work better with multiline text
+    if string.match(meta.str, "\n") then
+        local first = true
+        for w in string.gmatch(meta.str, "[^\n]+") do
+            local meta = {
+                str = w,
+                time = love.timer.getTime(),
+                colour = colour,
+                level = _level,
+                hack_no_prefix = not first
+            }
+            first = false
+            table.insert(logs, meta)
+            if #logs > 100 then
+                table.remove(logs, 1)
+            end
+        end
+    else
+        table.insert(logs, meta)
+        if #logs > 100 then
+            table.remove(logs, 1)
+        end
     end
 
 end
@@ -364,7 +383,7 @@ function global.doConsoleRender()
             break
         end
         local msg = v.str
-        if consoleOpen then
+        if consoleOpen and not v.hack_no_prefix then
             msg = "[" .. string.sub(v.level, 1, 1) .. "] " .. msg
         end
         local lineHeight, realWidth = calcHeight(msg, lineWidth)
