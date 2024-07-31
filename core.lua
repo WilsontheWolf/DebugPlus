@@ -298,7 +298,7 @@ function global.handleKeys(controller, key, dt)
     end
 
     if key == '/' then
-        if love.keyboard.isDown('lshift') then
+        if controller.held_keys['lshift'] or controller.held_keys['rshift'] then
             showNewLogs = not showNewLogs
         else
             consoleOpen = not consoleOpen
