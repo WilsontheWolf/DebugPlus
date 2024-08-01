@@ -24,7 +24,10 @@ Todo list cause i have to much to remember
 - [ ] Config writing
 - [ ] Better keybind ui
 - [ ] Docs
-- [ ] Command split so it can print long messages (kinda a hack)
+- [x] Command split so it can print long messages (kinda a hack)
 - [ ] Arrow keys
+    - [x] Up down
+    - [ ] Left right
 - [ ] Scroll
 - [ ] Rewrite text render (long term)
+- [ ] SMODS Config Page - WIP
