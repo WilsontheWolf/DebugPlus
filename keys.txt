@@ -27,3 +27,4 @@ R: Destroy Card
 C: Duplicate Card
 up / down: increase / decrease rank
 left / right: cycle suit
+M: Reload Atlases

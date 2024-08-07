@@ -296,6 +296,12 @@ function global.handleKeys(controller, key, dt)
             end
         end
     end
+    if key == "m" then
+        G.FUNCS.change_pixel_smoothing({
+            to_key = G.SETTINGS.GRAPHICS.texture_scaling
+        })
+        log("Reloaded Atlases")
+    end
 
     if key == '/' then
         if controller.held_keys['lshift'] or controller.held_keys['rshift'] then

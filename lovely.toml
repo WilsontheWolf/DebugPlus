@@ -76,19 +76,16 @@ payload = '''
     {n=G.UIT.T, config={text = "press [E] to cycle Seal", scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [A/S] to toggle Eternal/Perishable", scale = 0.25, colour = G.C.WHITE, shadow = true}}
-}},
-{n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [D] to toggle Rental", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = "press [A/S/D] to toggle Eternal/Perishable/Rental", scale = 0.2, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
     {n=G.UIT.T, config={text = "press [F] to toggle Coupon (make free)", scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [R] to destroy card", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = "press [R/C] to destroy/copy card", scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [C] to copy card", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = "press [M] to reload atlases", scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
     {n=G.UIT.T, config={text = "press [UP/DOWN] to cycle rank", scale = 0.2, colour = G.C.WHITE, shadow = true}}
