@@ -178,8 +178,8 @@ love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, 
 
 [[patches]]
 [patches.pattern]
-target = "engine/controller.lua"
-pattern = 'function Controller:key_press_update(key, dt)'
+target = "main.lua"
+pattern = 'function love.keypressed(key)'
 position = "after"
 payload = '''
 local console = require("debugplus-console")
