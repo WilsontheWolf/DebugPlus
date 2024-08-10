@@ -14,6 +14,7 @@ local history = {}
 local currentHistory = nil
 local commands = nil
 local controller = nil
+local logOffset = 0
 
 commands = {{
     name = "echo",
@@ -202,17 +203,22 @@ local function handleLog(colour, _level, ...)
             }
             first = false
             table.insert(logs, meta)
-            if #logs > 100 then
+            if logOffset ~= 0 then
+                logOffset = math.min(logOffset + 1, #logs)
+            end
+            if #logs > 1000 then
                 table.remove(logs, 1)
             end
         end
     else
         table.insert(logs, meta)
-        if #logs > 100 then
+        if logOffset ~= 0 then
+            logOffset = math.min(logOffset + 1, #logs)
+        end
+        if #logs > 1000 then
             table.remove(logs, 1)
         end
     end
-
 end
 
 local function log(...)
@@ -256,7 +262,7 @@ local function runCommand()
     end
     local dp = {
         test = "testing",
-        hovered = controller.hovering.target
+        hovered = G.CONTROLLER.hovering.target
     }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
@@ -348,6 +354,18 @@ function love.textinput(t)
     inputText = inputText .. t
 end
 
+local orig_wheelmoved = love.wheelmoved
+function love.wheelmoved(x, y)
+    if orig_wheelmoved then
+        orig_wheelmoved(x, y)
+    end
+    if not consoleOpen then
+        return
+    end
+    logOffset = math.min(math.max(logOffset + y, 0), #logs - 1)
+end
+
+
 local function calcHeight(text, width)
     local font = love.graphics.getFont()
     local rw, lines = font:getWrap(text, width)
@@ -371,6 +389,7 @@ function global.doConsoleRender()
         consoleOpen = true
         openNextFrame = false
         currentHistory = {index = 0, val = ""}
+        logOffset = 0
     end
     if not consoleOpen and not showNewLogs then
         return
@@ -405,6 +424,9 @@ function global.doConsoleRender()
     end
     for i = #logs, 1, -1 do
         local v = logs[i]
+        if consoleOpen and #logs - logOffset < i then
+            goto finishrender
+        end
         if not consoleOpen and v.time < firstConsoleRender then
             break
         end
@@ -434,6 +456,7 @@ function global.doConsoleRender()
         love.graphics.setColor(v.colour[1], v.colour[2], v.colour[3], opacityPercent)
 
         love.graphics.printf(msg, padding * 2, bottom, lineWidth - padding * 2)
+        ::finishrender::
     end
 end
 

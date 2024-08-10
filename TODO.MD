@@ -19,6 +19,7 @@ Todo list cause i have to much to remember
 - [ ] bind (probably long term)
 - [ ] free rerolls (maybe more difficult)
 - [ ] spawn card?
+- [ ] tutorial state
 
 ## Misc
 - [ ] Config writing
@@ -28,6 +29,6 @@ Todo list cause i have to much to remember
 - [ ] Arrow keys
     - [x] Up down
     - [ ] Left right
-- [ ] Scroll
+- [x] Scroll
 - [ ] Rewrite text render (long term)
 - [ ] SMODS Config Page - WIP
