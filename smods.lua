@@ -3,8 +3,7 @@
 --- MOD_ID: DebugPlus
 --- MOD_AUTHOR: [WilsontheWolf]
 --- MOD_DESCRIPTION: Better Debug Tools for Balatro 
---- PREFIX: DEBUGPLUS
-
+--- PREFIX: DebugPlus
 
 -- Steamodded is not necessary. This just adds a bit of compatibility.
 SMODS.Atlas({
@@ -12,7 +11,7 @@ SMODS.Atlas({
     path = "modicon.png",
     px = 32,
     py = 32
-}):register()
+})
 
 local config = {
     logLevel = "INFO",
@@ -32,6 +31,8 @@ local testValues = {
     debugMode = not _RELEASE_MODE
 }
 
+require('debugplus-config')()
+
 SMODS.current_mod.config_tab = function()
     return {
         -- ROOT NODE
@@ -49,6 +50,13 @@ SMODS.current_mod.config_tab = function()
                             ref_value = "debugMode",
                             callback = debugToggle,
                             info = {"Toggles everything in DebugPlus except the console"}
+                        }),
+                        create_toggle({
+                            label = "CTRL for keybinds",
+                            ref_table = testValues,
+                            ref_value = "debugMode",
+                            callback = debugToggle,
+                            info = {"Requires you hold ctrl when pressing the built in keybinds"}
                         }),
                         create_option_cycle({
                             options = {
@@ -69,3 +77,6 @@ SMODS.current_mod.config_tab = function()
         }
     }
 end
+
+function SMODS.current_mod.load_mod_config() end
+function SMODS.current_mod.save_mod_config() end

@@ -1,4 +1,5 @@
 local global = {}
+local isMac = love.system.getOS() == 'OS X'
 
 function global.stringifyTable(tab, depth, indent)
     if not indent then
@@ -35,6 +36,9 @@ function global.isShiftDown()
 end
 
 function global.isCtrlDown()
+    if isMac then 
+        return love.keyboard.isDown('lgui') or love.keyboard.isDown('rgui')
+    end
     return love.keyboard.isDown('lctrl') or love.keyboard.isDown('rctrl')
 end
 

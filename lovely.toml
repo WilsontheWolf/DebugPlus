@@ -10,6 +10,13 @@ source = "util.lua"
 before = "main.lua"
 name = "debugplus-util"
 
+# Modules
+[[patches]]
+[patches.module]
+source = "config.lua"
+before = "main.lua"
+name = "debugplus-config"
+
 [[patches]]
 [patches.module]
 source = "console.lua"
