@@ -328,18 +328,65 @@ function global.handleKeys(controller, key, dt)
             end
         end
     end
+    if _element and _element.config and _element.config.blind then
+        local _blind = _element.config.blind
+        if key == "2" then
+            G.P_BLINDS[_blind.key].unlocked = true
+            G.P_BLINDS[_blind.key].discovered = true
+            G.P_BLINDS[_blind.key].alerted = true
+            _element:set_sprite_pos(_blind.pos)
+            set_discover_tallies()
+            G:save_progress()
+        end
+        if key == "3" then
+            if G.STATE == G.STATES.BLIND_SELECT then
+                local par = G.blind_select_opts.boss.parent
+                G.GAME.round_resets.blind_choices.Boss = _blind.key
+
+                G.blind_select_opts.boss:remove()
+                G.blind_select_opts.boss = UIBox {
+                    T = {par.T.x, 0, 0, 0},
+                    definition = {
+                        n = G.UIT.ROOT,
+                        config = {
+                            align = "cm",
+                            colour = G.C.CLEAR
+                        },
+                        nodes = {UIBox_dyn_container({create_UIBox_blind_choice('Boss')}, false,
+                            get_blind_main_colour('Boss'), mix_colours(G.C.BLACK, get_blind_main_colour('Boss'), 0.8))}
+                    },
+                    config = {
+                        align = "bmi",
+                        offset = {
+                            x = 0,
+                            y = G.ROOM.T.y + 9
+                        },
+                        major = par,
+                        xy_bond = 'Weak'
+                    }
+                }
+                par.config.object = G.blind_select_opts.boss
+                par.config.object:recalculate()
+                G.blind_select_opts.boss.parent = par
+                G.blind_select_opts.boss.alignment.offset.y = 0
+
+                for i = 1, #G.GAME.tags do
+                    if G.GAME.tags[i]:apply_to_run({
+                        type = 'new_blind_choice'
+                    }) then
+                        break
+                    end
+                end
+            end
+        end
+    end
 
     for i, v in ipairs(saveStateKeys) do
         if key == v and love.keyboard.isDown("z") then
             if G.STAGE == G.STAGES.RUN then
-                if not (
-                    G.STATE == G.STATES.TAROT_PACK
-                    or G.STATE == G.STATES.PLANET_PACK
-                    or G.STATE == G.STATES.SPECTRAL_PACK
-                    or G.STATE == G.STATES.STANDARD_PACK
-                    or G.STATE == G.STATES.BUFFOON_PACK
-                    or G.STATE == G.STATES.SMODS_BOOSTER_OPENED
-                ) then
+                if not (G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.PLANET_PACK or G.STATE ==
+                    G.STATES.SPECTRAL_PACK or G.STATE == G.STATES.STANDARD_PACK or G.STATE == G.STATES.BUFFOON_PACK or
+                    G.STATE == G.STATES.SMODS_BOOSTER_OPENED) then
                     save_run()
                 end
                 compress_and_save(G.SETTINGS.profile .. '/' .. 'debugsave' .. v .. '.jkr', G.ARGS.save_run)
