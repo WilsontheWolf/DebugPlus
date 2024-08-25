@@ -155,3 +155,38 @@ pattern = 'love.graphics.print("Current FPS: "..fps, 10, 10)'
 position = "at"
 payload = '''
 love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {})), 10, 10)'''
+
+#
+## Better vanilla debugs
+#
+
+# Performance profiler enabled by pressing v, prints results to console.
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = '''print(G.prof.report()); G.prof = nil end'''
+position = "after"
+payload = '''
+    if G.prof then 
+        print "Enabled performance profiler. Press 'v' again to disable it."
+    else
+        print "Disabled performance profiler. Check console for results."
+    end
+'''
+match_indent = true
+
+# Profiler overlay enabled by pressing p
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = '''G.SETTINGS.perf_mode = not G.SETTINGS.perf_mode'''
+position = "after"
+payload = '''
+    G.F_ENABLE_PERF_OVERLAY = G.SETTINGS.perf_mode
+    if G.F_ENABLE_PERF_OVERLAY then 
+        print "Enabled profiler overlay. Press 'p' again to disable it."
+    else
+        print "Disabled profiler overlay."
+    end
+'''
+match_indent = true
