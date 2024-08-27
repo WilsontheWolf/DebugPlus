@@ -390,8 +390,10 @@ function global.doConsoleRender()
         openNextFrame = false
         currentHistory = {index = 0, val = ""}
         logOffset = 0
+        love.keyboard.setTextInput(true)
     end
     if not consoleOpen and not showNewLogs then
+        love.keyboard.setTextInput(false)
         return
     end
     -- Setup
