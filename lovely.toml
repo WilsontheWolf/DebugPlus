@@ -108,6 +108,15 @@ source = "core.lua"
 before = "main.lua"
 name = "debugplus"
 
+[[patches]] # Readds the debug info to v1.0.1g+
+[patches.pattern]
+target = "game.lua"
+pattern = 'if not _RELEASE_MODE and G.DEBUG and not G.video_control and G.F_VERBOSE then'
+position = "at"
+payload = '''if not _RELEASE_MODE and not G.video_control and G.F_VERBOSE then'''
+match_indent = true
+overwrite = false
+
 # Console Stuff:
 
 [[patches]]
