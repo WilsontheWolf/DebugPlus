@@ -428,6 +428,30 @@ function global.registerButtons()
     end
 end
 
+function global.togglePerfUI()
+    if G.F_ENABLE_PERF_OVERLAY == G.SETTINGS.perf_mode then -- first time run
+        G.SETTINGS.perf_mode = true
+    end
+    G.F_ENABLE_PERF_OVERLAY = G.SETTINGS.perf_mode
+    if G.F_ENABLE_PERF_OVERLAY then
+        if not silent then
+            log("Enabled profiler overlay. Press 'p' again to disable it.")
+        end
+    else
+        if not silent then
+            log("Disabled profiler overlay.")
+        end
+    end
+end
+
+function global.profileMessage()
+    if G.prof then
+        log("Enabled performance profiler. Press 'v' again to disable it.")
+    else
+        log("Disabled performance profiler. Check console for results.")
+    end
+end
+
 function global.handleSpawn(controller, _card)
     if _card.ability.set == 'Voucher' and G.shop_vouchers then
         local center = _card.config.center

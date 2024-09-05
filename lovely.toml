@@ -12,10 +12,11 @@ payload = '_RELEASE_MODE = false'
 match_indent = true
 overwrite = true
 
+# Note this patch provides the debugplus variable for the profile and perf patches
 [[patches]]
 [patches.pattern]
 target = "engine/controller.lua"
-pattern = 'if key == "p" then'
+pattern = "if key == 'v' then"
 position = "before"
 payload = '''
 local debugplus = require("debugplus")
@@ -155,3 +156,29 @@ pattern = 'love.graphics.print("Current FPS: "..fps, 10, 10)'
 position = "at"
 payload = '''
 love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {})), 10, 10)'''
+
+#
+## Better vanilla debugs
+#
+
+# Performance profiler enabled by pressing v, prints results to console.
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = '''print(G.prof.report()); G.prof = nil end'''
+position = "after"
+payload = '''
+debugplus.profileMessage()
+'''
+match_indent = true
+
+# Profiler overlay enabled by pressing p
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = '''G.SETTINGS.perf_mode = not G.SETTINGS.perf_mode'''
+position = "after"
+payload = '''
+debugplus.togglePerfUI()
+'''
+match_indent = true
