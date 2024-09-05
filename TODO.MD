@@ -11,12 +11,12 @@ Todo list cause i have to much to remember
 - [x] eval
 - [x] money
 - [x] round
-- [ ] hand
-- [ ] discard
-- [ ] ante
+- [x] hand
+- [x] discard
+- [X] ante
 - [x] help
-- [ ] rank? 
-- [ ] bind (probably long term)
+- [x] rank
+- [x] bind (probably long term)
 - [ ] free rerolls (maybe more difficult)
 - [ ] spawn card?
 - [ ] tutorial state
@@ -30,5 +30,5 @@ Todo list cause i have to much to remember
     - [x] Up down
     - [ ] Left right
 - [x] Scroll
-- [ ] Rewrite text render (long term)
+- [x] Rewrite text render (long term) (in a good enough state rn)
 - [ ] SMODS Config Page - WIP

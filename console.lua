@@ -130,9 +130,87 @@ commands = {{
             end
             G.GAME.round = G.GAME.round + amount
         else
-            return "Please choose whether you want to add or set. For more info, run 'help money'"
+            return "Please choose whether you want to add or set. For more info, run 'help round'"
         end
         return "Round is now " .. G.GAME.round
+    end
+}, {
+    name = "ante",
+    source = "debugplus",
+    shortDesc = "Set or add to your ante",
+    desc = "Set or add to your ante. Usage:\nante set [amount] - Set the current ante to the given amount\nante add [amount] - Adds the given number of antes.",
+    exec = function(args, rawArgs, dp)
+        if G.STAGE ~= G.STAGES.RUN then
+            return "This command must be run during a run.", "ERROR"
+        end
+        local subCmd = args[1]
+        local amount = tonumber(args[2])
+        if subCmd == "set" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.round_resets.ante = amount
+        elseif subCmd == "add" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.round_resets.ante = G.GAME.round_resets.ante + amount
+        else
+            return "Please choose whether you want to add or set. For more info, run 'help ante'"
+        end
+        return "Ante is now " .. G.GAME.round_resets.ante
+    end
+}, {
+    name = "discards",
+    source = "debugplus",
+    shortDesc = "Set or add to your hand",
+    desc = "Set or add to your hand. Usage:\ndiscards set [amount] - Set the current hand to the given amount\ndiscards add [amount] - Adds the given number of discards.",
+    exec = function(args, rawArgs, dp)
+        if G.STAGE ~= G.STAGES.RUN then
+            return "This command must be run during a run.", "ERROR"
+        end
+        local subCmd = args[1]
+        local amount = tonumber(args[2])
+        if subCmd == "set" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.current_round.discards_left = amount
+        elseif subCmd == "add" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.current_round.discards_left = G.GAME.current_round.discards_left + amount
+        else
+            return "Please choose whether you want to add or set. For more info, run 'help hand'"
+        end
+        return "Discards are now " .. G.GAME.current_round.discards_left
+    end
+}, {
+    name = "hands",
+    source = "debugplus",
+    shortDesc = "Set or add to your hand",
+    desc = "Set or add to your hand. Usage:\nhands set [amount] - Set the current hand to the given amount\nhands add [amount] - Adds the given number of hands.",
+    exec = function(args, rawArgs, dp)
+        if G.STAGE ~= G.STAGES.RUN then
+            return "This command must be run during a run.", "ERROR"
+        end
+        local subCmd = args[1]
+        local amount = tonumber(args[2])
+        if subCmd == "set" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.current_round.hands_left = amount
+        elseif subCmd == "add" then
+            if not amount then
+                return "Please provide a valid number to set/add.", "ERROR"
+            end
+            G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + amount
+        else
+            return "Please choose whether you want to add or set. For more info, run 'help hand'"
+        end
+        return "Hands are now " .. G.GAME.current_round.hands_left
     end
 }}
 local inputText = ""
@@ -335,9 +413,9 @@ function global.consoleHandleKey(_controller, key)
         end
         currentHistory.index = currentHistory.index - 1
         if currentHistory.index == 0 then
-           inputText = currentHistory.val
+            inputText = currentHistory.val
         else
-           inputText = history[currentHistory.index]
+            inputText = history[currentHistory.index]
         end
     end
 
@@ -365,7 +443,6 @@ function love.wheelmoved(x, y)
     logOffset = math.min(math.max(logOffset + y, 0), #logs - 1)
 end
 
-
 local function calcHeight(text, width)
     local font = love.graphics.getFont()
     local rw, lines = font:getWrap(text, width)
@@ -388,7 +465,10 @@ function global.doConsoleRender()
     if openNextFrame then
         consoleOpen = true
         openNextFrame = false
-        currentHistory = {index = 0, val = ""}
+        currentHistory = {
+            index = 0,
+            val = ""
+        }
         logOffset = 0
     end
     if not consoleOpen and not showNewLogs then
