@@ -334,7 +334,11 @@ function global.handleKeys(controller, key, dt)
             G.P_BLINDS[_blind.key].unlocked = true
             G.P_BLINDS[_blind.key].discovered = true
             G.P_BLINDS[_blind.key].alerted = true
-            _element:set_sprite_pos(_blind.pos)
+            if _element.set_sprite_pos then -- vanilla
+                _element:set_sprite_pos(_blind.pos)
+            else -- SMODS
+                _element.children.center:set_sprite_pos(_blind.pos)
+            end
             set_discover_tallies()
             G:save_progress()
         end
