@@ -12,10 +12,10 @@ payload = '_RELEASE_MODE = false'
 match_indent = true
 overwrite = true
 
-[[patches]]
-[patches.pattern]
+-- Note this patch provides the debugplus variable for the profile and perf patches
+[[patches]][patches.pattern]
 target = "engine/controller.lua"
-pattern = 'if key == "p" then'
+pattern = "if key == 'v' then"
 position = "before"
 payload = '''
 local debugplus = require("debugplus")
@@ -167,11 +167,7 @@ target = "engine/controller.lua"
 pattern = '''print(G.prof.report()); G.prof = nil end'''
 position = "after"
 payload = '''
-    if G.prof then 
-        print "Enabled performance profiler. Press 'v' again to disable it."
-    else
-        print "Disabled performance profiler. Check console for results."
-    end
+debugplus.profileMessage()
 '''
 match_indent = true
 
@@ -182,11 +178,6 @@ target = "engine/controller.lua"
 pattern = '''G.SETTINGS.perf_mode = not G.SETTINGS.perf_mode'''
 position = "after"
 payload = '''
-    G.F_ENABLE_PERF_OVERLAY = G.SETTINGS.perf_mode
-    if G.F_ENABLE_PERF_OVERLAY then 
-        print "Enabled profiler overlay. Press 'p' again to disable it."
-    else
-        print "Disabled profiler overlay."
-    end
+debugplus.togglePerfUI()
 '''
 match_indent = true
