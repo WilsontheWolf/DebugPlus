@@ -11,8 +11,8 @@ j: go to menu (might break)
 8: toggle mouse visiblity
 9: toggle tooltips
 space: live_test (Seems to just be a localthunk code tester)
-v: profile 
-p: performance mod
+v: profiler (DebugPlus enhances)
+p: performance mod (DebugPlus enhances)
 
 modded:
 W: Set enhancement
