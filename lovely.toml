@@ -12,7 +12,7 @@ payload = '_RELEASE_MODE = false'
 match_indent = true
 overwrite = true
 
--- Note this patch provides the debugplus variable for the profile and perf patches
+# Note this patch provides the debugplus variable for the profile and perf patches
 [[patches]]
 [patches.pattern]
 target = "engine/controller.lua"
