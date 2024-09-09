@@ -179,6 +179,7 @@ payload = '''
 do
     local console = require("debugplus-console")
     console.doConsoleRender()
+    timer_checkpoint('DebugPlus Console', 'draw')
 end
 '''
 match_indent = true

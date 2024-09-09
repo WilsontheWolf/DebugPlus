@@ -18,6 +18,7 @@ Todo list cause i have to much to remember
 - [x] rank
 - [x] bind (probably long term)
 - [ ] free rerolls (maybe more difficult)
+- [ ] recreate shop
 - [ ] spawn card?
 - [ ] tutorial state
 
@@ -25,6 +26,7 @@ Todo list cause i have to much to remember
 - [ ] Config writing
 - [ ] Better keybind ui
 - [ ] Docs
+- [x] DebugPlus profile
 - [x] Command split so it can print long messages (kinda a hack)
 - [ ] Arrow keys
     - [x] Up down
