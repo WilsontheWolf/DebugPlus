@@ -19,6 +19,12 @@ name = "debugplus-config"
 
 [[patches]]
 [patches.module]
+source = "watcher.lua"
+before = "main.lua"
+name = "debugplus-watcher"
+
+[[patches]]
+[patches.module]
 source = "console.lua"
 before = "main.lua"
 name = "debugplus-console"

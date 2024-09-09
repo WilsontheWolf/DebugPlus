@@ -1,5 +1,6 @@
 local util = require("debugplus-util")
 local utf8 = require("utf8")
+local watcher = require("debugplus-watcher")
 
 local global = {}
 
@@ -212,6 +213,25 @@ commands = {{
         end
         return "Hands are now " .. G.GAME.current_round.hands_left
     end
+}, {
+    name = "watch",
+    source = "debugplus",
+    shortDesc = "Watch and execute a file when it changes.",
+    desc = "Watch and execute a file when it changes. Usage:\nwatch stop - Stop's watching files.\nwatch add [file] - Starts watching the file provided. File should be a relative path to something in the save directory (e.g. `Mods/Example/test.lua`)",
+    exec = function(args, rawArgs, dp)
+        local subCmd = args[1]
+        local file = args[2]
+        if subCmd == "stop" then
+            watcher.stopWatching()
+            return "I will stop watching for files."
+        elseif subCmd == "add" then
+            local succ, err = watcher.startWatching(file, dp.handleLog)
+            if not succ then return err, "ERROR" end
+            return "Started watching " .. file
+        else
+            return "Please choose whether you want to add or set. For more info, run 'help hand'"
+        end
+    end
 }}
 local inputText = ""
 local old_print = print
@@ -340,7 +360,8 @@ local function runCommand()
     end
     local dp = {
         test = "testing",
-        hovered = G.CONTROLLER.hovering.target
+        hovered = G.CONTROLLER.hovering.target,
+        handleLog = handleLog
     }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
