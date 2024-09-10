@@ -9,6 +9,7 @@ local type
 local function loadFile()
     local content = love.filesystem.read(file)
     local newHash = love.data.hash("md5", content)
+    local showReloaded = hash ~= nil
     if newHash == hash then
         return
     end
@@ -21,7 +22,9 @@ local function loadFile()
     if not succ then
         return log({1, 0, 0}, "ERROR", "[Watcher] Error Running FIle:", err)
     end
-    log({0, 1, 0}, "INFO", "[Watcher] Reloaded")
+    if showReloaded then
+        log({0, 1, 0}, "INFO", "[Watcher] Reloaded")
+    end
     return true
 end
 
@@ -42,15 +45,15 @@ local function makeEvent()
     }
 end
 
-function global.startWatching(_file, _type, _log)
+function global.startWatching(_file, _log, _type)
     if not _file then
         return nil, "No file"
     end
     local info = love.filesystem.getInfo(_file)
     if not info then
-        return "File doesn't exist"
+        return nil, "File doesn't exist"
     end
-    if not info.type == "file" then
+    if not (info.type == "file") then
         return nil, "Not a regular file"
     end
     if not event then makeEvent() end
