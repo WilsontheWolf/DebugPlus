@@ -102,7 +102,6 @@ function global.handleKeys(controller, key, dt)
                         local _next = i + 1
                         if _next > #enhancements then
                             _card:set_ability(G.P_CENTERS[enhancements[1]], nil, true)
-                            _card:set_sprites(nil, "cards_" .. (G.SETTINGS.colourblind_option and 2 or 1))
                         else
                             _card:set_ability(G.P_CENTERS[enhancements[_next]], nil, true)
                         end
