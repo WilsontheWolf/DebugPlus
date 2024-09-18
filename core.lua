@@ -295,12 +295,6 @@ function global.handleKeys(controller, key, dt)
             end
         end
     end
-    if key == "m" then
-        G.FUNCS.change_pixel_smoothing({
-            to_key = G.SETTINGS.GRAPHICS.texture_scaling
-        })
-        log("Reloaded Atlases")
-    end
 
     if key == '/' then
         if controller.held_keys['lshift'] or controller.held_keys['rshift'] then
@@ -382,6 +376,20 @@ function global.handleKeys(controller, key, dt)
                 end
             end
         end
+    end
+
+    if key == "1" or key == "2" then -- Reload any tooltips when unlocking/discovering stuff
+        if _element.stop_hover and _element.hover then
+            _element:stop_hover()
+            _element:hover()
+        end
+    end
+
+    if key == "m" then
+        G.FUNCS.change_pixel_smoothing({
+            to_key = G.SETTINGS.GRAPHICS.texture_scaling
+        })
+        log("Reloaded Atlases")
     end
 
     for i, v in ipairs(saveStateKeys) do
