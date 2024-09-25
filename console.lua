@@ -378,7 +378,7 @@ end
 
 function global.consoleHandleKey(_controller, key)
     if not consoleOpen then
-        if key == '/' then
+        if key == '/' or key == 'kp/' then
             if util.isShiftDown() then
                 showNewLogs = not showNewLogs
             else
