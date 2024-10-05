@@ -4,7 +4,7 @@ local enhancements = nil
 local seals = nil
 local suits = nil
 local ranks = nil
-local saveStateKeys = {"1", "2", "3"}
+local saveStateKeys = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
 local consoleOpen = false
 local showNewLogs = true
 local firstConsoleRender
