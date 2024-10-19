@@ -193,15 +193,6 @@ overwrite = true
 
 [[patches]]
 [patches.pattern]
-target = "game.lua"
-match_indent = true
-pattern = 'love.graphics.print("Current FPS: "..fps, 10, 10)'
-position = "at"
-payload = '''
-love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {})), 10, 10)'''
-
-[[patches]]
-[patches.pattern]
 target = "main.lua"
 pattern = 'function love.keypressed(key)'
 position = "after"
