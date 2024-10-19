@@ -164,7 +164,16 @@ match_indent = true
 pattern = 'love.graphics.print("Current FPS: "..fps, 10, 10)'
 position = "at"
 payload = '''
-love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {})), 10, 10)'''
+do
+    local otherSize = 0
+    for k,v in pairs(G.E_MANAGER.queues or {}) do 
+        if k ~= 'base' then 
+            otherSize = otherSize + #v
+        end
+    end
+    love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d\nOther event queues: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {}), otherSize), 10, 10)
+end
+'''
 
 #
 ## Better vanilla debugs
