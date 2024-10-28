@@ -171,7 +171,11 @@ do
             otherSize = otherSize + #v
         end
     end
-    love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d\nOther event queues: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {}), otherSize), 10, 10)
+    if otherSize ~= 0 then
+        love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d\nOther event queues: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {}), otherSize), 10, 10)
+    else
+        love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {})), 10, 10)
+    end
 end
 '''
 
