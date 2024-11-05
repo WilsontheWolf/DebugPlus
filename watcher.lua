@@ -79,7 +79,7 @@ local types = {
             if not result then
                 return log({1, 0, 0}, "ERROR", "[Watcher] Error Loading Shader:", shader)
             end
-            local name = content:match("extern %w+ vec2 (%w+);");
+            local name = content:match("extern [%w_]+ vec2 (%w+);");
             if not name then 
                 return log({1, 0, 0}, "ERROR", "[Watcher] Could not guess name of shader :/. Not applying to avoid crash.")
             end
@@ -167,6 +167,7 @@ end
 local function makeEvent()
     event = Event {
         blockable = false,
+        blocking = false,
         pause_force = true,
         no_delete = true,
         trigger = "after",
