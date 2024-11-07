@@ -1,3 +1,5 @@
+-- Example of using the DebugPlus API
+
 --- STEAMODDED HEADER
 --- MOD_NAME: DebugPlusTest
 --- MOD_ID: DebugPlusTest

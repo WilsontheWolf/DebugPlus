@@ -5,7 +5,45 @@ local file
 local running = false
 local log
 local currentType
+-- For edition type
 local editionIndex
+-- For joker type
+local jokerMeta
+local knownJokerFunctions = {
+    "calculate",
+    "loc_vars",
+    "update",
+    "set_ability",
+    "add_to_deck",
+    "remove_from_deck",
+    "in_pool",
+    "set_sprites",
+    "load",
+    "generate_ui",
+    "locked_loc_vars",
+    "check_for_unlock",
+    "set_badges",
+    "set_card_type_badge",
+    "calculate",
+    "calc_dollar_bonus",
+}
+
+local function genSafeFunc(name, funcs)
+    return function(...)
+        local fn = funcs[name]
+        if not fn or type(fn) ~= "function" then
+            return
+        end
+        local res = {pcall(fn, ...)}
+        local succ = table.remove(res, 1)
+        if not succ then
+            log({1, 0, 0}, "ERROR", "[Watcher] Joker function \"" .. name .. "\" errored:", unpack(res))
+            return
+        end
+        return unpack(res)
+    end
+end
+
 
 local function evalLuaFile(content)
     local fn, err = load(content, "@" .. file)
@@ -48,11 +86,9 @@ end
 local types = {
     lua = {
         desc = "Starts watching the lua file provided.",
-        -- check = function()end
         run = function(content)
             return evalLuaFile(content)
         end,
-        -- cleanup = function() end
     },
     config_tab = {
         desc = "Starts watching the lua file provided. The returned value is rendered like a config tab (such as the one in SMODS.current_mod.config_tab). Note that invalid tabs will likely crash the game.",
@@ -142,6 +178,87 @@ local types = {
             table.remove(G.P_CENTER_POOLS.Edition, editionIndex)
             G.SHADERS.debugplus_watcher_shader = nil
             SMODS.Shaders.debugplus_watcher_shader = nil
+        end
+    },
+    joker = {
+        desc = "Starts watching the lua file provided. The returned table is used to modify the joker given in the key value. The table is similar to SMODS.Joker.",
+        run = function(content)
+            local jokerMeta = jokerMeta or {
+                funcs = {},
+            }
+            local success, res = evalLuaFile(content)
+            if not res or type(res) ~= "table" then
+                log({1, 0, 0}, "ERROR", "[Watcher] Joker config doesn't look correct. Make sure you are returning an object.")
+                return
+            end
+            if not res.key then
+                log({1, 0, 0}, "ERROR", "[Watcher] Joker config is missing a key.")
+                return
+            end 
+            local center = G.P_CENTERS[res.key]
+            if not center then 
+                log({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" does not exist. Make sure your joker has been loaded and the key is correct (don't forget the j_ prefix and your mod prefix).")
+                return
+            end
+            if center.set ~= 'Joker' then
+                log({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" is not for a joker.")
+                return
+            end
+            if not jokerMeta.key then
+                jokerMeta.key = res.key
+            elseif jokerMeta.key ~= res.key then
+                jokerMeta.key = res.key
+                jokerMeta.funcs = {}
+            end
+            if res.loc_txt then
+                local loc_txt = res.loc_txt
+                local loc = G.localization.descriptions.Joker[res.key]
+                local loc_changed = false
+
+                if loc_txt.name then
+                    if loc_txt.name ~= loc.name then
+                        loc_changed = true
+                        loc.name = loc_txt.name
+                    end
+                end
+
+                if loc_txt.text then
+                    if #loc_txt.text ~= #loc.text then
+                        loc_changed = true
+                    else
+                        for k, v in ipairs(loc_txt) do
+                            if v ~= loc.text[k] then
+                                loc_changed = true
+                                break
+                            end
+                        end
+                    end
+                    loc.text = loc_txt.text
+                end
+
+                if loc_changed then
+                    init_localization()
+                end
+            end
+            
+            for k,v in ipairs(knownJokerFunctions) do
+                local fn = res[v]
+                if not fn then
+                    goto finishfunc
+                end
+                if type(fn) ~= "function" then
+                    log({1, 1, 0}, "WARN", "[Watcher] Found \"" .. v .. "\" but it was not a function. Not applying.")
+                    goto finishfunc
+                end
+                if not jokerMeta.funcs[v] then
+                    center[v] = genSafeFunc(v, jokerMeta.funcs)
+                end
+                jokerMeta.funcs[v] = fn
+                ::finishfunc::
+            end
+        end,
+        cleanup = function()
+            jokerMeta = nil
         end
     }
 }
