@@ -171,11 +171,39 @@ do
             otherSize = otherSize + #v
         end
     end
+    function count_all(f)
+	local seen = {}
+	local count_table
+	count_table = function(t)
+            if seen[t] then return end
+            f(t)
+            seen[t] = true
+            for k,v in pairs(t) do
+                if type(v) == "table" then
+                    count_table(v)
+                elseif type(v) == "userdata" then
+                    f(v)
+                end
+            end
+        end
+        count_table(_G)
+    end
+    _count = 0
+    --count_all(function() _count = _count + 1 end)
     if otherSize ~= 0 then
         love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d\nOther event queues: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {}), otherSize), 10, 10)
     else
         love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {})), 10, 10)
     end
+    collectgarbage("collect")
+    local mem = string.format("%.2f",collectgarbage("count")/1024)
+    love.graphics.print("Memory: "..mem.." MB", 10, 50)
+    _obj_count = 0
+    for k, v in pairs(G.I) do
+        _obj_count = _obj_count + #v
+    end
+    --todo: break this up more (based on elements in G.I)
+    love.graphics.print("Objects: "..tostring(_obj_count), 10, 70)
 end
 '''
 
