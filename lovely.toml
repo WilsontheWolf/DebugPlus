@@ -195,9 +195,12 @@ do
     else
         love.graphics.print(string.format("Current FPS: %d\nBase event queue: %d", fps, #(G.E_MANAGER.queues and G.E_MANAGER.queues.base or {})), 10, 10)
     end
+    local gcold = collectgarbage("count")
     collectgarbage("collect")
-    local mem = string.format("%.2f",collectgarbage("count")/1024)
-    love.graphics.print("Memory: "..mem.." MB", 10, 50)
+    local gcnew = collectgarbage("count")
+    local mem = string.format("%.2f",gcnew/1024)
+    local mem_dt = string.format("%.2f",(gcold-gcnew)/1024)
+    love.graphics.print("Memory: "..mem.." MB ("..mem_dt.." MB)", 10, 50)
     _obj_count = 0
     for k, v in pairs(G.I) do
         _obj_count = _obj_count + #v
