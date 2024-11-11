@@ -187,6 +187,7 @@ local types = {
                 funcs = {},
             }
             local success, res = evalLuaFile(content)
+            if not success then return false end
             if not res or type(res) ~= "table" then
                 log({1, 0, 0}, "ERROR", "[Watcher] Joker config doesn't look correct. Make sure you are returning an object.")
                 return
@@ -226,7 +227,7 @@ local types = {
                     if #loc_txt.text ~= #loc.text then
                         loc_changed = true
                     else
-                        for k, v in ipairs(loc_txt) do
+                        for k, v in ipairs(loc_txt.text) do
                             if v ~= loc.text[k] then
                                 loc_changed = true
                                 break
@@ -256,6 +257,7 @@ local types = {
                 jokerMeta.funcs[v] = fn
                 ::finishfunc::
             end
+            return true
         end,
         cleanup = function()
             jokerMeta = nil
