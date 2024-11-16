@@ -202,11 +202,18 @@ do
     local mem_dt = string.format("%.2f",(gcold-gcnew)/1024)
     love.graphics.print("Memory: "..mem.." MB ("..mem_dt.." MB)", 10, 50)
     _obj_count = 0
+    _obj_count_indiv = {}
     for k, v in pairs(G.I) do
         _obj_count = _obj_count + #v
+        _obj_count_indiv[k] = #v
     end
-    --todo: break this up more (based on elements in G.I)
-    love.graphics.print("Objects: "..tostring(_obj_count), 10, 70)
+    local obj_details = {}
+    for k, count in pairs(_obj_count_indiv) do
+        table.insert(obj_details, k .. "=" .. count)
+    end
+    table.sort(obj_details)
+    local display_str = "Objects: " .. tostring(_obj_count) .. ", " .. table.concat(obj_details, ", ")
+    love.graphics.print(display_str, 10, 70)
 end
 '''
 
