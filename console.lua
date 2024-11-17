@@ -252,7 +252,7 @@ commands = {{
             G.jokers:emplace(card)
             if add_to_deck then card:add_to_deck() end
         end -- I want to add a thing for checking to see if it was given a valid joker name 
-        return "Spawned " 
+        return "Spawned " .. (j_key or (tostring(j_count).. " Jokers")) 
     end
 }, {
     name = "hands",
