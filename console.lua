@@ -188,6 +188,25 @@ commands = {{
         return "Discards are now " .. G.GAME.current_round.discards_left
     end
 }, {
+    name = "joker",
+    source = "debugplus",
+    shortDesc = "Spawns a joker",
+    desc = "Spawns Jokers. Usage:\njoker [name] [count] [call add_to_deck default = true]\n hint you might need to add \"j_\" to the front of the joker's name",
+    exec = function(args, rawArgs, dp)
+        if G.STAGE ~= G.STAGES.RUN then
+            return "This command must be run during a run.", "ERROR"
+        end
+        local Jim = args[1] or "j_joker"
+        local count = tonumber(args[2]) or 1
+        for _=1,count do
+            local add_to_deck = args[3] == "true" or args[3] == "t" or args[3] == nil
+            local card = SMODS.create_card{key = Jim}
+            G.jokers:emplace(card)
+            if add_to_deck then card:add_to_deck() end
+        end -- I want to add a thing for checking to see if it was given a valid joker name 
+        return "Spawned " 
+    end
+}, {
     name = "hands",
     source = "debugplus",
     shortDesc = "Set or add to your hand",
