@@ -191,16 +191,64 @@ commands = {{
     name = "joker",
     source = "debugplus",
     shortDesc = "Spawns a joker",
-    desc = "Spawns Jokers. Usage:\njoker [name] [count] [call add_to_deck default = true]\n hint you might need to add \"j_\" to the front of the joker's name",
+    desc = [[Spawns Jokers. Usage:\njoker {args} [name]\n 
+            -a : Skip calling add_to_deck on spawned joker
+            -c : Count of jokers to spawn
+            -e : Edition to spawn jokers with
+            -E : enable jokers spawned to have random editions
+        ]],
     exec = function(args, rawArgs, dp)
         if G.STAGE ~= G.STAGES.RUN then
             return "This command must be run during a run.", "ERROR"
         end
-        local Jim = args[1] or "j_joker"
-        local count = tonumber(args[2]) or 1
-        for _=1,count do
-            local add_to_deck = args[3] == "true" or args[3] == "t" or args[3] == nil
-            local card = SMODS.create_card{key = Jim}
+        local j_key = nil
+        local j_count = 1
+        
+        local j_no_edition = true
+        local j_set = "Joker"
+        local j_edition = nil
+        local j_rarity = nil
+        local add_to_deck = true
+
+        -- I thought of making a full on arg parser for this command
+        -- that started as a meme so I could spawn 1000 copies of jimbo without using eval
+        local skipNextArg = false
+        for i,v in ipairs(args) do 
+            if skipNextArg then
+                skipNextArg = false
+                -- Don't parse args to other parm
+            elseif not (v:sub(1,1) == "-" ) then
+                j_key = "j_" .. v
+            else
+                skipNextArg = true
+                local param = v:sub(2,2)
+
+                if param == "a" then 
+                    add_to_deck = false
+                    skipNextArg = false
+                elseif param == "E" then 
+                    j_no_edition = false
+                    skipNextArg = false
+                elseif not args[i+1] then 
+                    return "Please specify a value for the argument"
+                end
+                local val = args[i+1] 
+                if param == "c" then 
+                    j_count = tonumber(val) 
+                    if not j_count then
+                        return "Argument to count must be a number"
+                    end
+                elseif param == "e" then j_edition = "e_"..val
+                elseif param == "r" then j_rarity = val
+                -- elseif param == "S" then j_set = val --Bad Idea
+                end
+                
+            end 
+        end
+        local j_skip_zmaterialize = j_count > 5
+        for _=1,j_count do
+            local card = SMODS.create_card{key = j_key, set = j_set, rarity = j_rarity,no_e, j_no_edition}
+            card:set_edition(j_edition,true, true)
             G.jokers:emplace(card)
             if add_to_deck then card:add_to_deck() end
         end -- I want to add a thing for checking to see if it was given a valid joker name 
