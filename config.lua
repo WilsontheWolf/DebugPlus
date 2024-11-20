@@ -1,4 +1,4 @@
-if string.match(debug.getinfo(function() end).source, '=%[SMODS %w+ ".+"]') then
+if string.match(debug.getinfo(1).source, '=%[SMODS %w+ ".+"]') then
     error("Please update your steamodded thanks")
 end
 
@@ -36,10 +36,12 @@ end
 
 local testValues = {}
 
+local configMemory
+
 local configTypes = {
     toggle = {
         validate = function(data, def)
-            return type(data.value) == "boolean"
+            return type(data) == "boolean"
         end,
         render = function(data, def)
             return create_toggle({
@@ -73,26 +75,62 @@ local function loadSaveFromFile()
     return {}
 end
 
-local function getConfig()
-    local res = getDefaultsObject()
-    print(loadSaveFromFile())
-    for k,v in pairs(loadSaveFromFile()) do
-        print(k)
+local function generateMemory() 
+    local defaults = getDefaultsObject()
+    local loaded = loadSaveFromFile()
+
+    configMemory = {}
+
+    for k, v in pairs(loaded) do
+        local store = v
+        local value = nil
         local def = configDefinition[k]
-        if def and configTypes[def.type] and configTypes[def.type].validate then
-            if configTypes[def.type].validate(v, def) then
-                res[k] = v
+        if def then
+            if configTypes[def.type] and configTypes[def.type].validate then
+                if configTypes[def.type].validate(v, def) then
+                    value = v
+                else
+                    print('Value for saved key ' .. k .. ' failed to validate')
+                    value = def.default
+                end
             else
-                print("Value for key " .. k .. " failed to validate.")    
+                value = v
             end
-        else
-            res[k] = v
         end
+        configMemory[k] = {
+            store = store,
+            value = value,
+        }
     end
-    return res
+
+    for k, v in pairs(defaults) do
+        if configMemory[k] then
+            goto continue
+        end
+        configMemory[k] = {
+            store = nil,
+            value = v,
+        }
+        ::continue::
+    end
 end
-print(require('debugplus-util').stringifyTable(getConfig()))
+
+local function generateSaveFileTable()
+    if not configMemory then return loadSaveFromFile() end
+    local fin = {}
+    for k, v in pairs(configMemory) do
+        fin[k] = v.store
+    end
+    return fin
+end
+
+if debug.getinfo(1).source:match("@.*") then -- For when running under watch
+    -- print("Config:", require('debugplus-util').stringifyTable(getConfig()))
+    -- print("Defaults:", require('debugplus-util').stringifyTable(getDefaultsObject()))
+    generateMemory()
+    print("Memory:", require('debugplus-util').stringifyTable(configMemory))
+    print("New store:", require('debugplus-util').stringifyTable(generateSaveFileTable()))
+end
 
 return function()
 end
-
