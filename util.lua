@@ -24,7 +24,7 @@ end
 function global.hasValue(tab, val)
     for index, value in ipairs(tab) do
         if value == val then
-            return true
+            return index
         end
     end
 
