@@ -190,13 +190,18 @@ commands = {{
 }, {
     name = "joker",
     source = "debugplus",
-    shortDesc = "Spawns a joker",
-    desc = [[Spawns Jokers. Usage:\njoker {args} [name]\n 
-            -a : Skip calling add_to_deck on spawned joker
-            -c : Count of jokers to spawn
-            -e : Edition to spawn jokers with
-            -E : enable jokers spawned to have random editions
-        ]],
+    shortDesc = "Bulk Joker Management",
+    desc = [[
+    joker add : Spawns Jokers. 
+        Usage: joker add {args} [name]
+        -a : Skip calling add_to_deck on spawned joker
+        -c : Count of jokers to spawn
+        -e : Edition to spawn jokers withz
+        -E : enable jokers spawned to have random editions
+    joker remove : Removes jokers from joker slots
+        Usage: joker remove {count} 
+        if no count is provided remove all jokers
+    ]],
     exec = function(args, rawArgs, dp)
         if G.STAGE ~= G.STAGES.RUN then
             return "This command must be run during a run.", "ERROR"
@@ -212,54 +217,60 @@ commands = {{
         -- I thought of making a full on arg parser for this command
         -- that started as a meme so I could spawn 1000 copies of jimbo without using eval
         local skipNextArg = false
-        for i,v in ipairs(args) do 
-            if skipNextArg then
-                skipNextArg = false
-                -- Don't parse args to other parm
-            elseif not (v:sub(1,1) == "-" ) then
-                j_key =  (v:sub(1,2) == "j_" ) and v or ("j_"..v)
-                if not G.P_CENTERS[j_key] then 
-                    return "Did not recognize joker name: "..j_key, "ERROR"
-                end
-            else
-                skipNextArg = true
-                local param = v:sub(2,2)
-                if param == "a" then 
-                    add_to_deck = false
+        print(args[1])
+        if args[1] == "add" then
+            local skipNextArg = true
+            for i,v in ipairs(args) do 
+                if skipNextArg then
                     skipNextArg = false
-                elseif param == "E" then 
-                    j_no_edition = false
-                    skipNextArg = false
-                elseif not args[i+1] then 
-                    return "Please specify a value for the argument"
-                end
-                local val = args[i+1] 
-                if param == "c" then 
-                    j_count = tonumber(val) 
-                    if not j_count then
-                        return "Argument to count must be a number"
+                    -- Don't parse args to other parm
+                elseif not (v:sub(1,1) == "-" ) then
+                    j_key =  (v:sub(1,2) == "j_" ) and v or ("j_"..v)
+                    if not G.P_CENTERS[j_key] then 
+                        return "Did not recognize joker name: "..j_key, "ERROR"
                     end
-                elseif param == "e" then j_edition = "e_"..val
-                elseif param == "r" then j_rarity = val
-                -- elseif param == "S" then j_set = val --Bad Idea
+                else
+                    skipNextArg = true
+                    local param = v:sub(2,2)
+                    if param == "a" then 
+                        add_to_deck = false
+                        skipNextArg = false
+                    elseif param == "E" then 
+                        j_no_edition = false
+                        skipNextArg = false
+                    elseif not args[i+1] then 
+                        return "Please specify a value for the argument"
+                    end
+                    local val = args[i+1] 
+                    if param == "c" then 
+                        j_count = tonumber(val) 
+                        if not j_count then
+                            return "Argument to count must be a number"
+                        end
+                    elseif param == "e" then j_edition = "e_"..val
+                    elseif param == "r" then j_rarity = val
+                    -- elseif param == "S" then j_set = val --Bad Idea
+                    end
+                end 
+            end
+            local j_skip_zmaterialize = j_count > 5
+            for _=1,j_count do
+                local card = SMODS.create_card{key = j_key, set = j_set, rarity = j_rarity,no_e, j_no_edition}
+                card:set_edition(j_edition,true, true)
+                G.jokers:emplace(card)
+                if add_to_deck then card:add_to_deck() end
+            end -- I want to add a thing for checking to see if it was given a valid joker name 
+            return "Spawned " .. (j_key or (tostring(j_count).. " Jokers")) 
+        elseif args[1] == "remove" then
+            local count = tonumber(args[2]) or #G.jokers.cards
+            for k,v in pairs (G.jokers.cards) do
+                if count > 0 then
+                    v:start_dissolve(nil,nil)
+                    count = count - 1
                 end
-            end 
+            end
+            return "No more Jokers"
         end
-        local j_skip_materialize = j_count > 5
-        for _=1,j_count do
-                local card
-                if smods_create_card then -- possible switch ???
-                    card = SMODS.create_card{key = j_key, set = j_set, rarity = j_rarity,no_e, j_no_edition}
-                else 
-                    -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
-                    card = create_card(j_set, G.jokers, nil, j_rarity, j_skip_materialize, nil, j_key, "debugPlusSpawned")
-                    -- judgement ? huh
-                end
-            card:set_edition(j_edition,true, true)
-            G.jokers:emplace(card)
-            if add_to_deck then card:add_to_deck() end
-        end -- I want to add a thing for checking to see if it was given a valid joker name 
-        return "Spawned " .. (j_key or (tostring(j_count).. " Jokers")) 
     end
 }, {
     name = "hands",
