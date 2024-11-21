@@ -2,6 +2,8 @@ if string.match(debug.getinfo(1).source, '=%[SMODS %w+ ".+"]') then
     error("Please update your steamodded thanks")
 end
 
+local util = require("debugplus-util")
+
 local configDefinition = {
     debugMode = {
         label = "Debug Mode",
@@ -35,21 +37,100 @@ for k,v in pairs(configDefinition) do
 end
 
 local testValues = {}
-
+local configTypes
 local configMemory
 
-local configTypes = {
+local function loadSaveFromFile()
+    local content = love.filesystem.read("config/DebugPlus.jkr")
+    if not content then
+        return {}
+    end
+    local success, res = pcall(STR_UNPACK, content)
+    if success and type(res) == "table" then
+        return res
+    end
+    return {}
+end
+
+
+local function generateSaveFileTable()
+    if not configMemory then return loadSaveFromFile() end
+    local fin = {}
+    for k, v in pairs(configMemory) do
+        fin[k] = v.store
+    end
+    return fin
+end
+
+local function updateSaveFile()
+    local conf = generateSaveFileTable()
+    love.filesystem.createDirectory("config")
+    local success, res = pcall(serialize, conf)
+    if success then
+        love.filesystem.write("config/DebugPlus.jkr", "return " .. res)
+    else
+        print("Failure saving config", res)
+    end
+end
+
+local function setValue(key, value) 
+    local def = configDefinition[key]
+    if not def then return end
+    if configTypes[def.type] and configTypes[def.type].validate then
+        if not configTypes[def.type].validate(value, def) then
+            print('Value for saving key ' .. key .. ' failed to validate')
+            return
+        end
+    end
+    local mem = configMemory[key]
+    mem.store = value
+    mem.value = value
+    updateSaveFile()
+end
+
+local function clearValue(key)
+    local def = configDefinition[key]
+    if not def then return end
+    local mem = configMemory[key]
+    mem.store = nil
+    mem.value = def.default
+    updateSaveFile()
+
+end
+
+function G.FUNCS.DP_conf_select_callback(e)
+    setValue(e.cycle_config.dp_key, e.to_val) 
+end
+
+configTypes = {
     toggle = {
         validate = function(data, def)
             return type(data) == "boolean"
         end,
-        render = function(data, def)
+        render = function(def)
             return create_toggle({
                 label = def.label,
-                ref_table = testValues, -- TODO: fix me
-                ref_value = def.key,
-                callback = print,
+                ref_table = configMemory[def.key],
+                ref_value = "value",
+                callback = function(v) setValue(def.key, v) end,
                 info = def.info
+            })
+        end
+    },
+    select = {
+        validate = function(data, def)
+            return util.hasValue(def.values, data)
+        end,
+        render = function(def)
+            local curr = util.hasValue(def.values, configMemory[def.key].value) or 1
+            return create_option_cycle({
+                options = def.values,
+                current_option = curr, -- TODO: how to dynamically get me
+                scale = 0.8,
+                opt_callback = "DP_conf_select_callback",
+                label = def.label,
+                info = def.info,
+                dp_key = def.key
             })
         end
     },
@@ -63,17 +144,6 @@ local function getDefaultsObject()
     return config
 end
 
-local function loadSaveFromFile()
-    local content = love.filesystem.read("config/DebugPlus.jkr")
-    if not content then
-        return {}
-    end
-    local success, res = pcall(STR_UNPACK, content)
-    if success and type(res) == "table" then
-        return res
-    end
-    return {}
-end
 
 local function generateMemory() 
     local defaults = getDefaultsObject()
@@ -115,21 +185,57 @@ local function generateMemory()
     end
 end
 
-local function generateSaveFileTable()
-    if not configMemory then return loadSaveFromFile() end
-    local fin = {}
-    for k, v in pairs(configMemory) do
-        fin[k] = v.store
-    end
-    return fin
+
+
+-- TODO: Clean me up. Stolen from watcher for testing
+local function showTabOverlay(definition, tabName)
+    tabName = tabName or "Tab"
+    return G.FUNCS.overlay_menu({
+        definition = create_UIBox_generic_options({
+            contents = {{
+                n = G.UIT.R,
+                nodes = {create_tabs({
+                    snap_to_nav = true,
+                    colour = G.C.BOOSTER,
+                    tabs = {{
+                        label = tabName,
+                        chosen = true,
+                        tab_definition_function = function()
+                            return definition
+                        end
+                    }}
+                })}
+            }}
+        })
+    })
+
 end
 
+
 if debug.getinfo(1).source:match("@.*") then -- For when running under watch
-    -- print("Config:", require('debugplus-util').stringifyTable(getConfig()))
-    -- print("Defaults:", require('debugplus-util').stringifyTable(getDefaultsObject()))
+    -- print("Config:", util.stringifyTable(getConfig()))
+    -- print("Defaults:", util.stringifyTable(getDefaultsObject()))
     generateMemory()
-    print("Memory:", require('debugplus-util').stringifyTable(configMemory))
-    print("New store:", require('debugplus-util').stringifyTable(generateSaveFileTable()))
+    print("Memory:", util.stringifyTable(configMemory))
+    print("New store:", util.stringifyTable(generateSaveFileTable()))
+    showTabOverlay({
+        -- ROOT NODE
+        n = G.UIT.ROOT,
+        config = {r = 0.1, minw = 7, minh = 5, align = "tm", padding = 1, colour = G.C.BLACK},
+        nodes = {
+            {
+                -- COLUMN NODE TO ALIGN EVERYTHING INSIDE VERTICALLY
+                n = G.UIT.C,
+                config = {align = "tm", padding = 0.1, colour = G.C.BLACK},
+                nodes = {
+                    configTypes.toggle.render(configDefinition.debugMode),
+                    configTypes.toggle.render(configDefinition.ctrlKeybinds),
+                    configTypes.toggle.render(configDefinition.showNewLogs) ,
+                    configTypes.select.render(configDefinition.logLevel),
+                } 
+            }
+        }
+    })
 end
 
 return function()
