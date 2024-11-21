@@ -194,6 +194,7 @@ commands = {{
     desc = [[
     joker add : Spawns Jokers. 
         Usage: joker add {args} [name]
+        -S : use SMODS.create_card - note some flags will not function without this
         -a : Skip calling add_to_deck on spawned joker
         -c : Count of jokers to spawn
         -e : Edition to spawn jokers withz
@@ -238,6 +239,9 @@ commands = {{
                     elseif param == "E" then 
                         j_no_edition = false
                         skipNextArg = false
+                    elseif param == "S" then
+                        smods_create_card = SMODS and SMODS.create_card
+                        skipNextArg = false
                     elseif not args[i+1] then 
                         return "Please specify a value for the argument"
                     end
@@ -248,11 +252,13 @@ commands = {{
                             return "Argument to count must be a number"
                         end
                     elseif param == "e" then j_edition = "e_"..val
-                    elseif param == "r" then j_rarity = val
+                    elseif param == "r" then 
+                        j_rarity = val
                     -- elseif param == "S" then j_set = val --Bad Idea
                     end
                 end 
             end
+            j_rarity = smods_create_card and j_rarity or tonumber(j_rarity) 
             local j_skip_zmaterialize = j_count > 5
             for _=1,j_count do
                 local card = SMODS.create_card{key = j_key, set = j_set, rarity = j_rarity,no_e, j_no_edition}
