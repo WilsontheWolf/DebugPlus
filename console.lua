@@ -203,13 +203,11 @@ commands = {{
         end
         local j_key = nil
         local j_count = 1
-        
-        local j_no_edition = true
+        -- local j_no_edition = true
         local j_set = "Joker"
         local j_edition = nil
         local j_rarity = nil
         local add_to_deck = true
-
         -- I thought of making a full on arg parser for this command
         -- that started as a meme so I could spawn 1000 copies of jimbo without using eval
         local skipNextArg = false
@@ -218,11 +216,13 @@ commands = {{
                 skipNextArg = false
                 -- Don't parse args to other parm
             elseif not (v:sub(1,1) == "-" ) then
-                j_key = "j_" .. v
+                j_key =  (v:sub(1,2) == "j_" ) and v or ("j_"..v)
+                if not G.P_CENTERS[j_key] then 
+                    return "Did not recognize joker name: "..j_key, "ERROR"
+                end
             else
                 skipNextArg = true
                 local param = v:sub(2,2)
-
                 if param == "a" then 
                     add_to_deck = false
                     skipNextArg = false
@@ -242,7 +242,6 @@ commands = {{
                 elseif param == "r" then j_rarity = val
                 -- elseif param == "S" then j_set = val --Bad Idea
                 end
-                
             end 
         end
         local j_skip_zmaterialize = j_count > 5
