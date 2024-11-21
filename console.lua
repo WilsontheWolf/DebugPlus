@@ -208,6 +208,7 @@ commands = {{
         local j_edition = nil
         local j_rarity = nil
         local add_to_deck = true
+        local smods_create_card = false -- SMODS and SMODS.create_card 
         -- I thought of making a full on arg parser for this command
         -- that started as a meme so I could spawn 1000 copies of jimbo without using eval
         local skipNextArg = false
@@ -244,9 +245,16 @@ commands = {{
                 end
             end 
         end
-        local j_skip_zmaterialize = j_count > 5
+        local j_skip_materialize = j_count > 5
         for _=1,j_count do
-            local card = SMODS.create_card{key = j_key, set = j_set, rarity = j_rarity,no_e, j_no_edition}
+                local card
+                if smods_create_card then -- possible switch ???
+                    card = SMODS.create_card{key = j_key, set = j_set, rarity = j_rarity,no_e, j_no_edition}
+                else 
+                    -- function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+                    card = create_card(j_set, G.jokers, nil, j_rarity, j_skip_materialize, nil, j_key, "debugPlusSpawned")
+                    -- judgement ? huh
+                end
             card:set_edition(j_edition,true, true)
             G.jokers:emplace(card)
             if add_to_deck then card:add_to_deck() end
