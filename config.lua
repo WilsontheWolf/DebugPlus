@@ -3,19 +3,21 @@ if string.match(debug.getinfo(1).source, '=%[SMODS %w+ ".+"]') then
 end
 
 local util = require("debugplus-util")
+local global = {}
 
 local configDefinition = {
     debugMode = {
         label = "Debug Mode",
         type = "toggle",
         default = true,
-        info = {"Toggles everything in DebugPlus except the console"}
+        info = {"Toggles everything in DebugPlus except the console"},
+        onUpdate = function(v) _RELEASE_MODE = not v end
     },
     ctrlKeybinds = {
-        label = "CTRL for Keybinds",
+        label = util.ctrlText .. " for Keybinds",
         type = "toggle",
         default = true,
-        info = {"Requires you hold ctrl when pressing the built in keybinds"}
+        info = {"Requires you hold ".. util.ctrlText .. " when pressing the built in keybinds"}
     },
     logLevel = {
         label = "Log Level",
@@ -28,8 +30,35 @@ local configDefinition = {
         label = "Show New Logs",
         type = "toggle",
         default = true,
-        info = {"Show the a message when something is logged. Can also press shift + / to toggle."}
+        info = {
+            "Show a message when something is logged. Can also press shift + / to temporarily toggle."
+        } 
     },
+    onlyCommands = {
+        label = "Only Show Commands",
+        type = "toggle",
+        default = false,
+        info = {"Do not show any logs, other than ones from commands or from you pressing debug keybinds."}
+    },
+    showHUD = {
+        label = "Show Debug HUD",
+        type = "toggle",
+        default = true,
+        info = {"Shows some debug information on the top left of the screen."}
+    },
+}
+
+global.configDefinition = configDefinition
+
+local configPages = { -- TODO: implement paging, maybe only when I need to
+    {
+        "debugMode",
+        "ctrlKeybinds",
+        "showNewLogs",
+        "onlyCommands",
+        "logLevel",
+        "showHUD",
+    }
 }
 
 for k,v in pairs(configDefinition) do
@@ -41,6 +70,7 @@ local configTypes
 local configMemory
 
 local function loadSaveFromFile()
+    print("load save")
     local content = love.filesystem.read("config/DebugPlus.jkr")
     if not content then
         return {}
@@ -49,6 +79,7 @@ local function loadSaveFromFile()
     if success and type(res) == "table" then
         return res
     end
+    print("Loading save err", res)
     return {}
 end
 
@@ -73,7 +104,8 @@ local function updateSaveFile()
     end
 end
 
-local function setValue(key, value) 
+
+function global.setValue(key, value) 
     local def = configDefinition[key]
     if not def then return end
     if configTypes[def.type] and configTypes[def.type].validate then
@@ -85,21 +117,28 @@ local function setValue(key, value)
     local mem = configMemory[key]
     mem.store = value
     mem.value = value
+    if def.onUpdate then
+        def.onUpdate(value)
+    end
     updateSaveFile()
 end
 
-local function clearValue(key)
+function global.clearValue(key)
     local def = configDefinition[key]
     if not def then return end
     local mem = configMemory[key]
     mem.store = nil
     mem.value = def.default
+    if def.onUpdate then
+        def.onUpdate(value)
+    end
     updateSaveFile()
-
 end
 
-function G.FUNCS.DP_conf_select_callback(e)
-    setValue(e.cycle_config.dp_key, e.to_val) 
+function global.getValue(key)
+    local def = configDefinition[key]
+    if not def then return end
+    return configMemory[key].value
 end
 
 configTypes = {
@@ -112,7 +151,7 @@ configTypes = {
                 label = def.label,
                 ref_table = configMemory[def.key],
                 ref_value = "value",
-                callback = function(v) setValue(def.key, v) end,
+                callback = function(v) global.setValue(def.key, v) end,
                 info = def.info
             })
         end
@@ -166,6 +205,9 @@ local function generateMemory()
             else
                 value = v
             end
+            if def.onUpdate then
+                def.onUpdate(value)
+            end
         end
         configMemory[k] = {
             store = store,
@@ -185,58 +227,34 @@ local function generateMemory()
     end
 end
 
-
-
--- TODO: Clean me up. Stolen from watcher for testing
-local function showTabOverlay(definition, tabName)
-    tabName = tabName or "Tab"
-    return G.FUNCS.overlay_menu({
-        definition = create_UIBox_generic_options({
-            contents = {{
-                n = G.UIT.R,
-                nodes = {create_tabs({
-                    snap_to_nav = true,
-                    colour = G.C.BOOSTER,
-                    tabs = {{
-                        label = tabName,
-                        chosen = true,
-                        tab_definition_function = function()
-                            return definition
-                        end
-                    }}
-                })}
-            }}
-        })
-    })
-
-end
-
-
-if debug.getinfo(1).source:match("@.*") then -- For when running under watch
-    -- print("Config:", util.stringifyTable(getConfig()))
-    -- print("Defaults:", util.stringifyTable(getDefaultsObject()))
-    generateMemory()
-    print("Memory:", util.stringifyTable(configMemory))
-    print("New store:", util.stringifyTable(generateSaveFileTable()))
-    showTabOverlay({
+function global.generateConfigTab()
+    function G.FUNCS.DP_conf_select_callback(e)
+        global.setValue(e.cycle_config.dp_key, e.to_val) 
+    end
+    local nodes = {}
+    for k,v in ipairs(configPages[1]) do
+        local def = configDefinition[v]
+        table.insert(nodes, configTypes[def.type].render(def))
+    end
+    return {
         -- ROOT NODE
         n = G.UIT.ROOT,
-        config = {r = 0.1, minw = 7, minh = 5, align = "tm", padding = 1, colour = G.C.BLACK},
+        config = {r = 0.1, minw = 7, minh = 5, align = "tm", padding = .5, colour = G.C.BLACK},
         nodes = {
             {
                 -- COLUMN NODE TO ALIGN EVERYTHING INSIDE VERTICALLY
                 n = G.UIT.C,
-                config = {align = "tm", padding = 0.1, colour = G.C.BLACK},
-                nodes = {
-                    configTypes.toggle.render(configDefinition.debugMode),
-                    configTypes.toggle.render(configDefinition.ctrlKeybinds),
-                    configTypes.toggle.render(configDefinition.showNewLogs) ,
-                    configTypes.select.render(configDefinition.logLevel),
-                } 
+                config = {align = "tm", padding = 0.1},
+                nodes = nodes
             }
         }
-    })
+    }
 end
 
-return function()
+generateMemory()
+if debug.getinfo(1).source:match("@.*") then -- For when running under watch
+    print("DebugPlus config in watch")
+    return global.generateConfigTab() -- For watch config_tab
 end
+
+return global

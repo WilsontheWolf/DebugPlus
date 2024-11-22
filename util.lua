@@ -1,5 +1,6 @@
 local global = {}
 local isMac = love.system.getOS() == 'OS X'
+global.ctrlText = isMac and "CMD" or "CTRL"
 
 function global.stringifyTable(tab, depth, indent)
     if not indent then

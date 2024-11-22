@@ -1,6 +1,7 @@
 local util = require("debugplus-util")
 local utf8 = require("utf8")
 local watcher = require("debugplus-watcher")
+local config =require("debugplus-config")
 
 local global = {}
 
@@ -8,7 +9,7 @@ local showTime = 5 -- Amount of time new console messages show up
 local fadeTime = 1 -- Amount of time it takes for a message to fade
 local consoleOpen = false
 local openNextFrame = false
-local showNewLogs = true
+local showNewLogs = config.getValue("showNewLogs")
 local firstConsoleRender = nil
 local logs = nil
 local history = {}
@@ -238,19 +239,23 @@ local old_print = print
 local levelMeta = {
     DEBUG = {
         level = 'DEBUG',
-        colour = {1, 0, 1}
+        colour = {1, 0, 1},
+        shouldShow = false,
     },
     INFO = {
         level = 'INFO',
-        colour = {0, 1, 1}
+        colour = {0, 1, 1},
+        shouldShow = true,
     },
     WARN = {
         level = 'WARN',
-        colour = {1, 1, 0}
+        colour = {1, 1, 0},
+        shouldShow = true,
     },
     ERROR = {
         level = 'ERROR',
-        colour = {1, 0, 0}
+        colour = {1, 0, 0},
+        shouldShow = true,
     }
 }
 local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: (%S+) :: (.*)"
@@ -288,19 +293,33 @@ local function handleLog(colour, _level, ...)
             level = levelMeta.level
         }
     end
+
+    -- Handling the few times the game itself prints
+    if _str:match("^LONG DT @ [%d.: ]+$") then -- LONG DT messages
+        meta.level = "DEBUG"
+        meta.colour = levelMeta.DEBUG.colour
+    elseif _str:match("^ERROR LOADING GAME: Card area '[%w%d_-]+' not instantiated before load") then -- Error loading areas
+        meta.level = "ERROR"
+        meta.colour = levelMeta.ERROR.colour
+    elseif _str:match("^\n [+-]+ \n | #") and debug.getinfo(3).short_src == "engine/controller.lua" then -- Profiler results table. Extra check cause I don't trust this pattern to not have false positives
+        meta.level = "DEBUG"
+        meta.colour = levelMeta.DEBUG.colour
+        -- TODO: mark as a command
+    end
+
     -- Dirty hack to work better with multiline text
     if string.match(meta.str, "\n") then
         local first = true
         for w in string.gmatch(meta.str, "[^\n]+") do
-            local meta = {
+            local _meta = {
                 str = w,
-                time = love.timer.getTime(),
-                colour = colour,
-                level = _level,
+                time = meta.time,
+                colour = meta.colour,
+                level = meta.level,
                 hack_no_prefix = not first
             }
             first = false
-            table.insert(logs, meta)
+            table.insert(logs, _meta)
             if logOffset ~= 0 then
                 logOffset = math.min(logOffset + 1, #logs)
             end
@@ -525,7 +544,7 @@ function global.doConsoleRender()
     end
     for i = #logs, 1, -1 do
         local v = logs[i]
-        if consoleOpen and #logs - logOffset < i then
+        if consoleOpen and #logs - logOffset < i then -- TODO: could this be more efficent?
             goto finishrender
         end
         if not consoleOpen and v.time < firstConsoleRender then
@@ -534,6 +553,9 @@ function global.doConsoleRender()
         local age = now - v.time
         if not consoleOpen and age > showTime + fadeTime then
             break
+        end
+        if not levelMeta[v.level].shouldShow then 
+            goto finishrender
         end
         local msg = v.str
         if consoleOpen and not v.hack_no_prefix then
@@ -597,5 +619,25 @@ function global.registerCommand(id, options)
     end
     table.insert(commands, cmd)
 end
+
+config.configDefinition.showNewLogs.onUpdate = function(v) 
+    showNewLogs = v
+end
+
+config.configDefinition.logLevel.onUpdate = function(v)
+    for k, v in pairs(levelMeta) do
+        v.shouldShow = false
+    end
+    
+    levelMeta.ERROR.shouldShow = true
+    if v == "ERROR" then return end
+    levelMeta.WARN.shouldShow = true
+    if v == "WARN" then return end
+    levelMeta.INFO.shouldShow = true
+    if v == "INFO" then return end
+    levelMeta.DEBUG.shouldShow = true
+end
+
+config.configDefinition.logLevel.onUpdate(config.getValue("logLevel"))
 
 return global

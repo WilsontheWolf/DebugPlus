@@ -6,6 +6,7 @@ Todo list cause i have to much to remember
 - [x] Command register
 - [x] Log API
 - [x] Binding to id
+- [ ] Debug Hud Stuff
 
 ## Commands
 - [x] eval
@@ -23,7 +24,7 @@ Todo list cause i have to much to remember
 - [ ] tutorial state
 
 ## Misc
-- [ ] Config writing
+- [x] Config writing
 - [ ] Better keybind ui
 - [ ] Docs
 - [x] DebugPlus profile
@@ -33,4 +34,5 @@ Todo list cause i have to much to remember
     - [ ] Left right
 - [x] Scroll
 - [x] Rewrite text render (long term) (in a good enough state rn)
-- [ ] SMODS Config Page - WIP
+- [x] SMODS Config Page
+- [ ] Non-SMODS Config Page

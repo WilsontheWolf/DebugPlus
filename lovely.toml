@@ -51,15 +51,6 @@ payload = '_RELEASE_MODE = false'
 match_indent = true
 overwrite = true
 
-[[patches]]
-[patches.pattern]
-target = "game.lua"
-pattern = "if self.real_dt > 0.05 then print('LONG DT @ '..math.floor(G.TIMERS.REAL)..': '..self.real_dt) end"
-position = "at"
-payload = ''
-match_indent = true
-overwrite = false
-
 # Note this patch provides the debugplus variable for the profile and perf patches
 [[patches]]
 [patches.pattern]
@@ -156,7 +147,7 @@ overwrite = true
 target = "game.lua"
 pattern = 'if not _RELEASE_MODE and G.DEBUG and not G.video_control and G.F_VERBOSE then'
 position = "at"
-payload = '''if not _RELEASE_MODE and not G.video_control and G.F_VERBOSE then'''
+payload = '''if require("debugplus-config").getValue("showHUD") and not G.video_control and G.F_VERBOSE then'''
 match_indent = true
 overwrite = false
 
@@ -263,4 +254,13 @@ end
 local v_off = v_off - section_h * #b.checkpoint_list
 for k, v in ipairs(b.checkpoint_list) do
 '''
+match_indent = true
+
+# Handles the ctrl keybind check
+[[patches]]
+[patches.pattern]
+target = "engine/controller.lua"
+pattern = '''if not _RELEASE_MODE then'''
+position = "at"
+payload = '''if not _RELEASE_MODE and require("debugplus-core").isOkayToHandleDebugForKey(key) then'''
 match_indent = true
