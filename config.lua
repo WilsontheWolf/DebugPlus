@@ -69,13 +69,80 @@ local testValues = {}
 local configTypes
 local configMemory
 
+local function parseConfigValue(val)
+    val = util.trim(val)
+    if val == "true" then
+        return true
+    end
+    if val == "false" then
+        return false
+    end
+    if val:sub(1, 1) == '"' and val:sub(#val) == '"' then
+        return val:sub(2, #val - 1):gsub("\\(.?)", {
+            ["\\"] = "\\",
+            n = "\n",
+            r = "\r"
+        })
+    end
+    if tonumber(val) then
+        return tonumber(val)
+    end
+    return {
+        type = "raw",
+        val = val
+    }
+end
+
+local function stringifyConfigValue(val)
+    if val == true then
+        return "true"
+    end
+    if val == false then
+        return "false"
+    end
+    if type(val) == "string" then
+        return '"' .. val:gsub("\\", "\\\\"):gsub("\n", "\\n"):gsub("\r", "\\r") .. '"'
+    end
+    if type(val) == "number" then
+        return string.format("%g", val)
+    end
+    if val.type == "raw" then
+        return val.val
+    end
+end
+
+local function parseConfigFile(data)
+    local t = {}
+    for str in string.gmatch(data, "([^\n\r]+)") do
+        local name, val = str:match("(%w+)%s*=%s*(.+)")
+        if not name then
+            print("Failed to parse line:", str)
+        else
+            t[name] = parseConfigValue(val)
+        end
+    end
+    print(require("debugplus-util").stringifyTable(t))
+    return t
+end
+
+local function stringifyConfigFile(data)
+    local str = ""
+    for k, v in pairs(data) do
+        local val = stringifyConfigValue(v)
+        if val then
+            str = str .. k .. "=" .. val .. "\n"
+        end
+    end
+    return str
+end
+
 local function loadSaveFromFile()
     print("load save")
     local content = love.filesystem.read("config/DebugPlus.jkr")
     if not content then
         return {}
     end
-    local success, res = pcall(STR_UNPACK, content)
+    local success, res = pcall(parseConfigFile, content)
     if success and type(res) == "table" then
         return res
     end
@@ -96,9 +163,9 @@ end
 local function updateSaveFile()
     local conf = generateSaveFileTable()
     love.filesystem.createDirectory("config")
-    local success, res = pcall(serialize, conf)
+    local success, res = pcall(stringifyConfigFile, conf)
     if success then
-        love.filesystem.write("config/DebugPlus.jkr", "return " .. res)
+        love.filesystem.write("config/DebugPlus.jkr", res)
     else
         print("Failure saving config", res)
     end

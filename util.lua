@@ -43,4 +43,8 @@ function global.isCtrlDown()
     return love.keyboard.isDown('lctrl') or love.keyboard.isDown('rctrl')
 end
 
+function global.trim(string)
+    return string:match("^%s*(.-)%s*$")
+end
+
 return global
