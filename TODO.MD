@@ -19,9 +19,8 @@ Todo list cause i have to much to remember
 - [x] rank
 - [x] bind (probably long term)
 - [x] ~~spawn card?~~ (copy keybind + [toomanyjokers](https://github.com/cg-223/toomanyjokers))
-- [ ] free rerolls (maybe more difficult)
+- [x] tutorial state
 - [ ] recreate shop
-- [ ] tutorial state
 
 ## Misc
 - [x] Config writing

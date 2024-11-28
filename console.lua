@@ -233,6 +233,37 @@ commands = {{
             return "Please provide a valid sub command. For more info, run 'help watch'"
         end
     end
+}, {
+    name = "tutorial",
+    source = "debugplus",
+    shortDesc = "Modify the tutorial state.",
+    desc = "Modify the tutorial state. Usage:\ntutorial finish - Finish the tutorial.\ntutorial reset - Reset the tutorial progress to a fresh state.\ntutorial new - Starts a new tutorial run (like hitting play for the first time)",
+    exec = function(args, rawArgs, dp)
+        local subCmd = args[1]
+        if subCmd == "finish" then
+            if G.OVERLAY_TUTORIAL then
+                G.FUNCS.skip_tutorial_section()
+            end
+            G.SETTINGS.tutorial_complete = true
+            G.SETTINGS.tutorial_progress = nil
+            return "Tutorial finished."
+        elseif subCmd == "reset" then
+            G.SETTINGS.tutorial_complete = false
+            G.SETTINGS.tutorial_progress = {
+                forced_shop = {'j_joker', 'c_empress'},
+                forced_voucher = 'v_grabber',
+                forced_tags = {'tag_handy', 'tag_garbage'},
+                hold_parts = {},
+                completed_parts = {}
+            }
+            return "Tutorial reset."
+        elseif subCmd == "new" then
+            G.FUNCS.start_tutorial()
+            return "Starting a new run."
+        else
+            return "Please provide a valid sub command. For more info, run 'help tutorial'"
+        end
+    end
 }}
 local inputText = ""
 local old_print = print
