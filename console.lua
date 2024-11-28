@@ -264,6 +264,22 @@ commands = {{
             return "Please provide a valid sub command. For more info, run 'help tutorial'"
         end
     end
+}, {
+    name = "resetshop",
+    source = "debugplus",
+    shortDesc = "Reset the shop.",
+    desc = "Resets the shop.",
+    exec = function(args, rawArgs, dp)
+        if G.STATE ~= G.STATES.SHOP then
+            return "This command can only be run in a shop.", 'ERROR'
+        end
+        G.shop:remove()
+        G.shop = nil
+        G.GAME.current_round.used_packs = nil
+        G.STATE_COMPLETE = false
+        G:update_shop()
+        return "Reset shop."
+    end
 }}
 local inputText = ""
 local old_print = print
