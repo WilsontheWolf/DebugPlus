@@ -20,7 +20,7 @@ Todo list cause i have to much to remember
 - [x] bind (probably long term)
 - [x] ~~spawn card?~~ (copy keybind + [toomanyjokers](https://github.com/cg-223/toomanyjokers))
 - [x] tutorial state
-- [ ] recreate shop
+- [x] recreate shop
 
 ## Misc
 - [x] Config writing
@@ -34,4 +34,4 @@ Todo list cause i have to much to remember
 - [x] Scroll
 - [x] Rewrite text render (long term) (in a good enough state rn)
 - [x] SMODS Config Page
-- [ ] Non-SMODS Config Page
+- [x] Non-SMODS Config Page

@@ -6,32 +6,23 @@
 --- PREFIX: DebugPlus
 
 -- Steamodded is not necessary. This just adds a bit of compatibility.
-SMODS.Atlas({
-    key = "modicon",
-    path = "modicon.png",
-    px = 32,
-    py = 32
-})
-
-local config = {
-    logLevel = "INFO",
-}
-test = {config = config}
-
-function G.FUNCS.DP_config_callback(args)
-    print(require('debugplus-util').stringifyTable(args))
+if SMODS then
+    if SMODS.Atlas then
+        SMODS.Atlas({
+            key = "modicon",
+            path = "modicon.png",
+            px = 32,
+            py = 32
+        })
+    end
+    
+    if SMODS.current_mod then
+        local config = require("debugplus-config")
+        
+        SMODS.current_mod.config_tab = config.generateConfigTab
+        config.SMODSLoaded = true
+        
+        function SMODS.current_mod.load_mod_config() end
+        function SMODS.current_mod.save_mod_config() end
+    end
 end
-
-local function debugToggle(args)
-    _RELEASE_MODE = not args -- TODO: Save pref
-end
-
-
-local testValues = {
-    debugMode = not _RELEASE_MODE
-}
-
-SMODS.current_mod.config_tab = require("debugplus-config").generateConfigTab
-
-function SMODS.current_mod.load_mod_config() end
-function SMODS.current_mod.save_mod_config() end

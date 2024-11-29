@@ -303,7 +303,7 @@ local function generateMemory()
     end
 end
 
-function global.generateConfigTab()
+function global.generateConfigTab(arg)
     function G.FUNCS.DP_conf_select_callback(e)
         global.setValue(e.cycle_config.dp_key, e.to_val) 
     end
@@ -315,7 +315,7 @@ function global.generateConfigTab()
     return {
         -- ROOT NODE
         n = G.UIT.ROOT,
-        config = {r = 0.1, minw = 7, minh = 5, align = "tm", padding = .5, colour = G.C.BLACK},
+        config = {r = 0.1, minw = 7, minh = 5, align = "cm", padding = arg == "lovely" and .05 or .5, colour = arg == "lovely" and G.C.CLEAR or G.C.BLACK},
         nodes = {
             {
                 -- COLUMN NODE TO ALIGN EVERYTHING INSIDE VERTICALLY
