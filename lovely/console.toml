@@ -1,0 +1,48 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+
+# Console Stuff:
+
+[[patches]]
+[patches.pattern]
+target = "main.lua"
+pattern = 'require "engine/object"'
+position = "before"
+payload = '''
+do
+    local console = require("debugplus-console")
+    console.registerLogHandler()
+end
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "main.lua"
+pattern = 'G:draw()'
+position = "after"
+payload = '''
+do
+    local console = require("debugplus-console")
+    console.doConsoleRender()
+    timer_checkpoint('DebugPlus Console', 'draw')
+end
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "main.lua"
+pattern = 'function love.keypressed(key)'
+position = "after"
+payload = '''
+local console = require("debugplus-console")
+if not console.consoleHandleKey(self, key) then return end
+'''
+match_indent = true
+overwrite = false

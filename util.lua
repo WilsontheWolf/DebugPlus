@@ -1,5 +1,6 @@
 local global = {}
 local isMac = love.system.getOS() == 'OS X'
+global.ctrlText = isMac and "CMD" or "CTRL"
 
 function global.stringifyTable(tab, depth, indent)
     if not indent then
@@ -24,7 +25,7 @@ end
 function global.hasValue(tab, val)
     for index, value in ipairs(tab) do
         if value == val then
-            return true
+            return index
         end
     end
 
@@ -40,6 +41,10 @@ function global.isCtrlDown()
         return love.keyboard.isDown('lgui') or love.keyboard.isDown('rgui')
     end
     return love.keyboard.isDown('lctrl') or love.keyboard.isDown('rctrl')
+end
+
+function global.trim(string)
+    return string:match("^%s*(.-)%s*$")
 end
 
 return global

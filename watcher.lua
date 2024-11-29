@@ -182,11 +182,18 @@ local types = {
     },
     joker = {
         desc = "Starts watching the lua file provided. The returned table is used to modify the joker given in the key value. The table is similar to SMODS.Joker.",
+        check = function() -- Not entirely sure what to all check for here.
+            if SMODS and SMODS.Joker then
+                return true
+            end
+            return false, "Steamodded (v1.0.0+) is necessary to watch jokers."
+        end,
         run = function(content)
             local jokerMeta = jokerMeta or {
                 funcs = {},
             }
             local success, res = evalLuaFile(content)
+            if not success then return false end
             if not res or type(res) ~= "table" then
                 log({1, 0, 0}, "ERROR", "[Watcher] Joker config doesn't look correct. Make sure you are returning an object.")
                 return
@@ -226,7 +233,7 @@ local types = {
                     if #loc_txt.text ~= #loc.text then
                         loc_changed = true
                     else
-                        for k, v in ipairs(loc_txt) do
+                        for k, v in ipairs(loc_txt.text) do
                             if v ~= loc.text[k] then
                                 loc_changed = true
                                 break
@@ -256,6 +263,7 @@ local types = {
                 jokerMeta.funcs[v] = fn
                 ::finishfunc::
             end
+            return true
         end,
         cleanup = function()
             jokerMeta = nil

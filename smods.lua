@@ -6,77 +6,23 @@
 --- PREFIX: DebugPlus
 
 -- Steamodded is not necessary. This just adds a bit of compatibility.
-SMODS.Atlas({
-    key = "modicon",
-    path = "modicon.png",
-    px = 32,
-    py = 32
-})
-
-local config = {
-    logLevel = "INFO",
-}
-test = {config = config}
-
-function G.FUNCS.DP_config_callback(args)
-    print(require('debugplus-util').stringifyTable(args))
+if SMODS then
+    if SMODS.Atlas then
+        SMODS.Atlas({
+            key = "modicon",
+            path = "modicon.png",
+            px = 32,
+            py = 32
+        })
+    end
+    
+    if SMODS.current_mod then
+        local config = require("debugplus-config")
+        
+        SMODS.current_mod.config_tab = config.generateConfigTab
+        config.SMODSLoaded = true
+        
+        function SMODS.current_mod.load_mod_config() end
+        function SMODS.current_mod.save_mod_config() end
+    end
 end
-
-local function debugToggle(args)
-    _RELEASE_MODE = not args -- TODO: Save pref
-end
-
-
-local testValues = {
-    debugMode = not _RELEASE_MODE
-}
-
-require('debugplus-config')()
-
-SMODS.current_mod.config_tab = function()
-    return {
-        -- ROOT NODE
-        n = G.UIT.ROOT,
-        config = {r = 0.1, minw = 7, minh = 5, align = "tm", padding = 1, colour = G.C.BLACK},
-        nodes = {
-            {
-                -- COLUMN NODE TO ALIGN EVERYTHING INSIDE VERTICALLY
-                n = G.UIT.C,
-                config = {align = "tm", padding = 0.1, colour = G.C.BLACK},
-                nodes = {
-                        create_toggle({
-                            label = "Debug Mode",
-                            ref_table = testValues,
-                            ref_value = "debugMode",
-                            callback = debugToggle,
-                            info = {"Toggles everything in DebugPlus except the console"}
-                        }),
-                        create_toggle({
-                            label = "CTRL for keybinds",
-                            ref_table = testValues,
-                            ref_value = "debugMode",
-                            callback = debugToggle,
-                            info = {"Requires you hold ctrl when pressing the built in keybinds"}
-                        }),
-                        create_option_cycle({
-                            options = {
-                                "DEBUG",
-                                "INFO",
-                                "WARNING",
-                                "ERROR",
-                            },
-                            current_option = 2, -- TODO: how to dynamically get me
-                            ref_table = test.config,
-                            ref_value = "logLevel",
-                            opt_callback = "DP_config_callback",
-                            info = {"Log Level"}
-                        }),
-                        
-                }
-            }
-        }
-    }
-end
-
-function SMODS.current_mod.load_mod_config() end
-function SMODS.current_mod.save_mod_config() end

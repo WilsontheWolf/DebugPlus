@@ -6,6 +6,7 @@ Todo list cause i have to much to remember
 - [x] Command register
 - [x] Log API
 - [x] Binding to id
+- [ ] Debug Hud Stuff
 
 ## Commands
 - [x] eval
@@ -18,19 +19,20 @@ Todo list cause i have to much to remember
 - [x] rank
 - [x] bind (probably long term)
 - [x] ~~spawn card?~~ (copy keybind + [toomanyjokers](https://github.com/cg-223/toomanyjokers))
-- [ ] free rerolls (maybe more difficult)
-- [ ] recreate shop
-- [ ] tutorial state
+- [x] tutorial state
+- [x] recreate shop
 
 ## Misc
-- [ ] Config writing
+- [x] Config writing
 - [ ] Better keybind ui
 - [ ] Docs
 - [x] DebugPlus profile
 - [x] Command split so it can print long messages (kinda a hack)
+- [ ] Split out logging so I can log good from config
 - [ ] Arrow keys
     - [x] Up down
     - [ ] Left right
 - [x] Scroll
 - [x] Rewrite text render (long term) (in a good enough state rn)
-- [ ] SMODS Config Page - WIP
+- [x] SMODS Config Page
+- [x] Non-SMODS Config Page

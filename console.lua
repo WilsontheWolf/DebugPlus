@@ -1,6 +1,7 @@
 local util = require("debugplus-util")
 local utf8 = require("utf8")
 local watcher = require("debugplus-watcher")
+local config = require("debugplus-config")
 
 local global = {}
 
@@ -8,7 +9,7 @@ local showTime = 5 -- Amount of time new console messages show up
 local fadeTime = 1 -- Amount of time it takes for a message to fade
 local consoleOpen = false
 local openNextFrame = false
-local showNewLogs = true
+local showNewLogs = config.getValue("showNewLogs")
 local firstConsoleRender = nil
 local logs = nil
 local history = {}
@@ -233,92 +234,51 @@ commands = {{
         end
     end
 }, {
-    name = "value",
+    name = "tutorial",
     source = "debugplus",
-    shortDesc = "Get and modify highlighted card values",
-    desc = "Lets you get or modify the values of the currently hovered card",
-    exec = function (args, rawArgs, dp)
-        local unmodified_vals = {
-            bonus = 0,
-            perma_bonus = 0,
-            extra_value = 0,
-            p_dollars = 0,
-            h_mult = 0,
-            h_x_mult = 0,
-            h_dollars = 0,
-            h_size = 0,
-            d_size = 0,
-            hands_played_at_create = 0,
-            mult = 0,
-            x_mult = 1,
-            e_mult = 0,
-            ee_mult = 0,
-            eee_mult = 0,
-            x_chips = 0,
-            e_chips = 0,
-            ee_chips = 0,
-            eee_chips = 0,
-            t_mult = 0,
-            t_chips = 0,
-        }
-        local ignore_vals = {
-            name = true,
-            set = true,
-            order = true,
-            consumeable = true
-        }
-        local hovered = G.CONTROLLER.hovering.target
-        if hovered:is(Card) then
-            if args[1] == "get" then
-                for k, v in pairs(hovered.ability) do
-                    if (not ignore_vals[k]) and (not unmodified_vals[k] or unmodified_vals[k] ~= hovered.ability[k]) then
-                        if k == "hyper_chips" or k == "hyper_mult" then
-                            if hovered.ability[k][1] ~= 0 or hovered.ability[k][2] ~= 0 then
-                                print(k, hovered.ability[k][1], hovered.ability[k][2])
-                            end
-                        elseif type(hovered.ability[k]) == "table" then
-                            for kk, vv in pairs(hovered.ability[k]) do
-                                print(k, kk, vv)
-                            end
-                        elseif hovered.ability[k] ~= "" then
-                            print(k, hovered.ability[k])
-                        end
-                    end
-                end
-            elseif args[1] == "set" or args[1] == "set_center" then
-                local root = hovered.ability
-                if args[1] == "set_center" then
-                    root = hovered.config.center.config
-                end
-                local rootC
-                if hovered.ability.consumeable then
-                    rootC = root.consumeable
-                end
-                for i = 2, #args-2 do
-                    root = root[args[i]]
-                    if rootC then rootC = rootC[args[i]] end
-                end
-                if tonumber(args[#args]) then --number
-                    root[args[#args-1]] = tonumber(args[#args])
-                    if rootC then rootC[args[#args-1]] = tonumber(args[#args]) end
-                elseif args[#args] == "true" then --bool
-                    root[args[#args-1]] = true
-                    if rootC then rootC[args[#args-1]] = true end
-                elseif args[#args] == "false" then
-                    root[args[#args-1]] = false
-                    if rootC then rootC[args[#args-1]] = false end
-                elseif args[#args][1] == "{" then --table
-                    root[args[#args-1]] = loadstring("return "..args[#args])()
-                    if rootC then rootC[args[#args-1]] = loadstring("return "..args[#args])() end
-                else
-                    root[args[#args-1]] = args[#args]
-                    if rootC then rootC[args[#args-1]] = args[#args] end
-                end
-                return "Value set successfully.", "INFO"
-            else
-                error("Invalid argument. Use 'get' or 'set' or 'set_center'.")
+    shortDesc = "Modify the tutorial state.",
+    desc = "Modify the tutorial state. Usage:\ntutorial finish - Finish the tutorial.\ntutorial reset - Reset the tutorial progress to a fresh state.\ntutorial new - Starts a new tutorial run (like hitting play for the first time)",
+    exec = function(args, rawArgs, dp)
+        local subCmd = args[1]
+        if subCmd == "finish" then
+            if G.OVERLAY_TUTORIAL then
+                G.FUNCS.skip_tutorial_section()
             end
+            G.SETTINGS.tutorial_complete = true
+            G.SETTINGS.tutorial_progress = nil
+            return "Tutorial finished."
+        elseif subCmd == "reset" then
+            G.SETTINGS.tutorial_complete = false
+            G.SETTINGS.tutorial_progress = {
+                forced_shop = {'j_joker', 'c_empress'},
+                forced_voucher = 'v_grabber',
+                forced_tags = {'tag_handy', 'tag_garbage'},
+                hold_parts = {},
+                completed_parts = {}
+            }
+            return "Tutorial reset."
+        elseif subCmd == "new" then
+            G.FUNCS.start_tutorial()
+            return "Starting a new run."
+        else
+            return "Please provide a valid sub command. For more info, run 'help tutorial'"
         end
+    end
+}, {
+    name = "resetshop",
+    source = "debugplus",
+    shortDesc = "Reset the shop.",
+    desc = "Resets the shop.",
+    exec = function(args, rawArgs, dp)
+        if G.STATE ~= G.STATES.SHOP then
+            return "This command can only be run in a shop.", 'ERROR'
+        end
+        G.shop:remove()
+        G.shop = nil
+        G.GAME.current_round.used_packs = nil
+        G.STATE_COMPLETE = false
+        G:update_shop()
+        return "Reset shop."
     end
 }}
 local inputText = ""
@@ -326,19 +286,23 @@ local old_print = print
 local levelMeta = {
     DEBUG = {
         level = 'DEBUG',
-        colour = {1, 0, 1}
+        colour = {1, 0, 1},
+        shouldShow = false,
     },
     INFO = {
         level = 'INFO',
-        colour = {0, 1, 1}
+        colour = {0, 1, 1},
+        shouldShow = true,
     },
     WARN = {
         level = 'WARN',
-        colour = {1, 1, 0}
+        colour = {1, 1, 0},
+        shouldShow = true,
     },
     ERROR = {
         level = 'ERROR',
-        colour = {1, 0, 0}
+        colour = {1, 0, 0},
+        shouldShow = true,
     }
 }
 local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: (%S+) :: (.*)"
@@ -351,44 +315,59 @@ local SMODSLevelMeta = {
     FATAL = levelMeta.ERROR
 }
 
-local function handleLog(colour, _level, ...)
+local function handleLogAdvanced(data, ...)
     old_print(...)
     local _str = ""
     for i, v in ipairs({...}) do
         _str = _str .. tostring(v) .. " "
     end
-    local level, source, msg = string.match(_str, SMODSLogPattern)
-    local meta;
-
-    if not level then
-        meta = {
-            str = _str,
-            time = love.timer.getTime(),
-            colour = colour,
-            level = _level
-        }
-    else
-        local levelMeta = SMODSLevelMeta[level] or SMODSLevelMeta.INFO
-        meta = {
-            str = "[" .. source .. "] " .. msg,
-            time = love.timer.getTime(),
-            colour = levelMeta.colour,
-            level = levelMeta.level
-        }
+    local meta = {
+        str = _str,
+        time = love.timer.getTime(),
+        colour = data.colour,
+        level = data.level,
+        command = data.command,
+    }
+    if data.fromPrint then
+        local level, source, msg = string.match(_str, SMODSLogPattern)
+        if level then
+            local levelMeta = SMODSLevelMeta[level] or SMODSLevelMeta.INFO
+            meta = {
+                str = "[" .. source .. "] " .. msg,
+                time = love.timer.getTime(),
+                colour = levelMeta.colour,
+                level = levelMeta.level
+            }
+        else
+            -- Handling the few times the game itself prints
+            if _str:match("^LONG DT @ [%d.: ]+$") then -- LONG DT messages
+                meta.level = "DEBUG"
+                meta.colour = levelMeta.DEBUG.colour
+            elseif _str:match("^ERROR LOADING GAME: Card area '[%w%d_-]+' not instantiated before load") then -- Error loading areas
+                meta.level = "ERROR"
+                meta.colour = levelMeta.ERROR.colour
+            elseif _str:match("^\n [+-]+ \n | #") and debug.getinfo(3).short_src == "engine/controller.lua" then -- Profiler results table. Extra check cause I don't trust this pattern to not have false positives
+                meta.level = "DEBUG"
+                meta.colour = levelMeta.DEBUG.colour
+                meta.command = true
+            end
+        end
     end
+
     -- Dirty hack to work better with multiline text
     if string.match(meta.str, "\n") then
         local first = true
         for w in string.gmatch(meta.str, "[^\n]+") do
-            local meta = {
+            local _meta = {
                 str = w,
-                time = love.timer.getTime(),
-                colour = colour,
-                level = _level,
+                time = meta.time,
+                colour = meta.colour,
+                level = meta.level,
+                command = meta.command,
                 hack_no_prefix = not first
             }
             first = false
-            table.insert(logs, meta)
+            table.insert(logs, _meta)
             if logOffset ~= 0 then
                 logOffset = math.min(logOffset + 1, #logs)
             end
@@ -407,10 +386,26 @@ local function handleLog(colour, _level, ...)
     end
 end
 
+local function handleLog(colour, level, ...)
+    handleLogAdvanced({
+        colour = colour,
+        level = level,
+        command = true,
+    }, ...)
+end
+
 local function log(...)
     handleLog({.65, .36, 1}, "INFO", "[DebugPlus]", ...)
 end
+
+local function errorLog(...)
+    handleLogAdvanced({
+        colour = {1, 0, 0},
+        level = "ERROR",
+    })
+end
 global.log = log
+global.errorLog = errorLog
 
 local function runCommand()
     if inputText == "" then
@@ -453,7 +448,7 @@ local function runCommand()
     }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
-        return handleLog({1, 0, 0}, "ERROR", "< An error occured processing the command:", result)
+        return handleLog({1, 0, 0}, "ERROR", "< An error occurred processing the command:", result)
     end
     local level = loglevel or "INFO" -- TODO: verify correctness
     local colour = colourOverride or levelMeta[level].colour
@@ -566,7 +561,11 @@ function global.registerLogHandler()
     end
     logs = {}
     print = function(...)
-        handleLog({0, 1, 1}, "INFO", ...)
+        handleLogAdvanced({
+            colour = {0, 1, 1},
+            level = "INFO",
+            fromPrint = true,
+        }, ...)
     end
 end
 
@@ -613,7 +612,7 @@ function global.doConsoleRender()
     end
     for i = #logs, 1, -1 do
         local v = logs[i]
-        if consoleOpen and #logs - logOffset < i then
+        if consoleOpen and #logs - logOffset < i then -- TODO: could this be more efficent?
             goto finishrender
         end
         if not consoleOpen and v.time < firstConsoleRender then
@@ -622,6 +621,12 @@ function global.doConsoleRender()
         local age = now - v.time
         if not consoleOpen and age > showTime + fadeTime then
             break
+        end
+        if not levelMeta[v.level].shouldShow and not v.command then 
+            goto finishrender
+        end
+        if not v.command and config.getValue("onlyCommands") then
+            goto finishrender
         end
         local msg = v.str
         if consoleOpen and not v.hack_no_prefix then
@@ -651,7 +656,10 @@ end
 
 function global.createLogFn(name, level)
     return function(...)
-        handleLog(levelMeta[level].colour, level, "[" .. name .. "]", ...)
+        handleLogAdvanced({
+            colour = levelMeta[level].colour,
+            level = level,
+        }, "[" .. name .. "]", ...)
     end
 end
 
@@ -685,5 +693,25 @@ function global.registerCommand(id, options)
     end
     table.insert(commands, cmd)
 end
+
+config.configDefinition.showNewLogs.onUpdate = function(v) 
+    showNewLogs = v
+end
+
+config.configDefinition.logLevel.onUpdate = function(v)
+    for k, v in pairs(levelMeta) do
+        v.shouldShow = false
+    end
+    
+    levelMeta.ERROR.shouldShow = true
+    if v == "ERROR" then return end
+    levelMeta.WARN.shouldShow = true
+    if v == "WARN" then return end
+    levelMeta.INFO.shouldShow = true
+    if v == "INFO" then return end
+    levelMeta.DEBUG.shouldShow = true
+end
+
+config.configDefinition.logLevel.onUpdate(config.getValue("logLevel"))
 
 return global
