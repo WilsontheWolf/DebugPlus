@@ -51,6 +51,15 @@ payload = '_RELEASE_MODE = false'
 match_indent = true
 overwrite = true
 
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "if self.real_dt > 0.05 then print('LONG DT @ '..math.floor(G.TIMERS.REAL)..': '..self.real_dt) end"
+position = "at"
+payload = "if require('debugplus-config').getValue('enableLongDT') and self.real_dt > 0.05 then print('LONG DT @ '..math.floor(G.TIMERS.REAL)..': '..self.real_dt) end"
+match_indent = true
+overwrite = false
+
 # Note this patch provides the debugplus variable for the profile and perf patches
 [[patches]]
 [patches.pattern]

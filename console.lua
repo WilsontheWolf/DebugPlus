@@ -315,43 +315,43 @@ local SMODSLevelMeta = {
     FATAL = levelMeta.ERROR
 }
 
-local function handleLog(colour, _level, ...)
+local function handleLogAdvanced(data, ...)
     old_print(...)
     local _str = ""
     for i, v in ipairs({...}) do
         _str = _str .. tostring(v) .. " "
     end
-    local level, source, msg = string.match(_str, SMODSLogPattern)
-    local meta;
-
-    if not level then
-        meta = {
-            str = _str,
-            time = love.timer.getTime(),
-            colour = colour,
-            level = _level
-        }
-    else
-        local levelMeta = SMODSLevelMeta[level] or SMODSLevelMeta.INFO
-        meta = {
-            str = "[" .. source .. "] " .. msg,
-            time = love.timer.getTime(),
-            colour = levelMeta.colour,
-            level = levelMeta.level
-        }
-    end
-
-    -- Handling the few times the game itself prints
-    if _str:match("^LONG DT @ [%d.: ]+$") then -- LONG DT messages
-        meta.level = "DEBUG"
-        meta.colour = levelMeta.DEBUG.colour
-    elseif _str:match("^ERROR LOADING GAME: Card area '[%w%d_-]+' not instantiated before load") then -- Error loading areas
-        meta.level = "ERROR"
-        meta.colour = levelMeta.ERROR.colour
-    elseif _str:match("^\n [+-]+ \n | #") and debug.getinfo(3).short_src == "engine/controller.lua" then -- Profiler results table. Extra check cause I don't trust this pattern to not have false positives
-        meta.level = "DEBUG"
-        meta.colour = levelMeta.DEBUG.colour
-        -- TODO: mark as a command
+    local meta = {
+        str = _str,
+        time = love.timer.getTime(),
+        colour = data.colour,
+        level = data.level,
+        command = data.command,
+    }
+    if data.fromPrint then
+        local level, source, msg = string.match(_str, SMODSLogPattern)
+        if level then
+            local levelMeta = SMODSLevelMeta[level] or SMODSLevelMeta.INFO
+            meta = {
+                str = "[" .. source .. "] " .. msg,
+                time = love.timer.getTime(),
+                colour = levelMeta.colour,
+                level = levelMeta.level
+            }
+        else
+            -- Handling the few times the game itself prints
+            if _str:match("^LONG DT @ [%d.: ]+$") then -- LONG DT messages
+                meta.level = "DEBUG"
+                meta.colour = levelMeta.DEBUG.colour
+            elseif _str:match("^ERROR LOADING GAME: Card area '[%w%d_-]+' not instantiated before load") then -- Error loading areas
+                meta.level = "ERROR"
+                meta.colour = levelMeta.ERROR.colour
+            elseif _str:match("^\n [+-]+ \n | #") and debug.getinfo(3).short_src == "engine/controller.lua" then -- Profiler results table. Extra check cause I don't trust this pattern to not have false positives
+                meta.level = "DEBUG"
+                meta.colour = levelMeta.DEBUG.colour
+                meta.command = true
+            end
+        end
     end
 
     -- Dirty hack to work better with multiline text
@@ -363,6 +363,7 @@ local function handleLog(colour, _level, ...)
                 time = meta.time,
                 colour = meta.colour,
                 level = meta.level,
+                command = meta.command,
                 hack_no_prefix = not first
             }
             first = false
@@ -383,6 +384,14 @@ local function handleLog(colour, _level, ...)
             table.remove(logs, 1)
         end
     end
+end
+
+local function handleLog(colour, level, ...)
+    handleLogAdvanced({
+        colour = colour,
+        level = level,
+        command = true,
+    }, ...)
 end
 
 local function log(...)
@@ -431,7 +440,7 @@ local function runCommand()
     }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
-        return handleLog({1, 0, 0}, "ERROR", "< An error occured processing the command:", result)
+        return handleLog({1, 0, 0}, "ERROR", "< An error occurred processing the command:", result)
     end
     local level = loglevel or "INFO" -- TODO: verify correctness
     local colour = colourOverride or levelMeta[level].colour
@@ -544,7 +553,11 @@ function global.registerLogHandler()
     end
     logs = {}
     print = function(...)
-        handleLog({0, 1, 1}, "INFO", ...)
+        handleLogAdvanced({
+            colour = {0, 1, 1},
+            level = "INFO",
+            fromPrint = true,
+        }, ...)
     end
 end
 
@@ -601,7 +614,10 @@ function global.doConsoleRender()
         if not consoleOpen and age > showTime + fadeTime then
             break
         end
-        if not levelMeta[v.level].shouldShow then 
+        if not levelMeta[v.level].shouldShow and not v.command then 
+            goto finishrender
+        end
+        if not v.command and config.getValue("onlyCommands") then
             goto finishrender
         end
         local msg = v.str
@@ -632,7 +648,10 @@ end
 
 function global.createLogFn(name, level)
     return function(...)
-        handleLog(levelMeta[level].colour, level, "[" .. name .. "]", ...)
+        handleLogAdvanced({
+            colour = levelMeta[level].colour,
+            level = level,
+        }, "[" .. name .. "]", ...)
     end
 end
 

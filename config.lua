@@ -46,6 +46,15 @@ local configDefinition = {
         default = true,
         info = {"Shows some debug information on the top left of the screen."}
     },
+    -- Hidden config for rn. Even though they are hidden at the default logging level, 
+    -- they are so frequent is starts clearing normal logs if left run for a bit.
+    -- This option was added so if someone does want them, they can be reenabled. 
+    enableLongDT = { 
+        label = "Enable Long DT Messages",
+        type = "toggle",
+        default = false,
+        info = {}
+    },
 }
 
 global.configDefinition = configDefinition
