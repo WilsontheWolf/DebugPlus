@@ -284,7 +284,7 @@ commands = {{
     name = "value",
     source = "debugplus",
     shortDesc = "Get and modify highlighted card values",
-    desc = "Lets you get or modify the values of the currently hovered card",
+    desc = "Retrives or modifies the values of the currently hovered card. Usage:\nvalue get - Gets all detected values on the hovered card.\nvalue set [keys] [value] - Modifies a value of hovered card. The format of keys should match the 'get' command.\nvalue set_center [keys] [value] - Modifies a value on the center of the hovered card. This will modify future versions of the card.",
     exec = function (args, rawArgs, dp)
         local unmodified_vals = {
             bonus = 0,
@@ -315,31 +315,31 @@ commands = {{
             order = true,
             consumeable = true
         }
-        local hovered = G.CONTROLLER.hovering.target
-        if hovered:is(Card) then
+        if dp.hovered:is(Card) then
             if args[1] == "get" then
-                for k, v in pairs(hovered.ability) do
-                    if (not ignore_vals[k]) and (not unmodified_vals[k] or unmodified_vals[k] ~= hovered.ability[k]) then
+                for k, v in pairs(dp.hovered.ability) do
+                    if (not ignore_vals[k]) and (not unmodified_vals[k] or unmodified_vals[k] ~= dp.hovered.ability[k]) then
                         if k == "hyper_chips" or k == "hyper_mult" then
-                            if hovered.ability[k][1] ~= 0 or hovered.ability[k][2] ~= 0 then
-                                print(k, hovered.ability[k][1], hovered.ability[k][2])
+                            if dp.hovered.ability[k][1] ~= 0 or dp.hovered.ability[k][2] ~= 0 then
+                                dp.log(k, dp.hovered.ability[k][1], dp.hovered.ability[k][2])
                             end
-                        elseif type(hovered.ability[k]) == "table" then
-                            for kk, vv in pairs(hovered.ability[k]) do
-                                print(k, kk, vv)
+                        elseif type(dp.hovered.ability[k]) == "table" then
+                            for kk, vv in pairs(dp.hovered.ability[k]) do
+                                dp.log(k, kk, vv)
                             end
-                        elseif hovered.ability[k] ~= "" then
-                            print(k, hovered.ability[k])
+                        elseif dp.hovered.ability[k] ~= "" then
+                            dp.log(k, dp.hovered.ability[k])
                         end
                     end
                 end
+                return "Values retrieved successfully."
             elseif args[1] == "set" or args[1] == "set_center" then
-                local root = hovered.ability
+                local root = dp.hovered.ability
                 if args[1] == "set_center" then
-                    root = hovered.config.center.config
+                    root = dp.hovered.config.center.config
                 end
                 local rootC
-                if hovered.ability.consumeable then
+                if dp.hovered.ability.consumeable then
                     rootC = root.consumeable
                 end
                 for i = 2, #args-2 do
@@ -355,14 +355,11 @@ commands = {{
                 elseif args[#args] == "false" then
                     root[args[#args-1]] = false
                     if rootC then rootC[args[#args-1]] = false end
-                elseif args[#args][1] == "{" then --table
-                    root[args[#args-1]] = loadstring("return "..args[#args])()
-                    if rootC then rootC[args[#args-1]] = loadstring("return "..args[#args])() end
                 else
                     root[args[#args-1]] = args[#args]
                     if rootC then rootC[args[#args-1]] = args[#args] end
                 end
-                return "Value set successfully.", "INFO"
+                return "Value set successfully."
             else
                 error("Invalid argument. Use 'get' or 'set' or 'set_center'.")
             end
