@@ -1,7 +1,7 @@
 local util = require("debugplus-util")
 local utf8 = require("utf8")
 local watcher = require("debugplus-watcher")
-local config =require("debugplus-config")
+local config = require("debugplus-config")
 
 local global = {}
 
@@ -397,7 +397,15 @@ end
 local function log(...)
     handleLog({.65, .36, 1}, "INFO", "[DebugPlus]", ...)
 end
+
+local function errorLog(...)
+    handleLogAdvanced({
+        colour = {1, 0, 0},
+        level = "ERROR",
+    })
+end
 global.log = log
+global.errorLog = errorLog
 
 local function runCommand()
     if inputText == "" then

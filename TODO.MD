@@ -28,6 +28,7 @@ Todo list cause i have to much to remember
 - [ ] Docs
 - [x] DebugPlus profile
 - [x] Command split so it can print long messages (kinda a hack)
+- [ ] Split out logging so I can log good from config
 - [ ] Arrow keys
     - [x] Up down
     - [ ] Left right

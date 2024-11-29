@@ -3,44 +3,6 @@ version = "1.0.0"
 dump_lua = true
 priority = 0
 
-# Modules
-[[patches]]
-[patches.module]
-source = "util.lua"
-before = "main.lua"
-name = "debugplus-util"
-
-# Modules
-[[patches]]
-[patches.module]
-source = "config.lua"
-before = "main.lua"
-name = "debugplus-config"
-
-[[patches]]
-[patches.module]
-source = "watcher.lua"
-before = "main.lua"
-name = "debugplus-watcher"
-
-[[patches]]
-[patches.module]
-source = "console.lua"
-before = "main.lua"
-name = "debugplus-console"
-
-[[patches]]
-[patches.module]
-source = "api.lua"
-before = "main.lua"
-name = "debugplus-api"
-
-[[patches]]
-[patches.module]
-source = "core.lua"
-before = "engine/controller.lua"
-name = "debugplus-core"
-
 # Core 
 [[patches]]
 [patches.pattern]
@@ -151,7 +113,7 @@ payload = '''
 match_indent = true
 overwrite = true
 
-[[patches]] # Readds the debug info to v1.0.1g+
+[[patches]] # Readds the debug info to v1.0.1g+ / show hud config
 [patches.pattern]
 target = "game.lua"
 pattern = 'if not _RELEASE_MODE and G.DEBUG and not G.video_control and G.F_VERBOSE then'
@@ -160,48 +122,9 @@ payload = '''if require("debugplus-config").getValue("showHUD") and not G.video_
 match_indent = true
 overwrite = false
 
-# Console Stuff:
-
-[[patches]]
-[patches.pattern]
-target = "main.lua"
-pattern = 'require "engine/object"'
-position = "before"
-payload = '''
-do
-    local console = require("debugplus-console")
-    console.registerLogHandler()
-end
-'''
-match_indent = true
-overwrite = true
-
-[[patches]]
-[patches.pattern]
-target = "main.lua"
-pattern = 'G:draw()'
-position = "after"
-payload = '''
-do
-    local console = require("debugplus-console")
-    console.doConsoleRender()
-    timer_checkpoint('DebugPlus Console', 'draw')
-end
-'''
-match_indent = true
-overwrite = true
-
-[[patches]]
-[patches.pattern]
-target = "main.lua"
-pattern = 'function love.keypressed(key)'
-position = "after"
-payload = '''
-local console = require("debugplus-console")
-if not console.consoleHandleKey(self, key) then return end
-'''
-match_indent = true
-overwrite = false
+#
+## Better vanilla debugs
+#
 
 [[patches]]
 [patches.pattern]
@@ -224,10 +147,6 @@ do
     end
 end
 '''
-
-#
-## Better vanilla debugs
-#
 
 # Performance profiler enabled by pressing v, prints results to console.
 [[patches]]
@@ -262,31 +181,5 @@ v_off = v_off + section_h
 end
 local v_off = v_off - section_h * #b.checkpoint_list
 for k, v in ipairs(b.checkpoint_list) do
-'''
-match_indent = true
-
-# Handles the ctrl keybind check
-[[patches]]
-[patches.pattern]
-target = "engine/controller.lua"
-pattern = '''if not _RELEASE_MODE then'''
-position = "at"
-payload = '''if not _RELEASE_MODE and require("debugplus-core").isOkayToHandleDebugForKey(key) then'''
-match_indent = true
-
-# Add the config tab to the settings (for when SMODS isn't present)
-[[patches]]
-[patches.pattern]
-target = "functions/UI_definitions.lua"
-pattern = '''local t = create_UIBox_generic_options({back_func = 'options',contents = {create_tabs('''
-position = "before"
-payload = '''
-if not require("debugplus-config").SMODSLoaded then
-    tabs[#tabs+1] = {
-        label = "DebugPlus",
-        tab_definition_function = require("debugplus-config").generateConfigTab,
-        tab_definition_function_args = 'lovely'
-    }
-end
 '''
 match_indent = true

@@ -7,10 +7,10 @@ local modIDs = {
     }
 }
 -- API versions:
--- 0: Pre-release
+-- 1: Initial release 
 
 function global.isVersionCompatible(version) 
-    if version == 0 then
+    if version == 1 then
         return true
     end
     return false

@@ -15,7 +15,7 @@ local logger = {
     error = print
 }
 
-if success and dpAPI.isVersionCompatible(0) then
+if success and dpAPI.isVersionCompatible(1) then
     local debugplus = dpAPI.registerID("Example")
     logger = debugplus.logger
 

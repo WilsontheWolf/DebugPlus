@@ -182,6 +182,12 @@ local types = {
     },
     joker = {
         desc = "Starts watching the lua file provided. The returned table is used to modify the joker given in the key value. The table is similar to SMODS.Joker.",
+        check = function() -- Not entirely sure what to all check for here.
+            if SMODS and SMODS.Joker then
+                return true
+            end
+            return false, "Steamodded (v1.0.0+) is necessary to watch jokers."
+        end,
         run = function(content)
             local jokerMeta = jokerMeta or {
                 funcs = {},

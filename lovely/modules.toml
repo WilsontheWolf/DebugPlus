@@ -1,0 +1,41 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+# Modules
+[[patches]]
+[patches.module]
+source = "util.lua"
+before = "main.lua"
+name = "debugplus-util"
+
+[[patches]]
+[patches.module]
+source = "config.lua"
+before = "main.lua"
+name = "debugplus-config"
+
+[[patches]]
+[patches.module]
+source = "watcher.lua"
+before = "main.lua"
+name = "debugplus-watcher"
+
+[[patches]]
+[patches.module]
+source = "console.lua"
+before = "main.lua"
+name = "debugplus-console"
+
+[[patches]]
+[patches.module]
+source = "api.lua"
+before = "main.lua"
+name = "debugplus-api"
+
+[[patches]]
+[patches.module]
+source = "core.lua"
+before = "engine/controller.lua"
+name = "debugplus-core"
