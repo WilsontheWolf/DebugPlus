@@ -371,7 +371,7 @@ local function handleLogAdvanced(data, ...)
             if logOffset ~= 0 then
                 logOffset = math.min(logOffset + 1, #logs)
             end
-            if #logs > 1000 then
+            if #logs > 5000 then
                 table.remove(logs, 1)
             end
         end
@@ -380,7 +380,7 @@ local function handleLogAdvanced(data, ...)
         if logOffset ~= 0 then
             logOffset = math.min(logOffset + 1, #logs)
         end
-        if #logs > 1000 then
+        if #logs > 5000 then
             table.remove(logs, 1)
         end
     end
