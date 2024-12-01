@@ -8,7 +8,7 @@ DebugPlus is a Balatro mod that adds a bunch of additional debug tools on top of
 - A comically oversized spoonful of [new keybinds](https://github.com/WilsontheWolf/DebugPlus/blob/master/keys.txt)
 
 ## Installation
-DebugPlus requires [lovely](https://github.com/ethangreen-dev/lovely-injector) to run. You can then download either the [latest release](https://github.com/WilsontheWolf/DebugPlus/releases), or the code directly into your `Mods` folder.
+DebugPlus requires [lovely](https://github.com/ethangreen-dev/lovely-injector) to run. You can then download either the [latest release](https://github.com/WilsontheWolf/DebugPlus/releases), or [the latest code](https://github.com/WilsontheWolf/DebugPlus/archive/refs/heads/master.zip) directly into your `Mods` folder.
 
 You can hold tab to open the debug menu and press / to open the console.
 
