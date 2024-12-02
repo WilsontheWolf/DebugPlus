@@ -280,6 +280,100 @@ commands = {{
         G:update_shop()
         return "Reset shop."
     end
+}, {
+    name = "value",
+    source = "debugplus",
+    shortDesc = "Get and modify highlighted card values",
+    desc = "Retrives or modifies the values of the currently hovered card. Usage:\nvalue get - Gets all detected values on the hovered card.\nvalue set [keys] [value] - Modifies a value of hovered card. The format of keys should match the 'get' command.\nvalue set_center [keys] [value] - Modifies a value on the center of the hovered card. This will modify future versions of the card.",
+    exec = function (args, rawArgs, dp)
+        local unmodified_vals = {
+            bonus = 0,
+            perma_bonus = 0,
+            extra_value = 0,
+            p_dollars = 0,
+            h_mult = 0,
+            h_x_mult = 0,
+            h_dollars = 0,
+            h_size = 0,
+            d_size = 0,
+            hands_played_at_create = 0,
+            mult = 0,
+            x_mult = 1,
+            e_mult = 0,
+            ee_mult = 0,
+            eee_mult = 0,
+            x_chips = 0,
+            e_chips = 0,
+            ee_chips = 0,
+            eee_chips = 0,
+            t_mult = 0,
+            t_chips = 0,
+        }
+        local ignore_vals = {
+            name = true,
+            set = true,
+            order = true,
+            consumeable = true
+        }
+        if dp.hovered:is(Card) then
+            if args[1] == "get" then
+                local values = "Values:"
+                for k, v in pairs(dp.hovered.ability) do
+                    if (not ignore_vals[k]) and (not unmodified_vals[k] or unmodified_vals[k] ~= dp.hovered.ability[k]) then
+                        if k == "hyper_chips" or k == "hyper_mult" then
+                            if dp.hovered.ability[k][1] ~= 0 or dp.hovered.ability[k][2] ~= 0 then
+                                values = values .. "\n" .. tostring(k) .. " " .. tostring(dp.hovered.ability[k][1]) .. " " .. tostring(dp.hovered.ability[k][2])
+                            end
+                        elseif type(dp.hovered.ability[k]) == "table" then
+                            for kk, vv in pairs(dp.hovered.ability[k]) do
+                                values = values .. "\n" .. tostring(k) .. " " .. tostring(kk) .. " " .. tostring(vv)
+                            end
+                        elseif dp.hovered.ability[k] ~= "" then
+                            values = values .. "\n" .. tostring(k) .. " " .. tostring(dp.hovered.ability[k])
+                        end
+                    end
+                end
+                return values
+            elseif args[1] == "set" or args[1] == "set_center" then
+                local root = dp.hovered.ability
+                if args[1] == "set_center" then
+                    root = dp.hovered.config.center.config
+                end
+                local rootC
+                if dp.hovered.ability.consumeable then
+                    rootC = root.consumeable
+                end
+                if #args < 2 then
+                    return "Please provide a key to set", "ERROR"   
+                end
+                if #args < 3 then
+                    return "Please provide a value to set", "ERROR"   
+                end
+                for i = 2, #args-2 do
+                    root = root[args[i]]
+                    if rootC then rootC = rootC[args[i]] end
+                end
+                if tonumber(args[#args]) then --number
+                    root[args[#args-1]] = tonumber(args[#args])
+                    if rootC then rootC[args[#args-1]] = tonumber(args[#args]) end
+                elseif args[#args] == "true" then --bool
+                    root[args[#args-1]] = true
+                    if rootC then rootC[args[#args-1]] = true end
+                elseif args[#args] == "false" then
+                    root[args[#args-1]] = false
+                    if rootC then rootC[args[#args-1]] = false end
+                else
+                    root[args[#args-1]] = args[#args]
+                    if rootC then rootC[args[#args-1]] = args[#args] end
+                end
+                return "Value set successfully."
+            else
+                return "Invalid argument. Use 'get' or 'set' or 'set_center'.", "ERROR"
+            end
+        else
+            return "This command only works while hovering over a card. Rerun it while hovering over a card.", "ERROR"
+        end
+    end
 }}
 local inputText = ""
 local old_print = print
