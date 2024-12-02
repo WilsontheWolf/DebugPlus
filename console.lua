@@ -317,22 +317,23 @@ commands = {{
         }
         if dp.hovered:is(Card) then
             if args[1] == "get" then
+                local values = "Values:"
                 for k, v in pairs(dp.hovered.ability) do
                     if (not ignore_vals[k]) and (not unmodified_vals[k] or unmodified_vals[k] ~= dp.hovered.ability[k]) then
                         if k == "hyper_chips" or k == "hyper_mult" then
                             if dp.hovered.ability[k][1] ~= 0 or dp.hovered.ability[k][2] ~= 0 then
-                                dp.log(k, dp.hovered.ability[k][1], dp.hovered.ability[k][2])
+                                values = values .. "\n" .. tostring(k) .. " " .. tostring(dp.hovered.ability[k][1]) .. " " .. tostring(dp.hovered.ability[k][2])
                             end
                         elseif type(dp.hovered.ability[k]) == "table" then
                             for kk, vv in pairs(dp.hovered.ability[k]) do
-                                dp.log(k, kk, vv)
+                                values = values .. "\n" .. tostring(k) .. " " .. tostring(kk) .. " " .. tostring(vv)
                             end
                         elseif dp.hovered.ability[k] ~= "" then
-                            dp.log(k, dp.hovered.ability[k])
+                            values = values .. "\n" .. tostring(k) .. " " .. tostring(dp.hovered.ability[k])
                         end
                     end
                 end
-                return "Values retrieved successfully."
+                return values
             elseif args[1] == "set" or args[1] == "set_center" then
                 local root = dp.hovered.ability
                 if args[1] == "set_center" then
@@ -361,8 +362,10 @@ commands = {{
                 end
                 return "Value set successfully."
             else
-                error("Invalid argument. Use 'get' or 'set' or 'set_center'.")
+                return "Invalid argument. Use 'get' or 'set' or 'set_center'.", "ERROR"
             end
+        else
+            return "This command only works while hovering over a card. Rerun it while hovering over a card.", "ERROR"
         end
     end
 }}
