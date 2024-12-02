@@ -343,6 +343,12 @@ commands = {{
                 if dp.hovered.ability.consumeable then
                     rootC = root.consumeable
                 end
+                if #args < 2 then
+                    return "Please provide a key to set", "ERROR"   
+                end
+                if #args < 3 then
+                    return "Please provide a value to set", "ERROR"   
+                end
                 for i = 2, #args-2 do
                     root = root[args[i]]
                     if rootC then rootC = rootC[args[i]] end
