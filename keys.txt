@@ -1,3 +1,5 @@
+Most of these require you hold ctrl to run (can be disabled in the config)
+
 Built in:
 tab: menu
 1: unlock card

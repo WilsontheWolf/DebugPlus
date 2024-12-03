@@ -4,6 +4,7 @@
 --- MOD_AUTHOR: [WilsontheWolf]
 --- MOD_DESCRIPTION: Better Debug Tools for Balatro 
 --- PREFIX: DebugPlus
+--- VERSION: 1.0.0~dev
 
 -- Steamodded is not necessary. This just adds a bit of compatibility.
 if SMODS then

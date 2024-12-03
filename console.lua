@@ -546,7 +546,6 @@ local function runCommand()
         return handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
     end
     local dp = {
-        test = "testing",
         hovered = G.CONTROLLER.hovering.target,
         handleLog = handleLog
     }

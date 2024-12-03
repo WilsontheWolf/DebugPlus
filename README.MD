@@ -5,7 +5,7 @@ DebugPlus is a Balatro mod that adds a bunch of additional debug tools on top of
 - Win blind button
 - Support for spawning vouchers, boosters, tags and blinds
 - Save states
-- A comically oversized spoonful of [new keybinds](https://github.com/WilsontheWolf/DebugPlus/blob/master/keys.txt)
+- A comically oversized spoonful of [new keybinds](keys.txt)
 
 ## Installation
 DebugPlus requires [lovely](https://github.com/ethangreen-dev/lovely-injector) to run. You can then download either the [latest release](https://github.com/WilsontheWolf/DebugPlus/releases), or [the latest code](https://github.com/WilsontheWolf/DebugPlus/archive/refs/heads/master.zip) directly into your `Mods` folder.
