@@ -553,7 +553,7 @@ local function runCommand()
         return handleLog({1, 0, 0}, "ERROR", "< An error occurred processing the command:", result)
     end
     local level = loglevel or "INFO"
-    if not levelMeta[loglevel] then
+    if not levelMeta[level] then
         level = "INFO"
         handleLogAdvanced({
             level = "WARN",
