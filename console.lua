@@ -64,7 +64,7 @@ commands = {{
             return '"' .. cmdName .. '" could not be found. To see a list of all commands, run "help" without any args',
                 "ERROR"
         end
-        return cmd.name .. ":\n" .. cmd.desc .. "\n\nThis command can be run by typing '" .. cmd.name .. "'' or '" ..
+        return cmd.name .. ":\n" .. cmd.desc .. "\n\nThis command can be run by typing '" .. cmd.name .. "' or '" ..
                    cmd.source .. ":" .. cmd.name .. "'."
     end
 }, {
@@ -282,6 +282,8 @@ commands = {{
         end
         G.shop:remove()
         G.shop = nil
+        G.SHOP_SIGN:remove()
+        G.SHOP_SIGN = nil
         G.GAME.current_round.used_packs = nil
         G.STATE_COMPLETE = false
         G:update_shop()

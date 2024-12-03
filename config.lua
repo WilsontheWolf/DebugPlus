@@ -10,14 +10,14 @@ local configDefinition = {
         label = "Debug Mode",
         type = "toggle",
         default = true,
-        info = {"Toggles everything in DebugPlus except the console"},
+        info = {"Toggles everything in DebugPlus except the console."},
         onUpdate = function(v) _RELEASE_MODE = not v end
     },
     ctrlKeybinds = {
         label = util.ctrlText .. " for Keybinds",
         type = "toggle",
         default = true,
-        info = {"Requires you hold ".. util.ctrlText .. " when pressing the built in keybinds"}
+        info = {"Requires you hold ".. util.ctrlText .. " when pressing the built in keybinds."}
     },
     logLevel = {
         label = "Log Level",

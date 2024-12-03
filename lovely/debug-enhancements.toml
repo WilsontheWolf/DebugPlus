@@ -75,11 +75,15 @@ overwrite = false
 [patches.pattern]
 target = "functions/UI_definitions.lua"
 pattern = '{n=G.UIT.T, config={text = "and press [Q] to cycle Edition", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
-position = "after"
+position = "at"
 # This patch is super jank 
 # when lovely supports regex, move the save state to it's own block.
 payload = '''
+    {n=G.UIT.T, config={text = "hold [" .. require("debugplus-util").ctrlText .. "] (togglable in config)", scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
+{n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
+    {n=G.UIT.T, config={text = "and press [Q] to cycle Edition", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+}}, 
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
     {n=G.UIT.T, config={text = "press [W] to cycle Enhancement", scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
