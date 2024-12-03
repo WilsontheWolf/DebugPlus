@@ -240,7 +240,7 @@ configTypes = {
             local curr = util.hasValue(def.values, configMemory[def.key].value) or 1
             return create_option_cycle({
                 options = def.values,
-                current_option = curr, -- TODO: how to dynamically get me
+                current_option = curr,
                 scale = 0.8,
                 opt_callback = "DP_conf_select_callback",
                 label = def.label,
@@ -328,9 +328,10 @@ function global.generateConfigTab(arg)
 end
 
 generateMemory()
-if debug.getinfo(1).source:match("@.*") then -- For when running under watch
-    print("DebugPlus config in watch")
-    return global.generateConfigTab() -- For watch config_tab
-end
+
+-- if debug.getinfo(1).source:match("@.*") then -- For when running under watch
+--     print("DebugPlus config in watch")
+--     return global.generateConfigTab() -- For watch config_tab
+-- end
 
 return global

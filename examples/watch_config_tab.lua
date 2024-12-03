@@ -32,7 +32,7 @@ return {
             info = {"Requires you hold ctrl when pressing the built in keybinds"}
         }), create_option_cycle({
             options = {"DEBUG", "INFO", "WARNING", "ERROR"},
-            current_option = 2, -- TODO: how to dynamically get me
+            current_option = 2,
             ref_table = test.config,
             ref_value = "logLevel",
             opt_callback = "DP_config_callback",

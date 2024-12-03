@@ -454,6 +454,7 @@ local function handleLogAdvanced(data, ...)
             end
         end
     end
+    if not meta.colour then meta.colour = levelMeta[meta.level].colour end
 
     -- Dirty hack to work better with multiline text
     if string.match(meta.str, "\n") then
@@ -551,7 +552,13 @@ local function runCommand()
     if not success then
         return handleLog({1, 0, 0}, "ERROR", "< An error occurred processing the command:", result)
     end
-    local level = loglevel or "INFO" -- TODO: verify correctness
+    local level = loglevel or "INFO"
+    if not levelMeta[loglevel] then
+        level = "INFO"
+        handleLogAdvanced({
+            level = "WARN",
+        }, "[DebugPlus] Command ".. cmdName.. " returned an invalid log level. Defaulting to INFO.")
+    end
     local colour = colourOverride or levelMeta[level].colour
     if success and success ~= "" then
         return handleLog(colour, level, "<", result)
