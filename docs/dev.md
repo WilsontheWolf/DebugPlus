@@ -135,7 +135,7 @@ Watch is a command that watches for changes in a file, then performs an action o
 Running `watch lua <path>` will watch the provided file for changes and eval the code. Useful for when you want to do some testing on larger bits of code.
 
 > [!WARNING]  
-> Running this on an existing mod file is likely to cause issues due to side effects.Make sure you design your watched file around it being run multiple times.
+> Running this on an existing mod file is likely to cause issues due to side effects. Make sure you design your watched file around it being run multiple times.
 
 #### config_tab
 
