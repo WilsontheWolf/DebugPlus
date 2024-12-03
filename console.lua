@@ -569,13 +569,12 @@ local function runCommand()
     end
 end
 
-function global.consoleHandleKey(_controller, key)
+function global.consoleHandleKey(key)
     if not consoleOpen then
         if key == '/' or key == 'kp/' then
             if util.isShiftDown() then
                 showNewLogs = not showNewLogs
             else
-                controller = _controller
                 openNextFrame = true -- This is to prevent the keyboard handler from typing this key
             end
         end
