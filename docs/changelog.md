@@ -14,7 +14,7 @@ unchanged for 5 months.
 - By default, most debug keybinds require you hold CTRL to use them.
     - You may change this in the config. If Steamodded is installed, then go to Mods > DebugPlus > Config, otherwise go to Settings > DebugPlus to access the config.
 - The layout of branches has changed a bit, if you are getting the code from the source. 
-    - As of now, the master branch will be where main development goes. A new stable branch has been created if you just want the latest release.
+    - As of now, the master branch will be where main development goes. A new stable tag has been created if you just want the latest release from git.
     - You can also now download the latest version from [GitHub Releases](https://github.com/WilsontheWolf/DebugPlus/releases).
 
 ## Features
