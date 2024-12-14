@@ -1,7 +1,9 @@
 # DebugPlus 1.1.0
+
 ## Features
 - Copying a playing card now places it in the deck if your hand is empty.
 - Internal changes to the logger
+- Detect nested folders (when smods is loaded) and provide a useful error message
 
 # DebugPlus 1.0.0
 

@@ -10,8 +10,11 @@ if SMODS.Atlas then
 end
 
 if SMODS.current_mod then
-    local config = require("debugplus-config")
+    local configSuccess, config = pcall(require, "debugplus-config")
     
+    if not configSuccess then
+        error("DebugPlus modules not successfully initialized.\nMake sure your DebugPlus folder is not nested (there should be a bunch of files in the DebugPlus folder and not just another folder).")
+    end
     SMODS.current_mod.config_tab = config.generateConfigTab
     config.SMODSLoaded = true
     
