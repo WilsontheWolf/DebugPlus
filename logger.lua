@@ -1,11 +1,3 @@
--- if type(config) == "string" then -- To handle older lovely versions, where I can't properly load my deps.
---     return {
---         registerLogHandler = function() -- Can't error myself because it's not propagated, so I error in the first function that is called.
---             error("DebugPlus couldn't load a required component. Please make sure your lovely is up to date.\nYou can grab the latest lovely at: https://github.com/ethangreen-dev/lovely-injector/releases")
---         end
---     }
--- end
-
 local global = {}
 local logs = nil
 local old_print = print

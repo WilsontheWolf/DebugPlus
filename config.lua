@@ -3,8 +3,17 @@ if string.match(debug.getinfo(1).source, '=%[SMODS %w+ ".+"]') then
 end
 
 local util = require("debugplus-util")
-local logger = require("debugplus-logger")
+local loggerSucc, logger = pcall(require, "debugplus-logger")
 local global = {}
+
+if not loggerSucc then -- To handle older lovely versions, where I can't properly load my deps.
+    return {
+        getValue = function() -- Can't error myself because it's not propagated, so I error in the first function that is called.
+            error("DebugPlus couldn't load a required component. Please make sure your lovely is up to date.\nYou can grab the latest lovely at: https://github.com/ethangreen-dev/lovely-injector/releases\n\n".. (logger or "No further info"))
+        end
+    }
+end
+
 
 local configDefinition = {
     debugMode = {
