@@ -122,7 +122,11 @@ function global.handleKeys(controller, key, dt)
             if _card.ability.set == 'Joker' then
                 _area = G.jokers
             elseif _card.playing_card then
-                _area = G.hand
+                if G.hand and G.hand.config.card_count ~= 0 then
+                    _area = G.hand
+                else 
+                    _area = G.deck
+                end
             elseif _card.ability.consumeable then
                 _area = G.consumeables
             end

@@ -1,0 +1,10 @@
+{
+	"id": "DebugPlus",
+	"name": "DebugPlus",
+	"display_name": "",
+	"author": ["WilsontheWolf"],
+	"description": "Better Debug Tools for Balatro ",
+	"prefix": "DebugPlus",
+	"main_file": "smods.lua",
+	"version": "1.1.0~dev"
+}
