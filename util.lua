@@ -36,11 +36,14 @@ function global.isShiftDown()
     return love.keyboard.isDown('lshift') or love.keyboard.isDown('rshift')
 end
 
-function global.isCtrlDown()
-    if isMac then 
+if isMac then
+    function global.isCtrlDown()
         return love.keyboard.isDown('lgui') or love.keyboard.isDown('rgui')
     end
-    return love.keyboard.isDown('lctrl') or love.keyboard.isDown('rctrl')
+else
+    function global.isCtrlDown()
+        return love.keyboard.isDown('lctrl') or love.keyboard.isDown('rctrl')
+    end
 end
 
 function global.trim(string)

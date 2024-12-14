@@ -1,3 +1,8 @@
+# DebugPlus 1.1.0
+## Features
+- Copying a playing card now places it in the deck if your hand is empty.
+- Internal changes to the logger
+
 # DebugPlus 1.0.0
 
 I've been cooking this for a while but now it's ready for general consumption. 

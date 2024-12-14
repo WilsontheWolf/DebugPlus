@@ -1,4 +1,5 @@
 local console = require("debugplus-console")
+local logger = require("debugplus-logger")
 
 local global = {}
 local modIDs = {
@@ -18,11 +19,11 @@ end
 
 local function createLogger(name) 
     return {
-        log = console.createLogFn(name, "INFO"),
-        debug = console.createLogFn(name, "DEBUG"),
-        info = console.createLogFn(name, "INFO"),
-        warn = console.createLogFn(name, "WARN"),
-        error = console.createLogFn(name, "ERROR"),  
+        log = logger.createLogFn(name, "INFO"),
+        debug = logger.createLogFn(name, "DEBUG"),
+        info = logger.createLogFn(name, "INFO"),
+        warn = logger.createLogFn(name, "WARN"),
+        error = logger.createLogFn(name, "ERROR"),  
     }
 end
 

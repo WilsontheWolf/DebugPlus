@@ -3,6 +3,7 @@ if string.match(debug.getinfo(1).source, '=%[SMODS %w+ ".+"]') then
 end
 
 local util = require("debugplus-util")
+local logger = require("debugplus-logger")
 local global = {}
 
 local configDefinition = {
@@ -24,7 +25,23 @@ local configDefinition = {
         type = "select",
         default = "INFO",
         values = {"DEBUG", "INFO", "WARN", "ERROR"},
-        info = {"Only shows you logs of a certain level. This setting ignore command logs."}
+        info = {"Only shows you logs of a certain level. This setting ignore command logs."},
+        -- Most of the time I wouldn't define onUpdate here for something in another module, 
+        -- but I need to avoid circular dependencies and want the logger here.
+        onUpdate = function(v) 
+            for k, v in pairs(logger.levelMeta) do
+                v.shouldShow = false
+            end
+            
+            logger.levelMeta.ERROR.shouldShow = true
+            if v == "ERROR" then return logger.handleLogsChange() end
+            logger.levelMeta.WARN.shouldShow = true
+            if v == "WARN" then return logger.handleLogsChange() end
+            logger.levelMeta.INFO.shouldShow = true
+            if v == "INFO" then return logger.handleLogsChange() end
+            logger.levelMeta.DEBUG.shouldShow = true
+            logger.handleLogsChange() 
+        end
     },
     showNewLogs = {
         label = "Show New Logs",
@@ -125,12 +142,11 @@ local function parseConfigFile(data)
     for str in string.gmatch(data, "([^\n\r]+)") do
         local name, val = str:match("(%w+)%s*=%s*(.+)")
         if not name then
-            print("Failed to parse line:", str)
+            logger.errorLog("Failed to parse line:", str)
         else
             t[name] = parseConfigValue(val)
         end
     end
-    print(require("debugplus-util").stringifyTable(t))
     return t
 end
 
@@ -146,7 +162,6 @@ local function stringifyConfigFile(data)
 end
 
 local function loadSaveFromFile()
-    print("load save")
     local content = love.filesystem.read("config/DebugPlus.jkr")
     if not content then
         return {}
@@ -155,7 +170,7 @@ local function loadSaveFromFile()
     if success and type(res) == "table" then
         return res
     end
-    print("Loading save err", res)
+    logger.errorLog("Loading save err", res)
     return {}
 end
 
@@ -176,7 +191,7 @@ local function updateSaveFile()
     if success then
         love.filesystem.write("config/DebugPlus.jkr", res)
     else
-        print("Failure saving config", res)
+        logger.errorLog("Failure saving config", res)
     end
 end
 
@@ -186,7 +201,7 @@ function global.setValue(key, value)
     if not def then return end
     if configTypes[def.type] and configTypes[def.type].validate then
         if not configTypes[def.type].validate(value, def) then
-            print('Value for saving key ' .. key .. ' failed to validate')
+            logger.errorLog('Value for saving key ' .. key .. ' failed to validate')
             return
         end
     end
@@ -275,7 +290,7 @@ local function generateMemory()
                 if configTypes[def.type].validate(v, def) then
                     value = v
                 else
-                    print('Value for saved key ' .. k .. ' failed to validate')
+                    logger.errorLog('Value for saved key ' .. k .. ' failed to validate')
                     value = def.default
                 end
             else
@@ -330,7 +345,7 @@ end
 generateMemory()
 
 -- if debug.getinfo(1).source:match("@.*") then -- For when running under watch
---     print("DebugPlus config in watch")
+--     logger.log("DebugPlus config in watch")
 --     return global.generateConfigTab() -- For watch config_tab
 -- end
 

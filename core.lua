@@ -1,4 +1,4 @@
-local console = require("debugplus-console")
+local logger = require("debugplus-logger")
 local util = require("debugplus-util")
 local global = {}
 
@@ -7,7 +7,7 @@ local seals = nil
 local suits = nil
 local ranks = nil
 local saveStateKeys = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
-local log = console.log
+local log = logger.log
 
 local function getSeals()
     if seals then

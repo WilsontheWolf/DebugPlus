@@ -1,9 +1,9 @@
+local logger = require("debugplus-logger")
 local hash
 local global = {}
 local event
 local file
 local running = false
-local log
 local currentType
 -- For edition type
 local editionIndex
@@ -37,7 +37,7 @@ local function genSafeFunc(name, funcs)
         local res = {pcall(fn, ...)}
         local succ = table.remove(res, 1)
         if not succ then
-            log({1, 0, 0}, "ERROR", "[Watcher] Joker function \"" .. name .. "\" errored:", unpack(res))
+            logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Joker function \"" .. name .. "\" errored:", unpack(res))
             return
         end
         return unpack(res)
@@ -49,12 +49,12 @@ local function evalLuaFile(content)
     local fn, err = load(content, "@" .. file)
 
     if not fn then
-        log({1, 0, 0}, "ERROR", "[Watcher] Error Loading File:", err)
+        logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Error Loading File:", err)
         return false
     end
     local succ, err = pcall(fn)
     if not succ then
-        log({1, 0, 0}, "ERROR", "[Watcher] Error Running File:", err)
+        logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Error Running File:", err)
         return false
     end
     return true, err
@@ -96,7 +96,7 @@ local types = {
             local success, res = evalLuaFile(content)
             if not success then return false end
             if type(res) ~= "table" or next(res) == nil then
-                log({1, 0, 0}, "ERROR", "[Watcher] Config tab doesn't look valid. Not rendering to prevent a crash. Make sure you're returning something.")
+                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Config tab doesn't look valid. Not rendering to prevent a crash. Make sure you're returning something.")
                 return
             end
             showTabOverlay(res)
@@ -113,11 +113,11 @@ local types = {
         run = function(content)
             local result, shader = pcall(love.graphics.newShader, content)
             if not result then
-                return log({1, 0, 0}, "ERROR", "[Watcher] Error Loading Shader:", shader)
+                return logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Error Loading Shader:", shader)
             end
             local name = content:match("extern [%w_]+ vec2 (%w+);");
             if not name then 
-                return log({1, 0, 0}, "ERROR", "[Watcher] Could not guess name of shader :/. Not applying to avoid crash.")
+                return logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Could not guess name of shader :/. Not applying to avoid crash.")
             end
 
             G.SHADERS.debugplus_watcher_shader = shader
@@ -195,20 +195,20 @@ local types = {
             local success, res = evalLuaFile(content)
             if not success then return false end
             if not res or type(res) ~= "table" then
-                log({1, 0, 0}, "ERROR", "[Watcher] Joker config doesn't look correct. Make sure you are returning an object.")
+                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Joker config doesn't look correct. Make sure you are returning an object.")
                 return
             end
             if not res.key then
-                log({1, 0, 0}, "ERROR", "[Watcher] Joker config is missing a key.")
+                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Joker config is missing a key.")
                 return
             end 
             local center = G.P_CENTERS[res.key]
             if not center then 
-                log({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" does not exist. Make sure your joker has been loaded and the key is correct (don't forget the j_ prefix and your mod prefix).")
+                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" does not exist. Make sure your joker has been loaded and the key is correct (don't forget the j_ prefix and your mod prefix).")
                 return
             end
             if center.set ~= 'Joker' then
-                log({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" is not for a joker.")
+                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" is not for a joker.")
                 return
             end
             if not jokerMeta.key then
@@ -254,7 +254,7 @@ local types = {
                     goto finishfunc
                 end
                 if type(fn) ~= "function" then
-                    log({1, 1, 0}, "WARN", "[Watcher] Found \"" .. v .. "\" but it was not a function. Not applying.")
+                    logger.handleLog({1, 1, 0}, "WARN", "[Watcher] Found \"" .. v .. "\" but it was not a function. Not applying.")
                     goto finishfunc
                 end
                 if not jokerMeta.funcs[v] then
@@ -281,10 +281,10 @@ local function loadFile()
     hash = newHash
     local result, subResult = pcall(currentType.run, content)
     if not result then
-        return log({1, 0, 0}, "ERROR", "[Watcher] Error Running Watcher:", subResult)
+        return logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Error Running Watcher:", subResult)
     end
     if showReloaded and subResult then
-        log({0, 1, 0}, "INFO", "[Watcher] Reloaded")
+        logger.handleLog({0, 1, 0}, "INFO", "[Watcher] Reloaded")
     end
     return true
 end
@@ -307,7 +307,7 @@ local function makeEvent()
     }
 end
 
-function global.startWatching(_file, _log, _type)
+function global.startWatching(_file, _type)
     if not _file then
         return nil, "No file"
     end
@@ -322,7 +322,6 @@ function global.startWatching(_file, _log, _type)
     if running and currentType and currentType.cleanup and type(currentType.cleanup) == "function" then
         currentType.cleanup()
     end
-    log = _log
     hash = nil
     file = _file
     currentType = types[_type]

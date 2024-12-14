@@ -2,14 +2,8 @@ local util = require("debugplus-util")
 local utf8 = require("utf8")
 local watcher = require("debugplus-watcher")
 local config = require("debugplus-config")
+local logger = require("debugplus-logger")
 
-if type(config) == "string" then -- To handle older lovely versions, where I can't properly load my deps.
-    return {
-        registerLogHandler = function() -- Can't error myself because it's not propagated, so I error in the first function that is called.
-            error("DebugPlus couldn't load a required component. Please make sure your lovely is up to date.\nYou can grab the latest lovely at: https://github.com/ethangreen-dev/lovely-injector/releases")
-        end
-    }
-end
 local global = {}
 
 local showTime = 5 -- Amount of time new console messages show up 
@@ -18,7 +12,6 @@ local consoleOpen = false
 local openNextFrame = false
 local showNewLogs = config.getValue("showNewLogs")
 local firstConsoleRender = nil
-local logs = nil
 local history = {}
 local currentHistory = nil
 local commands = nil
@@ -233,7 +226,7 @@ commands = {{
             watcher.stopWatching()
             return "I will stop watching for file changes."
         elseif watcher.types[subCmd] then
-            local succ, err = watcher.startWatching(file, dp.handleLog, subCmd)
+            local succ, err = watcher.startWatching(file, subCmd)
             if not succ then return err, "ERROR" end
             return "Started watching " .. file
         else
@@ -385,138 +378,13 @@ commands = {{
     end
 }}
 local inputText = ""
-local old_print = print
-local levelMeta = {
-    DEBUG = {
-        level = 'DEBUG',
-        colour = {1, 0, 1},
-        shouldShow = false,
-    },
-    INFO = {
-        level = 'INFO',
-        colour = {0, 1, 1},
-        shouldShow = true,
-    },
-    WARN = {
-        level = 'WARN',
-        colour = {1, 1, 0},
-        shouldShow = true,
-    },
-    ERROR = {
-        level = 'ERROR',
-        colour = {1, 0, 0},
-        shouldShow = true,
-    }
-}
-local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: (%S+) :: (.*)"
-local SMODSLevelMeta = {
-    TRACE = levelMeta.DEBUG,
-    DEBUG = levelMeta.DEBUG,
-    INFO = levelMeta.INFO,
-    WARN = levelMeta.WARN,
-    ERROR = levelMeta.ERROR,
-    FATAL = levelMeta.ERROR
-}
-
-local function handleLogAdvanced(data, ...)
-    old_print(...)
-    local _str = ""
-    for i, v in ipairs({...}) do
-        _str = _str .. tostring(v) .. " "
-    end
-    local meta = {
-        str = _str,
-        time = love.timer.getTime(),
-        colour = data.colour,
-        level = data.level,
-        command = data.command,
-    }
-    if data.fromPrint then
-        local level, source, msg = string.match(_str, SMODSLogPattern)
-        if level then
-            local levelMeta = SMODSLevelMeta[level] or SMODSLevelMeta.INFO
-            meta = {
-                str = "[" .. source .. "] " .. msg,
-                time = love.timer.getTime(),
-                colour = levelMeta.colour,
-                level = levelMeta.level
-            }
-        else
-            -- Handling the few times the game itself prints
-            if _str:match("^LONG DT @ [%d.: ]+$") then -- LONG DT messages
-                meta.level = "DEBUG"
-                meta.colour = levelMeta.DEBUG.colour
-            elseif _str:match("^ERROR LOADING GAME: Card area '[%w%d_-]+' not instantiated before load") then -- Error loading areas
-                meta.level = "ERROR"
-                meta.colour = levelMeta.ERROR.colour
-            elseif _str:match("^\n [+-]+ \n | #") and debug.getinfo(3).short_src == "engine/controller.lua" then -- Profiler results table. Extra check cause I don't trust this pattern to not have false positives
-                meta.level = "DEBUG"
-                meta.colour = levelMeta.DEBUG.colour
-                meta.command = true
-            end
-        end
-    end
-    if not meta.colour then meta.colour = levelMeta[meta.level].colour end
-
-    -- Dirty hack to work better with multiline text
-    if string.match(meta.str, "\n") then
-        local first = true
-        for w in string.gmatch(meta.str, "[^\n]+") do
-            local _meta = {
-                str = w,
-                time = meta.time,
-                colour = meta.colour,
-                level = meta.level,
-                command = meta.command,
-                hack_no_prefix = not first
-            }
-            first = false
-            table.insert(logs, _meta)
-            if logOffset ~= 0 then
-                logOffset = math.min(logOffset + 1, #logs)
-            end
-            if #logs > 5000 then
-                table.remove(logs, 1)
-            end
-        end
-    else
-        table.insert(logs, meta)
-        if logOffset ~= 0 then
-            logOffset = math.min(logOffset + 1, #logs)
-        end
-        if #logs > 5000 then
-            table.remove(logs, 1)
-        end
-    end
-end
-
-local function handleLog(colour, level, ...)
-    handleLogAdvanced({
-        colour = colour,
-        level = level,
-        command = true,
-    }, ...)
-end
-
-local function log(...)
-    handleLog({.65, .36, 1}, "INFO", "[DebugPlus]", ...)
-end
-
-local function errorLog(...)
-    handleLogAdvanced({
-        colour = {1, 0, 0},
-        level = "ERROR",
-    })
-end
-global.log = log
-global.errorLog = errorLog
 
 local function runCommand()
     if inputText == "" then
         return
     end
 
-    handleLog({1, 0, 1}, "INFO", "> " .. inputText)
+    logger.handleLog({1, 0, 1}, "INFO", "> " .. inputText)
     if history[1] ~= inputText then
         table.insert(history, 1, inputText)
     end
@@ -543,28 +411,28 @@ local function runCommand()
         end
     end
     if not cmd then
-        return handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
+        return logger.handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
     end
     local dp = {
         hovered = G.CONTROLLER.hovering.target,
-        handleLog = handleLog
+        handleLog = logger.handleLog
     }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
     if not success then
-        return handleLog({1, 0, 0}, "ERROR", "< An error occurred processing the command:", result)
+        return logger.handleLog({1, 0, 0}, "ERROR", "< An error occurred processing the command:", result)
     end
     local level = loglevel or "INFO"
-    if not levelMeta[level] then
+    if not logger.levelMeta[level] then
         level = "INFO"
-        handleLogAdvanced({
+        logger.handleLogAdvanced({
             level = "WARN",
         }, "[DebugPlus] Command ".. cmdName.. " returned an invalid log level. Defaulting to INFO.")
     end
-    local colour = colourOverride or levelMeta[level].colour
+    local colour = colourOverride or logger.levelMeta[level].colour
     if success and success ~= "" then
-        return handleLog(colour, level, "<", result)
+        return logger.handleLog(colour, level, "<", result)
     else
-        return handleLog(colour, level, "< Command exited without a response.")
+        return logger.handleLog(colour, level, "< Command exited without a response.")
     end
 end
 
@@ -652,7 +520,7 @@ function love.wheelmoved(x, y)
     if not consoleOpen then
         return
     end
-    logOffset = math.min(math.max(logOffset + y, 0), #logs - 1)
+    logOffset = math.min(math.max(logOffset + y, 0), #logger.logs - 1)
 end
 
 local function calcHeight(text, width)
@@ -661,20 +529,6 @@ local function calcHeight(text, width)
     local lineHeight = font:getHeight()
 
     return #lines * lineHeight, rw, lineHeight
-end
-
-function global.registerLogHandler()
-    if logs then
-        return
-    end
-    logs = {}
-    print = function(...)
-        handleLogAdvanced({
-            colour = {0, 1, 1},
-            level = "INFO",
-            fromPrint = true,
-        }, ...)
-    end
 end
 
 function global.doConsoleRender()
@@ -698,7 +552,7 @@ function global.doConsoleRender()
     local now = love.timer.getTime()
     if firstConsoleRender == nil then
         firstConsoleRender = now
-        log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
+        logger.logCmd("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
     end
     -- Input Box
     love.graphics.setColor(0, 0, 0, .5)
@@ -718,9 +572,9 @@ function global.doConsoleRender()
         love.graphics.setColor(0, 0, 0, .5)
         love.graphics.rectangle("fill", padding, padding, lineWidth, bottom)
     end
-    for i = #logs, 1, -1 do
-        local v = logs[i]
-        if consoleOpen and #logs - logOffset < i then -- TODO: could this be more efficent?
+    for i = #logger.logs, 1, -1 do
+        local v = logger.logs[i]
+        if consoleOpen and #logger.logs - logOffset < i then -- TODO: could this be more efficent?
             goto finishrender
         end
         if not consoleOpen and v.time < firstConsoleRender then
@@ -730,7 +584,7 @@ function global.doConsoleRender()
         if not consoleOpen and age > showTime + fadeTime then
             break
         end
-        if not levelMeta[v.level].shouldShow and not v.command then 
+        if not logger.levelMeta[v.level].shouldShow and not v.command then 
             goto finishrender
         end
         if not v.command and config.getValue("onlyCommands") then
@@ -759,15 +613,6 @@ function global.doConsoleRender()
 
         love.graphics.printf(msg, padding * 2, bottom, lineWidth - padding * 2)
         ::finishrender::
-    end
-end
-
-function global.createLogFn(name, level)
-    return function(...)
-        handleLogAdvanced({
-            colour = levelMeta[level].colour,
-            level = level,
-        }, "[" .. name .. "]", ...)
     end
 end
 
@@ -802,24 +647,14 @@ function global.registerCommand(id, options)
     table.insert(commands, cmd)
 end
 
+local function handleLogsChange(added)
+    added = added or 0
+    logOffset = math.min(logOffset + added, #logger.logs)
+end
+
+logger.handleLogsChange = handleLogsChange
 config.configDefinition.showNewLogs.onUpdate = function(v) 
     showNewLogs = v
 end
-
-config.configDefinition.logLevel.onUpdate = function(v)
-    for k, v in pairs(levelMeta) do
-        v.shouldShow = false
-    end
-    
-    levelMeta.ERROR.shouldShow = true
-    if v == "ERROR" then return end
-    levelMeta.WARN.shouldShow = true
-    if v == "WARN" then return end
-    levelMeta.INFO.shouldShow = true
-    if v == "INFO" then return end
-    levelMeta.DEBUG.shouldShow = true
-end
-
-config.configDefinition.logLevel.onUpdate(config.getValue("logLevel"))
 
 return global

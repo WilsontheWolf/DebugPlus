@@ -13,8 +13,8 @@ pattern = 'require "engine/object"'
 position = "before"
 payload = '''
 do
-    local console = require("debugplus-console")
-    console.registerLogHandler()
+    local logger = require("debugplus-logger")
+    logger.registerLogHandler()
 end
 '''
 match_indent = true
