@@ -4,6 +4,7 @@
 - Copying a playing card now places it in the deck if your hand is empty.
 - Internal changes to the logger
 - Detect nested folders (when smods is loaded) and provide a useful error message
+- Change to using json metadata for Steamodded (this shouldn't have any user facing effect).
 
 # DebugPlus 1.0.0
 
