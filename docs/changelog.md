@@ -1,3 +1,8 @@
+# DebugPlus 1.2.0
+
+## Features
+- The `c` and `r` keybinds now work on tags.
+
 # DebugPlus 1.1.0
 
 ## Features

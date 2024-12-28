@@ -278,11 +278,14 @@ function global.handleKeys(controller, key, dt)
             G:save_progress()
             _element:set_sprite_pos(_tag.pos)
         end
-        if key == "3" then
+        if key == "3" or key == "c" then
             if G.STAGE == G.STAGES.RUN then
                 add_tag(Tag(_tag.key, false, 'Big'))
             end
         end
+	if key == "r" then
+	    _element.config.tag:remove()
+	end
     end
     if _element and _element.config and _element.config.blind then
         local _blind = _element.config.blind
