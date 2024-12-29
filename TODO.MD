@@ -22,6 +22,9 @@ Todo list cause i have to much to remember
 - [x] tutorial state
 - [x] recreate shop
 
+## Debug HUD options
+- [ ] Locks/what's locking
+
 ## Misc
 - [x] Config writing
 - [x] Docs
