@@ -2,6 +2,7 @@
 
 ## Features
 - The `c` and `r` keybinds now work on tags.
+- Whitespace before and after commands are now ignored when run.
 
 # DebugPlus 1.1.0
 

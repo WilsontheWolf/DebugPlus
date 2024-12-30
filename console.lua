@@ -380,6 +380,7 @@ commands = {{
 local inputText = ""
 
 local function runCommand()
+    inputText = util.trim(inputText)
     if inputText == "" then
         return
     end
