@@ -1,10 +1,17 @@
 # DebugPlus 1.2.0
 
+Another minor release. This one was mostly just some adjustments to existing stuff, to work a bit better.
+
 ## Features
 - The `c` and `r` keybinds now work on tags.
 - Whitespace before and after commands are now ignored when run.
 
+## Fixes
+- Fix an issue with the script for making release zips, where the steamodded metadata was not included. (The release zip for v1.1.0 was recreated with this change applied).
+
 # DebugPlus 1.1.0
+
+This is a minor release for DebugPlus, that adds some minor features and internal tweaks.
 
 ## Features
 - Copying a playing card now places it in the deck if your hand is empty.
