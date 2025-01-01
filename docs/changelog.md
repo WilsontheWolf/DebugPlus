@@ -1,3 +1,10 @@
+# DebugPlus 1.3.0
+
+## Features
+- Some tweaks the the table stringifier (what's used when you eval a table)
+  - Now no longer shows all values from all tables for 2 levels. Instead it shows all values from the top level table, and then shows only a subset of values from lower tables (ends at 3 levels)
+  - Tables with custom tostring functions are stringified instead of expanded (for example talisman numbers)
+
 # DebugPlus 1.2.0
 
 Another minor release. This one was mostly just some adjustments to existing stuff, to work a bit better.
