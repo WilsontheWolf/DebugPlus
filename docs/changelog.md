@@ -4,6 +4,9 @@
 - Some tweaks the the table stringifier (what's used when you eval a table)
   - Now no longer shows all values from all tables for 2 levels. Instead it shows all values from the top level table, and then shows only a subset of values from lower tables (ends at 3 levels)
   - Tables with custom tostring functions are stringified instead of expanded (for example talisman numbers)
+- New option to automatically expand printed tables using the table stringifier.
+- New option to process strings before printing to the lovely console.
+  - This allows the expanding tables to also be printed and also works around some weird lovely bugs.
 
 # DebugPlus 1.2.0
 

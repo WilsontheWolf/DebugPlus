@@ -33,8 +33,11 @@ local configDefinition = {
         label = "Log Level",
         type = "select",
         default = "INFO",
-        values = {"DEBUG", "INFO", "WARN", "ERROR"},
-        info = {"Only shows you logs of a certain level. This setting ignore command logs."},
+        values = {"ERROR", "WARN", "INFO", "DEBUG"},
+        info = {
+			"Only shows you logs of a certain level. This setting ignore command logs.",
+			"Will show all logs for the selected level and higher."
+		},
         -- Most of the time I wouldn't define onUpdate here for something in another module, 
         -- but I need to avoid circular dependencies and want the logger here.
         onUpdate = function(v) 
@@ -81,6 +84,21 @@ local configDefinition = {
         default = false,
         info = {}
     },
+	processTables = {
+		label = "Automatically Expand Printed Tables",
+		type = "toggle",
+		default = true,
+		info = {"When a table is printed, expand it's contents (like in the eval command) instead of just strigifying it."}
+	},
+	stringifyPrint = {
+		label = "Process Arguments Before Logging",
+		type = "toggle",
+		default = true,
+		info = {
+			"When this is enabled and something is printed to the lovely console/log DebugPlus will handle the processing of the args before logging them.",
+			"This allows the 'Automatically Expand Printed Tables' option to also show up in those logs."
+		}
+	},
 }
 
 global.configDefinition = configDefinition
@@ -93,6 +111,8 @@ local configPages = { -- TODO: implement paging, maybe only when I need to
         "onlyCommands",
         "logLevel",
         "showHUD",
+		"processTables",
+		"stringifyPrint",
     }
 }
 
@@ -331,6 +351,7 @@ function global.generateConfigTab(arg)
     function G.FUNCS.DP_conf_select_callback(e)
         global.setValue(e.cycle_config.dp_key, e.to_val) 
     end
+	print("test")
     local nodes = {}
     for k,v in ipairs(configPages[1]) do
         local def = configDefinition[v]

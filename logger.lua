@@ -1,7 +1,7 @@
 local global = {}
 local logs = nil
 local old_print = print
-
+local util = require("debugplus-util")
 local levelMeta = {
     DEBUG = {
         level = 'DEBUG',
@@ -36,11 +36,21 @@ local SMODSLevelMeta = {
 }
 
 function global.handleLogAdvanced(data, ...)
-    old_print(...)
+	local stringifyPrint = require("debugplus-config").getValue("stringifyPrint")
+	if not stringifyPrint then
+    	old_print(...)
+	end
     local _str = ""
-    for i, v in ipairs({...}) do
-        _str = _str .. tostring(v) .. " "
+	local stringify = tostring
+	if require("debugplus-config").getValue("processTables") then
+		stringify = util.stringifyTable
+	end
+	for _, v in ipairs({...}) do
+        _str = _str .. stringify(v) .. " "
     end
+	if stringifyPrint then
+		old_print(_str)
+	end
     local meta = {
         str = _str,
         time = love.timer.getTime(),
