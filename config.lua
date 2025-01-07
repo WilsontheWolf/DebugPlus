@@ -99,6 +99,16 @@ local configDefinition = {
 			"This allows the 'Automatically Expand Printed Tables' option to also show up in those logs."
 		}
 	},
+	hyjackErrorHandler = {
+		label = "Console In Crash Handler",
+		type = "toggle",
+		default = false,
+		info = {
+			"When this is toggled, DebugPlus's console will be accessible in the error handler.",
+			"There is a potential that the error handler will break with this, if the console errors",
+			"Requires a restart for the toggle to take effect"
+		}
+	}
 }
 
 global.configDefinition = configDefinition
@@ -113,6 +123,7 @@ local configPages = { -- TODO: implement paging, maybe only when I need to
         "showHUD",
 		"processTables",
 		"stringifyPrint",
+		"hyjackErrorHandler",
     }
 }
 
@@ -351,7 +362,6 @@ function global.generateConfigTab(arg)
     function G.FUNCS.DP_conf_select_callback(e)
         global.setValue(e.cycle_config.dp_key, e.to_val) 
     end
-	print("test")
     local nodes = {}
     for k,v in ipairs(configPages[1]) do
         local def = configDefinition[v]

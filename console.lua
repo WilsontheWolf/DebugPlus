@@ -503,7 +503,7 @@ function global.consoleHandleKey(key)
 end
 
 local orig_textinput = love.textinput
-function love.textinput(t)
+local function textinput(t)
     if orig_textinput then
         orig_textinput(t)
     end -- That way if another mod uses this, I don't clobber it's implementation
@@ -512,9 +512,10 @@ function love.textinput(t)
     end
     inputText = inputText .. t
 end
+love.textinput = textinput
 
 local orig_wheelmoved = love.wheelmoved
-function love.wheelmoved(x, y)
+local function wheelmoved(x, y)
     if orig_wheelmoved then
         orig_wheelmoved(x, y)
     end
@@ -523,6 +524,7 @@ function love.wheelmoved(x, y)
     end
     logOffset = math.min(math.max(logOffset + y, 0), #logger.logs - 1)
 end
+love.wheelmoved = wheelmoved
 
 local function calcHeight(text, width)
     local font = love.graphics.getFont()
@@ -530,6 +532,53 @@ local function calcHeight(text, width)
     local lineHeight = font:getHeight()
 
     return #lines * lineHeight, rw, lineHeight
+end
+
+local function hyjackErrorHandler()
+		local orig = love.errorhandler
+		function love.errorhandler(msg)
+			local ret = orig(msg)
+			orig_wheelmoved = nil
+			orig_textinput = nil
+			consoleOpen = false
+			local justCrashed = true
+
+			local present = love.graphics.present
+			function love.graphics.present()
+				local r, g, b, a = love.graphics.getColor()
+				if justCrashed then
+					firstConsoleRender = love.timer.getTime()
+					justCrashed = false
+				end
+				global.doConsoleRender()
+				love.graphics.setColor(r,g,b,a)
+				present()
+			end
+
+			return function()
+				love.event.pump()
+
+				local evts = {}
+
+				for e, a, b, c in love.event.poll() do
+					if consoleOpen and e == "textinput" then
+						textinput(a)
+					elseif consoleOpen and e == "wheelmoved" then
+						wheelmoved(a, b)
+					elseif e == "keypressed" then
+						if global.consoleHandleKey(a) then
+							table.insert(evts, {e,a,b,c})
+						end
+					else
+						table.insert(evts, {e,a,b,c})
+					end
+				end
+				for _,v in ipairs(evts) do -- Add back for the original handler
+					love.event.push(unpack(v))
+				end
+				return ret()
+			end
+		end
 end
 
 function global.doConsoleRender()
@@ -552,6 +601,7 @@ function global.doConsoleRender()
     local bottom = height - padding * 2
     local now = love.timer.getTime()
     if firstConsoleRender == nil then
+		if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
         firstConsoleRender = now
         logger.logCmd("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
     end
