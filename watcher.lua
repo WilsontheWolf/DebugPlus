@@ -1,5 +1,5 @@
 local logger = require("debugplus-logger")
-local hash
+local modtime
 local global = {}
 local event
 local file
@@ -7,37 +7,16 @@ local running = false
 local currentType
 -- For edition type
 local editionIndex
--- For joker type
-local jokerMeta
-local knownJokerFunctions = {
-    "calculate",
-    "loc_vars",
-    "update",
-    "set_ability",
-    "add_to_deck",
-    "remove_from_deck",
-    "in_pool",
-    "set_sprites",
-    "load",
-    "generate_ui",
-    "locked_loc_vars",
-    "check_for_unlock",
-    "set_badges",
-    "set_card_type_badge",
-    "calculate",
-    "calc_dollar_bonus",
-}
 
-local function genSafeFunc(name, funcs)
+local function genSafeFunc(name, fn)
     return function(...)
-        local fn = funcs[name]
         if not fn or type(fn) ~= "function" then
             return
         end
         local res = {pcall(fn, ...)}
         local succ = table.remove(res, 1)
         if not succ then
-            logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Joker function \"" .. name .. "\" errored:", unpack(res))
+            logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Center function \"" .. name .. "\" errored:", unpack(res))
             return
         end
         return unpack(res)
@@ -60,7 +39,7 @@ local function evalLuaFile(content)
     return true, err
 end
 
-local function showTabOverlay(definition, tabName) 
+local function showTabOverlay(definition, tabName)
     tabName = tabName or "Tab"
     return G.FUNCS.overlay_menu({
         definition = create_UIBox_generic_options({
@@ -104,11 +83,11 @@ local types = {
     },
     shader = {
         desc = "Starts watching the the shader file provided. Pops up a ui with a joker to preview the shader on.",
-        check = function() 
+        check = function()
             if SMODS and SMODS.Shaders and SMODS.Edition then
                 return true
             end
-            return false, "Steamodded (v1.0.0+) is necessary to watch shader files."
+            return false, "Steamodded (v1.0.0~+) is necessary to watch shader files."
         end,
         run = function(content)
             local result, shader = pcall(love.graphics.newShader, content)
@@ -116,7 +95,7 @@ local types = {
                 return logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Error Loading Shader:", shader)
             end
             local name = content:match("extern [%w_]+ vec2 (%w+);");
-            if not name then 
+            if not name then
                 return logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Could not guess name of shader :/. Not applying to avoid crash.")
             end
 
@@ -126,7 +105,7 @@ local types = {
             }
             if not editionIndex then
                 editionIndex = #G.P_CENTER_POOLS.Edition + 1
-            end 
+            end
             G.P_CENTER_POOLS.Edition[editionIndex] = {
                 key = "e_debugplus_watcher_edition",
                 shader = "debugplus_watcher_shader"
@@ -136,7 +115,7 @@ local types = {
             local area = CardArea(
                 G.ROOM.T.x + 0.2*G.ROOM.T.w/2,G.ROOM.T.h,
                 G.CARD_W,
-                G.CARD_H, 
+                G.CARD_H,
                 {card_limit = 5, type = 'title', highlight_limit = 0, deck_height = 0.75, thin_draw = 1}
             )
                 local card = Card(area.T.x + area.T.w/2, area.T.y, G.CARD_W, G.CARD_H,
@@ -155,7 +134,7 @@ local types = {
                     padding = 1,
                     colour = G.C.BLACK
                 },
-                nodes = {{ 
+                nodes = {{
                     n = G.UIT.R,
                     config = {
                         align = "cm",
@@ -180,46 +159,33 @@ local types = {
             SMODS.Shaders.debugplus_watcher_shader = nil
         end
     },
-    joker = {
-        desc = "Starts watching the lua file provided. The returned table is used to modify the joker given in the key value. The table is similar to SMODS.Joker.",
+    center = {
+        desc = "Starts watching the lua file provided. The returned table is used to modify the center given in the key value. The table is similar to SMODS.Joker and friends.",
         check = function() -- Not entirely sure what to all check for here.
             if SMODS and SMODS.Joker then
                 return true
             end
-            return false, "Steamodded (v1.0.0+) is necessary to watch jokers."
+            return false, "Steamodded (v1.0.0~+) is necessary to watch centers."
         end,
         run = function(content)
-            local jokerMeta = jokerMeta or {
-                funcs = {},
-            }
             local success, res = evalLuaFile(content)
             if not success then return false end
             if not res or type(res) ~= "table" then
-                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Joker config doesn't look correct. Make sure you are returning an object.")
+                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Center config doesn't look correct. Make sure you are returning an object.")
                 return
             end
             if not res.key then
-                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Joker config is missing a key.")
+                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Center config is missing a key.")
                 return
-            end 
+            end
             local center = G.P_CENTERS[res.key]
-            if not center then 
-                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" does not exist. Make sure your joker has been loaded and the key is correct (don't forget the j_ prefix and your mod prefix).")
+            if not center then
+                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" does not exist. Make sure your object has been loaded and the key is correct (don't forget the object prefix (e.g. j_) and your mod prefix) you can get the key by hovering over your object and then running `eval dp.hovered.config.center.key`.")
                 return
-            end
-            if center.set ~= 'Joker' then
-                logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] The key \"" .. res.key .. "\" is not for a joker.")
-                return
-            end
-            if not jokerMeta.key then
-                jokerMeta.key = res.key
-            elseif jokerMeta.key ~= res.key then
-                jokerMeta.key = res.key
-                jokerMeta.funcs = {}
             end
             if res.loc_txt then
                 local loc_txt = res.loc_txt
-                local loc = G.localization.descriptions.Joker[res.key]
+                local loc = G.localization.descriptions[center.set][res.key]
                 local loc_changed = false
 
                 if loc_txt.name then
@@ -247,38 +213,32 @@ local types = {
                     init_localization()
                 end
             end
-            
-            for k,v in ipairs(knownJokerFunctions) do
-                local fn = res[v]
-                if not fn then
-                    goto finishfunc
-                end
-                if type(fn) ~= "function" then
-                    logger.handleLog({1, 1, 0}, "WARN", "[Watcher] Found \"" .. v .. "\" but it was not a function. Not applying.")
-                    goto finishfunc
-                end
-                if not jokerMeta.funcs[v] then
-                    center[v] = genSafeFunc(v, jokerMeta.funcs)
-                end
-                jokerMeta.funcs[v] = fn
+
+			if res.pos then
+				center.pos.x = res.pos.x
+				center.pos.y = res.pos.y
+			end
+
+            for k,v in pairs(res) do
+				if type(v) ~= "function" then
+					goto finishfunc
+				end
+				center[k] = genSafeFunc(k, v)
                 ::finishfunc::
             end
             return true
         end,
-        cleanup = function()
-            jokerMeta = nil
-        end
     }
 }
 
 local function loadFile()
-    local content = love.filesystem.read(file)
-    local newHash = love.data.hash("md5", content)
-    local showReloaded = hash ~= nil
-    if newHash == hash then
+    local info = love.filesystem.getInfo(file)
+    local showReloaded = modtime ~= nil
+    if info.modtime == modtime then
         return
     end
-    hash = newHash
+    modtime = info.modtime
+	local content = love.filesystem.read(file)
     local result, subResult = pcall(currentType.run, content)
     if not result then
         return logger.handleLog({1, 0, 0}, "ERROR", "[Watcher] Error Running Watcher:", subResult)
@@ -322,7 +282,7 @@ function global.startWatching(_file, _type)
     if running and currentType and currentType.cleanup and type(currentType.cleanup) == "function" then
         currentType.cleanup()
     end
-    hash = nil
+    modtime = nil
     file = _file
     currentType = types[_type]
     if not currentType then

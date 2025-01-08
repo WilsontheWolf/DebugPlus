@@ -1,10 +1,14 @@
--- Run `watch joker Mods/DebugPlus/examples/watch_joker.lua`
+-- Run `watch center Mods/DebugPlus/examples/watch_joker.lua`
 -- Might want to change the key to one for a modded joker you have
 return {
     key = "j_jam_buckleswasher",
     loc_txt = {
         name = "Bob",
         text = {"Enhances {C:attention}#1#", "selected cards", "to {C:attention}#2#s"}
+    },
+    pos = {
+        x = 2,
+        y = 3
     },
     update = function(self, card, dt)
         if G.STAGE ~= G.STAGES.RUN then
