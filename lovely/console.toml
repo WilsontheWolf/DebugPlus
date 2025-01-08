@@ -13,7 +13,7 @@ pattern = 'require "engine/object"'
 position = "before"
 payload = '''
 do
-    local logger = require("debugplus-logger")
+    local logger = require("debugplus.logger")
     logger.registerLogHandler()
 end
 '''
@@ -27,7 +27,7 @@ pattern = 'G:draw()'
 position = "after"
 payload = '''
 do
-    local console = require("debugplus-console")
+    local console = require("debugplus.console")
     console.doConsoleRender()
     timer_checkpoint('DebugPlus Console', 'draw')
 end
@@ -41,7 +41,7 @@ target = "main.lua"
 pattern = 'function love.keypressed(key)'
 position = "after"
 payload = '''
-local console = require("debugplus-console")
+local console = require("debugplus.console")
 if not console.consoleHandleKey(key) then return end
 '''
 match_indent = true

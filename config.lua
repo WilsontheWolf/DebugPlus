@@ -2,8 +2,8 @@ if string.match(debug.getinfo(1).source, '=%[SMODS %w+ ".+"]') then
     error("Please update your steamodded thanks")
 end
 
-local util = require("debugplus-util")
-local loggerSucc, logger = pcall(require, "debugplus-logger")
+local util = require("debugplus.util")
+local loggerSucc, logger = pcall(require, "debugplus.logger")
 local global = {}
 
 if not loggerSucc then -- To handle older lovely versions, where I can't properly load my deps.

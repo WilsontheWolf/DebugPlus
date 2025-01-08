@@ -18,7 +18,7 @@ overwrite = true
 target = "game.lua"
 pattern = "if self.real_dt > 0.05 then print('LONG DT @ '..math.floor(G.TIMERS.REAL)..': '..self.real_dt) end"
 position = "at"
-payload = "if require('debugplus-config').getValue('enableLongDT') and self.real_dt > 0.05 then print('LONG DT @ '..math.floor(G.TIMERS.REAL)..': '..self.real_dt) end"
+payload = "if require('debugplus.config').getValue('enableLongDT') and self.real_dt > 0.05 then print('LONG DT @ '..math.floor(G.TIMERS.REAL)..': '..self.real_dt) end"
 match_indent = true
 overwrite = false
 
@@ -29,7 +29,7 @@ target = "engine/controller.lua"
 pattern = "if key == 'v' then"
 position = "before"
 payload = '''
-local debugplus = require("debugplus-core")
+local debugplus = require("debugplus.core")
 debugplus.handleKeys(self, key, dt)
 '''
 match_indent = true
@@ -41,7 +41,7 @@ target = "engine/controller.lua"
 pattern = 'if _card.ability.consumeable and G.consumeables and #G.consumeables.cards < G.consumeables.config.card_limit then'
 position = "before"
 payload = '''
-local debugplus = require("debugplus-core")
+local debugplus = require("debugplus.core")
 debugplus.handleSpawn(self, _card)
 '''
 match_indent = true
@@ -53,7 +53,7 @@ target = "functions/UI_definitions.lua"
 pattern = 'function create_UIBox_debug_tools()'
 position = "after"
 payload = '''
-local debugplus = require("debugplus-core")
+local debugplus = require("debugplus.core")
 debugplus.registerButtons()
 '''
 match_indent = true
@@ -79,7 +79,7 @@ position = "at"
 # This patch is super jank 
 # when lovely supports regex, move the save state to it's own block.
 payload = '''
-    {n=G.UIT.T, config={text = "hold [" .. require("debugplus-util").ctrlText .. "] (togglable in config)", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = "hold [" .. require("debugplus.util").ctrlText .. "] (togglable in config)", scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
     {n=G.UIT.T, config={text = "and press [Q] to cycle Edition", scale = 0.25, colour = G.C.WHITE, shadow = true}}
@@ -122,7 +122,7 @@ overwrite = true
 target = "game.lua"
 pattern = 'if not _RELEASE_MODE and G.DEBUG and not G.video_control and G.F_VERBOSE then'
 position = "at"
-payload = '''if require("debugplus-config").getValue("showHUD") and not G.video_control and G.F_VERBOSE then'''
+payload = '''if require("debugplus.config").getValue("showHUD") and not G.video_control and G.F_VERBOSE then'''
 match_indent = true
 overwrite = false
 

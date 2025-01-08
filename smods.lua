@@ -10,7 +10,7 @@ if SMODS.Atlas then
 end
 
 if SMODS.current_mod then
-    local configSuccess, config = pcall(require, "debugplus-config")
+    local configSuccess, config = pcall(require, "debugplus.config")
     
     if not configSuccess then
         error("DebugPlus modules not successfully initialized.\nMake sure your DebugPlus folder is not nested (there should be a bunch of files in the DebugPlus folder and not just another folder).\n\n" .. (config or "No further info."))

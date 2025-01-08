@@ -9,7 +9,7 @@ priority = 1 # Needed to not break SMODS
 target = "engine/controller.lua"
 pattern = '''if not _RELEASE_MODE then'''
 position = "at"
-payload = '''if not _RELEASE_MODE and require("debugplus-core").isOkayToHandleDebugForKey(key) then'''
+payload = '''if not _RELEASE_MODE and require("debugplus.core").isOkayToHandleDebugForKey(key) then'''
 match_indent = true
 
 # Add the config tab to the settings (for when SMODS isn't present)
@@ -19,10 +19,10 @@ target = "functions/UI_definitions.lua"
 pattern = '''local t = create_UIBox_generic_options({back_func = 'options',contents = {create_tabs('''
 position = "before"
 payload = '''
-if not require("debugplus-config").SMODSLoaded then
+if not require("debugplus.config").SMODSLoaded then
     tabs[#tabs+1] = {
         label = "DebugPlus",
-        tab_definition_function = require("debugplus-config").generateConfigTab,
+        tab_definition_function = require("debugplus.config").generateConfigTab,
         tab_definition_function_args = 'lovely'
     }
 end

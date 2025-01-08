@@ -1,4 +1,4 @@
-local logger = require("debugplus-logger")
+local logger = require("debugplus.logger")
 local modtime
 local global = {}
 local event

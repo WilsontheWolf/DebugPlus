@@ -8,31 +8,31 @@ priority = 0
 [patches.module]
 source = "util.lua"
 before = "main.lua"
-name = "debugplus-util"
+name = "debugplus.util"
 
 [[patches]]
 [patches.module]
 source = "config.lua"
 before = "main.lua"
-name = "debugplus-config"
+name = "debugplus.config"
 
 [[patches]]
 [patches.module]
 source = "watcher.lua"
 before = "main.lua"
-name = "debugplus-watcher"
+name = "debugplus.watcher"
 
 [[patches]]
 [patches.module]
 source = "logger.lua"
 before = "main.lua"
-name = "debugplus-logger"
+name = "debugplus.logger"
 
 [[patches]]
 [patches.module]
 source = "console.lua"
 before = "main.lua"
-name = "debugplus-console"
+name = "debugplus.console"
 
 [[patches]]
 [patches.module]
@@ -44,4 +44,4 @@ name = "debugplus-api"
 [patches.module]
 source = "core.lua"
 before = "engine/controller.lua"
-name = "debugplus-core"
+name = "debugplus.core"

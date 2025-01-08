@@ -1,5 +1,5 @@
-local logger = require("debugplus-logger")
-local util = require("debugplus-util")
+local logger = require("debugplus.logger")
+local util = require("debugplus.util")
 local global = {}
 
 local enhancements = nil
@@ -456,7 +456,7 @@ function global.handleSpawn(controller, _card)
 end
 
 function global.isOkayToHandleDebugForKey(key)
-    if not require("debugplus-config").getValue("ctrlKeybinds") then return true end
+    if not require("debugplus.config").getValue("ctrlKeybinds") then return true end
     for k,v in ipairs({"tab", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}) do -- Keys that ignore the ctrl option (tab menu + collection keys + save state keys)
         if key == v then return true end
     end

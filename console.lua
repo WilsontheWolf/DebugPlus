@@ -1,8 +1,8 @@
-local util = require("debugplus-util")
+local util = require("debugplus.util")
 local utf8 = require("utf8")
-local watcher = require("debugplus-watcher")
-local config = require("debugplus-config")
-local logger = require("debugplus-logger")
+local watcher = require("debugplus.watcher")
+local config = require("debugplus.config")
+local logger = require("debugplus.logger")
 
 local global = {}
 

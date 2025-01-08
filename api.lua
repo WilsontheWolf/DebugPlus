@@ -1,5 +1,5 @@
-local console = require("debugplus-console")
-local logger = require("debugplus-logger")
+local console = require("debugplus.console")
+local logger = require("debugplus.logger")
 
 local global = {}
 local modIDs = {
