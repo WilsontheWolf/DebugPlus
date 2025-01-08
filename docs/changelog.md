@@ -12,6 +12,8 @@
   - This allows the expanding tables to also be printed and also works around some weird lovely bugs.
 - Experimental option to make the console accessible from the crash screen.
   - Must be toggled in the config for now. If there is an issue it will cause the game to close without a crash screen.
+- Key repeat is now on in the console (allows you to hold keys like backspace).
+
 
 # DebugPlus 1.2.0
 

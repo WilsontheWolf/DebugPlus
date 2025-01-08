@@ -10,6 +10,7 @@ local showTime = 5 -- Amount of time new console messages show up
 local fadeTime = 1 -- Amount of time it takes for a message to fade
 local consoleOpen = false
 local openNextFrame = false
+local gameKeyRepeat = love.keyboard.hasKeyRepeat()
 local showNewLogs = config.getValue("showNewLogs")
 local firstConsoleRender = nil
 local history = {}
@@ -399,6 +400,7 @@ local function runCommand()
 
     inputText = ""
     consoleOpen = false
+	love.keyboard.setKeyRepeat(gameKeyRepeat)
 
     local cmd
     for i, c in ipairs(commands) do
@@ -451,8 +453,9 @@ function global.consoleHandleKey(key)
 
     if key == "escape" then
         consoleOpen = false
-        inputText = ""
-    end
+		love.keyboard.setKeyRepeat(gameKeyRepeat)
+		inputText = ""
+	end
     -- This bit stolen from https://love2d.org/wiki/love.textinput
     if key == "backspace" then
         -- get the byte offset to the last UTF-8 character in the string.
@@ -541,6 +544,8 @@ local function hyjackErrorHandler()
 			orig_wheelmoved = nil
 			orig_textinput = nil
 			consoleOpen = false
+			inputText = false
+			love.keyboard.setKeyRepeat(gameKeyRepeat)
 			local justCrashed = true
 
 			local present = love.graphics.present
@@ -590,6 +595,8 @@ function global.doConsoleRender()
             val = ""
         }
         logOffset = 0
+		gameKeyRepeat = love.keyboard.hasKeyRepeat()
+		love.keyboard.setKeyRepeat(true)
     end
     if not consoleOpen and not showNewLogs then
         return
