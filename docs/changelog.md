@@ -1,5 +1,8 @@
 # DebugPlus 1.3.0
 
+## Breaking Changes
+- The watch joker command has been changed to watch center. It now works for any type of center, instead of just jokers.
+
 ## Features
 - Some tweaks the the table stringifier (what's used when you eval a table)
   - Now no longer shows all values from all tables for 2 levels. Instead it shows all values from the top level table, and then shows only a subset of values from lower tables (ends at 3 levels)
@@ -7,6 +10,8 @@
 - New option to automatically expand printed tables using the table stringifier.
 - New option to process strings before printing to the lovely console.
   - This allows the expanding tables to also be printed and also works around some weird lovely bugs.
+- Experimental option to make the console accessible from the crash screen.
+  - Must be toggled in the config for now. If there is an issue it will cause the game to close without a crash screen.
 
 # DebugPlus 1.2.0
 
