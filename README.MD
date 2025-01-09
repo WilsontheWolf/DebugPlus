@@ -12,7 +12,7 @@ DebugPlus requires [lovely](https://github.com/ethangreen-dev/lovely-injector) t
 
 You can hold tab to open the debug menu and press / to open the console.
 
-DebugPlus has a configuration UI which you can access from Mods > DebugPlus > config if Steamodded is installed, or Settings > DebugPlus otherwise.
+DebugPlus has a configuration UI which you can access from Mods > DebugPlus if Steamodded is installed, or Options > Settings > DebugPlus otherwise.
 
 ## Development
 For more information on the DebugPlus features and apis for mod developers see the [dev docs](docs/dev.md).
