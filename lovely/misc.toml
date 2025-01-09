@@ -22,8 +22,7 @@ payload = '''
 if not require("debugplus.config").SMODSLoaded then
     tabs[#tabs+1] = {
         label = "DebugPlus",
-        tab_definition_function = require("debugplus.config").generateConfigTab,
-        tab_definition_function_args = 'lovely'
+        tab_definition_function = require("debugplus.config").fakeConfigTab,
     }
 end
 '''

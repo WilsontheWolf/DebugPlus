@@ -115,16 +115,20 @@ global.configDefinition = configDefinition
 
 local configPages = { -- TODO: implement paging, maybe only when I need to
     {
-        "debugMode",
-        "ctrlKeybinds",
+		name = "Console",
         "showNewLogs",
         "onlyCommands",
         "logLevel",
-        "showHUD",
 		"processTables",
 		"stringifyPrint",
 		"hyjackErrorHandler",
-    }
+    },
+	{
+		name = "Misc",
+        "debugMode",
+        "ctrlKeybinds",
+        "showHUD",
+	}
 }
 
 for k,v in pairs(configDefinition) do
@@ -315,7 +319,7 @@ local function getDefaultsObject()
 end
 
 
-local function generateMemory() 
+local function generateMemory()
     local defaults = getDefaultsObject()
     local loaded = loadSaveFromFile()
 
@@ -359,18 +363,19 @@ local function generateMemory()
 end
 
 function global.generateConfigTab(arg)
+	local index = arg.index or 1
     function G.FUNCS.DP_conf_select_callback(e)
-        global.setValue(e.cycle_config.dp_key, e.to_val) 
+        global.setValue(e.cycle_config.dp_key, e.to_val)
     end
     local nodes = {}
-    for k,v in ipairs(configPages[1]) do
+    for k,v in ipairs(configPages[index]) do
         local def = configDefinition[v]
         table.insert(nodes, configTypes[def.type].render(def))
     end
     return {
         -- ROOT NODE
         n = G.UIT.ROOT,
-        config = {r = 0.1, minw = 7, minh = 5, align = "cm", padding = arg == "lovely" and .05 or .5, colour = arg == "lovely" and G.C.CLEAR or G.C.BLACK},
+        config = {r = 0.1, minw = 7, minh = 5, align = "cm", padding = arg.source == "lovely" and .05 or .5, colour = arg.source == "lovely" and G.C.CLEAR or G.C.BLACK},
         nodes = {
             {
                 -- COLUMN NODE TO ALIGN EVERYTHING INSIDE VERTICALLY
@@ -380,6 +385,36 @@ function global.generateConfigTab(arg)
             }
         }
     }
+end
+
+function global.generateConfigTabs(source)
+	local tab = {}
+	for i,v in ipairs(configPages) do
+		table.insert(tab, {
+			label = v.name,
+			tab_definition_function = global.generateConfigTab,
+			tab_definition_function_args = {source = source, index = i }
+		})
+	end
+	return tab
+end
+
+function global.fakeConfigTab()
+	local tabs = global.generateConfigTabs("lovely")
+	tabs[1].chosen = true
+	G.FUNCS.overlay_menu({
+		definition = create_UIBox_generic_options({
+			back_func = "settings",
+			contents = {create_tabs({
+				snap_to_nav = true,
+				-- colour = {.65, .36, 1, 1},
+				tabs = tabs,
+				tab_h = 7.05,
+				tab_alignment = 'tm',
+			})}
+		})
+	})
+	return {}
 end
 
 generateMemory()
