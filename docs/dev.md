@@ -38,7 +38,7 @@ local debugplus = dpAPI.registerID("MyMod")
 DebugPlus provides a logger to allow users to log at different log levels, with their mod name appended to logs.
 
 > [!NOTE]  
-> If you are writing a [Steamodded](https://github.com/Steamopollys/Steamodded) mod, you can use [Steamodded's logging tools](https://github.com/Steamopollys/Steamodded/wiki/Logging) to also get these benefits, without relying on DebugPlus.
+> If you are writing a [Steamodded](https://github.com/Steamodded/smods) mod, you can use [Steamodded's logging tools](https://github.com/Steamodded/smods/wiki/Logging) to also get these benefits, without relying on DebugPlus.
 >
 > Additionally, if you don't want any fancy features, just logging with `print` works fine.
 
@@ -143,24 +143,24 @@ Running `watch config_tab <path>` will watch the provided file for changes and e
 
 See [examples/watch_config_tab.lua](../examples/watch_config_tab.lua).
 
-#### joker
+#### center
 
 > [!NOTE]  
-> This watch depends on [Steamodded](https://github.com/Steamopollys/Steamodded) (v1.0.0+) to function.
+> This watch depends on [Steamodded](https://github.com/Steamodded/smods) (v1.0.0+) to function.
 
 > [!WARNING]  
-> This watch command has side effects. Changes to jokers will stay until you restart the game.
+> This watch command has side effects. Changes to objects will stay until you restart the game.
 
-Running `watch joker <path>` will watch the provided file for changes and eval the code. The big difference between this and [lua](#lua) is that this will take the returned value, and use it in a similar way to the object passed to [`SMODS.Joker`](https://github.com/Steamopollys/Steamodded/wiki/05.-SMODS.Center#smodsjoker). The biggest difference between SMODS.Joker is that the key needs to be the full key with the `j_` prefix and your mod prefix.
+Running `watch center <path>` will watch the provided file for changes and eval the code. The big difference between this and [lua](#lua) is that this will take the returned value, and use it in a similar way to the object passed to the different [`SMODS.Center`](https://github.com/Steamodded/smods/wiki/SMODS.Center)'s. The biggest difference between the SMODS.Center's is that the key needs to be the full key with the `j_` prefix and your mod prefix.
 
 DebugPlus will update the functions and loc_txt for your joker on the fly (and adds error protecton to the function). This allows you to rapidly iterate on a joker.
 
-See [examples/watch_joker.lua](../examples/watch_joker.lua).
+See [examples/watch_joker.lua](../examples/watch_joker.lua) and [examples/watch_consumeable.lua](../examples/watch_consumeable.lua).
 
 #### shader
 
 > [!NOTE]  
-> This watch depends on [Steamodded](https://github.com/Steamopollys/Steamodded) (v1.0.0+) to function.
+> This watch depends on [Steamodded](https://github.com/Steamodded/smods) (v1.0.0+) to function.
 
 
 > [!WARNING]  
