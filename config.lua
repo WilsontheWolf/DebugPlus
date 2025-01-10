@@ -102,10 +102,10 @@ local configDefinition = {
 	hyjackErrorHandler = {
 		label = "Console In Crash Handler",
 		type = "toggle",
-		default = false,
+		default = true,
 		info = {
 			"When this is toggled, DebugPlus's console will be accessible in the error handler.",
-			"There is a potential that the error handler will break with this, if the console errors",
+			"Requires Steamodded (or another tool to replace the error handler) to function",
 			"Requires a restart for the toggle to take effect"
 		}
 	}
