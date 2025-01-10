@@ -146,7 +146,7 @@ function global.handleKeys(controller, key, dt)
                 _card.shattered = true
             end
             _card:remove()
-            if _card.playing_card then
+            if _card.playing_card and G.jokers then
                 for j = 1, #G.jokers.cards do
                     eval_card(G.jokers.cards[j], {
                         cardarea = G.jokers,
