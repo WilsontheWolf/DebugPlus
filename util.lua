@@ -55,7 +55,7 @@ end
 
 if isMac then
     function global.isCtrlDown()
-        return love.keyboard.isDown('lgui') or love.keyboard.isDown('rgui')
+        return love.keyboard.isDown('lgui') or love.keyboard.isDown('rgui') or love.keyboard.isDown('lctrl') or love.keyboard.isDown('rctrl')
     end
 else
     function global.isCtrlDown()
