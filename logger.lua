@@ -1,6 +1,7 @@
 local global = {}
 local logs = nil
 local old_print = print
+local safeMode = false
 local util = require("debugplus.util")
 local levelMeta = {
     DEBUG = {
@@ -36,13 +37,15 @@ local SMODSLevelMeta = {
 }
 
 function global.handleLogAdvanced(data, ...)
-	local stringifyPrint = require("debugplus.config").getValue("stringifyPrint")
+	local succ, config = pcall(require, "debugplus.config")
+	local safe = safeMode or not succ
+	local stringifyPrint = safe or config.getValue("stringifyPrint")
 	if not stringifyPrint then
     	old_print(...)
 	end
     local _str = ""
 	local stringify = tostring
-	if require("debugplus.config").getValue("processTables") then
+	if safe or config.getValue("processTables") then
 		stringify = util.stringifyTable
 	end
 	for _, v in ipairs({...}) do
@@ -152,6 +155,13 @@ function global.registerLogHandler()
     end
     logs = {}
     global.logs = logs
+	local succ, res = pcall(require, "debugplus.config")
+
+	if not succ then
+		safeMode = true
+		print("DebugPlus could not load config!!! Not hooking logging")
+		error(res)
+	end
     print = function(...)
         global.handleLogAdvanced({
             colour = {0, 1, 1},
