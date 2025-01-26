@@ -345,7 +345,7 @@ function global.handleKeys(controller, key, dt)
     end
 
     if key == "1" or key == "2" then -- Reload any tooltips when unlocking/discovering stuff
-        if _element.stop_hover and _element.hover then
+        if _element and _element.stop_hover and _element.hover then
             _element:stop_hover()
             _element:hover()
         end
