@@ -11,6 +11,7 @@ local fadeTime = 1 -- Amount of time it takes for a message to fade
 local consoleOpen = false
 local openNextFrame = false
 local gameKeyRepeat = love.keyboard.hasKeyRepeat()
+local gameTextInput = love.keyboard.hasTextInput()
 local showNewLogs = config.getValue("showNewLogs")
 local firstConsoleRender = nil
 local history = {}
@@ -401,6 +402,7 @@ local function runCommand()
     inputText = ""
     consoleOpen = false
 	love.keyboard.setKeyRepeat(gameKeyRepeat)
+	love.keyboard.setTextInput(gameTextInput)
 
     local cmd
     for i, c in ipairs(commands) do
@@ -454,6 +456,7 @@ function global.consoleHandleKey(key)
     if key == "escape" then
         consoleOpen = false
 		love.keyboard.setKeyRepeat(gameKeyRepeat)
+		love.keyboard.setTextInput(gameTextInput)
 		inputText = ""
 	end
     -- This bit stolen from https://love2d.org/wiki/love.textinput
@@ -554,6 +557,7 @@ local function hyjackErrorHandler()
 			consoleOpen = false
 			inputText = ""
 			love.keyboard.setKeyRepeat(gameKeyRepeat)
+			love.keyboard.setTextInput(gameTextInput)
 			local justCrashed = true
 
 			local present = love.graphics.present
@@ -604,7 +608,9 @@ function global.doConsoleRender()
         }
         logOffset = 0
 		gameKeyRepeat = love.keyboard.hasKeyRepeat()
+		gameTextInput = love.keyboard.hasTextInput()
 		love.keyboard.setKeyRepeat(true)
+		love.keyboard.setTextInput(true)
     end
     if not consoleOpen and not showNewLogs then
         return
