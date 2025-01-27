@@ -1,3 +1,11 @@
+# DebugPlus 1.3.1
+
+## Fixes
+- Fix a crash when the config loader logged.
+- Fixed a rare crash with the 1 and 2 keybinds
+- Fixed the console not receiving text input on some platforms
+- Fixed MacOS being unable to use some keybinds (by allowing ctrl or cmd to be used)
+
 # DebugPlus 1.3.0
 
 ## Breaking Changes
