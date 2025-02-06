@@ -6,49 +6,49 @@ priority = 0
 # Modules
 [[patches]]
 [patches.module]
-source = "util.lua"
+source = "debugplus/util.lua"
 before = "main.lua"
 name = "debugplus.util"
 
 [[patches]]
 [patches.module]
-source = "config.lua"
+source = "debugplus/config.lua"
 before = "main.lua"
 name = "debugplus.config"
 
 [[patches]]
 [patches.module]
-source = "watcher.lua"
+source = "debugplus/watcher.lua"
 before = "main.lua"
 name = "debugplus.watcher"
 
 [[patches]]
 [patches.module]
-source = "logger.lua"
+source = "debugplus/logger.lua"
 before = "main.lua"
 name = "debugplus.logger"
 
 [[patches]]
 [patches.module]
-source = "console.lua"
+source = "debugplus/console.lua"
 before = "main.lua"
 name = "debugplus.console"
 
 [[patches]]
 [patches.module]
-source = "api.lua"
+source = "debugplus/api.lua"
 before = "main.lua"
 name = "debugplus-api"
 
 [[patches]]
 [patches.module]
-source = "core.lua"
+source = "debugplus/core.lua"
 before = "engine/controller.lua"
 name = "debugplus.core"
 
 [[patches]]
 [patches.module]
-source = "prof.lua"
+source = "debugplus/prof.lua"
 before = "engine/controller.lua"
 name = "debugplus.prof"
 

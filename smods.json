@@ -5,6 +5,6 @@
 	"author": ["WilsontheWolf"],
 	"description": "Better Debug Tools for Balatro ",
 	"prefix": "DebugPlus",
-	"main_file": "smods.lua",
+	"main_file": "debugplus/smods.lua",
 	"version": "1.4.0~dev"
 }

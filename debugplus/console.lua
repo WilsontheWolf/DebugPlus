@@ -419,7 +419,7 @@ local function runCommand()
         return logger.handleLog({1, 0, 0}, "ERROR", "< ERROR: Command '" .. cmdName .. "' not found.")
     end
     local dp = {
-        hovered = G.CONTROLLER.hovering.target,
+        hovered = G and G.CONTROLLER and G.CONTROLLER.hovering.target,
         handleLog = logger.handleLog
     }
     local success, result, loglevel, colourOverride = pcall(cmd.exec, args, rawArgs, dp)
