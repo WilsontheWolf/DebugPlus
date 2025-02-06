@@ -22,3 +22,4 @@ if SMODS.current_mod then
     function SMODS.current_mod.load_mod_config() end
     function SMODS.current_mod.save_mod_config() end
 end
+

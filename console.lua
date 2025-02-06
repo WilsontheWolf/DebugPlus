@@ -624,7 +624,7 @@ function global.doConsoleRender()
     if firstConsoleRender == nil then
 		if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
         firstConsoleRender = now
-        logger.logCmd("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
+        logger.log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
     end
     -- Input Box
     love.graphics.setColor(0, 0, 0, .5)

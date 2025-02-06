@@ -156,10 +156,14 @@ end
 [[patches]]
 [patches.pattern]
 target = "engine/controller.lua"
-pattern = '''print(G.prof.report()); G.prof = nil end'''
-position = "after"
+pattern = '''
+if not G.prof then G.prof = require "engine/profile"; G.prof.start()
+else    G.prof:stop();
+    print(G.prof.report()); G.prof = nil end
+'''
+position = "at"
 payload = '''
-debugplus.profileMessage()
+debugplus.toggleProfiler()
 '''
 match_indent = true
 

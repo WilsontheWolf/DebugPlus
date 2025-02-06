@@ -417,11 +417,16 @@ function global.togglePerfUI()
     end
 end
 
-function global.profileMessage()
+function global.toggleProfiler()
     if G.prof then
-        log("Enabled performance profiler. Press 'v' again to disable it.")
+		G.prof.stop()
+		logger.handleLog({1, 0, 1}, "DEBUG", G.prof.report())
+		G.prof = nil
+		log("Performance profiler stopped")
     else
-        log("Disabled performance profiler. Check console for results.")
+		G.prof = require "debugplus.prof"
+		G.prof.start()
+		log("Enabled performance profiler. Press 'v' again to disable it.")
     end
 end
 

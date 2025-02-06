@@ -79,10 +79,6 @@ function global.handleLogAdvanced(data, ...)
             elseif _str:match("^ERROR LOADING GAME: Card area '[%w%d_-]+' not instantiated before load") then -- Error loading areas
                 meta.level = "ERROR"
                 meta.colour = levelMeta.ERROR.colour
-            elseif _str:match("^\n [+-]+ \n | #") and debug.getinfo(3).short_src == "engine/controller.lua" then -- Profiler results table. Extra check cause I don't trust this pattern to not have false positives
-                meta.level = "DEBUG"
-                meta.colour = levelMeta.DEBUG.colour
-                meta.command = true
             end
         end
     end
@@ -130,25 +126,6 @@ function global.handleLog(colour, level, ...)
     }, ...)
 end
 
-function global.log(...)
-    global.handleLogAdvanced({
-        colour = {.65, .36, 1},
-        level = "INFO",
-    }, "[DebugPlus]",  ...)
-end
-
-function global.logCmd(...)
-    global.handleLog({.65, .36, 1}, "INFO", "[DebugPlus]", ...)
-end
-
-
-function global.errorLog(...)
-    global.handleLogAdvanced({
-        colour = {1, 0, 0},
-        level = "ERROR",
-    }, "[DebugPlus]", ...)
-end
-
 function global.registerLogHandler()
     if logs then
         return
@@ -174,21 +151,37 @@ end
 function global.handleLogsChange() -- Placeholder. Overwritten in console.lua
 end
 
+function global.log(...)
+    global.handleLog({.65, .36, 1}, "INFO", "[DebugPlus]", ...)
+end
 
--- config.configDefinition.logLevel.onUpdate = function(v)
---     for k, v in pairs(levelMeta) do
---         v.shouldShow = false
---     end
-    
---     levelMeta.ERROR.shouldShow = true
---     if v == "ERROR" then return end
---     levelMeta.WARN.shouldShow = true
---     if v == "WARN" then return end
---     levelMeta.INFO.shouldShow = true
---     if v == "INFO" then return end
---     levelMeta.DEBUG.shouldShow = true
--- end
+function global.error(...)
+    global.handleLogAdvanced({
+        colour = levelMeta.ERROR.colour,
+        level = "ERROR",
+    }, "[DebugPlus]", ...)
+end
 
--- config.configDefinition.logLevel.onUpdate(config.getValue("logLevel"))
+function global.warn(...)
+    global.handleLogAdvanced({
+        colour = levelMeta.WARN.colour,
+        level = "WARN",
+    }, "[DebugPlus]", ...)
+end
+
+function global.info(...)
+    global.handleLogAdvanced({
+        colour = levelMeta.INFO.colour,
+        level = "INFO",
+    }, "[DebugPlus]", ...)
+end
+
+function global.debug(...)
+    global.handleLogAdvanced({
+        colour = levelMeta.DEBUG.colour,
+        level = "DEBUG",
+    }, "[DebugPlus]", ...)
+end
+
 
 return global

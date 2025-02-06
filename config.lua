@@ -186,7 +186,7 @@ local function parseConfigFile(data)
     for str in string.gmatch(data, "([^\n\r]+)") do
         local name, val = str:match("(%w+)%s*=%s*(.+)")
         if not name then
-            logger.errorLog("Failed to parse line:", str)
+            logger.error("Failed to parse line:", str)
         else
             t[name] = parseConfigValue(val)
         end
@@ -214,7 +214,7 @@ local function loadSaveFromFile()
     if success and type(res) == "table" then
         return res
     end
-    logger.errorLog("Loading save err", res)
+    logger.error("Loading save err", res)
     return {}
 end
 
@@ -235,7 +235,7 @@ local function updateSaveFile()
     if success then
         love.filesystem.write("config/DebugPlus.jkr", res)
     else
-        logger.errorLog("Failure saving config", res)
+        logger.error("Failure saving config", res)
     end
 end
 
@@ -245,7 +245,7 @@ function global.setValue(key, value)
     if not def then return end
     if configTypes[def.type] and configTypes[def.type].validate then
         if not configTypes[def.type].validate(value, def) then
-            logger.errorLog('Value for saving key ' .. key .. ' failed to validate')
+            logger.error('Value for saving key ' .. key .. ' failed to validate')
             return
         end
     end
@@ -334,7 +334,7 @@ local function generateMemory()
                 if configTypes[def.type].validate(v, def) then
                     value = v
                 else
-                    logger.errorLog('Value for saved key ' .. k .. ' failed to validate')
+                    logger.error('Value for saved key ' .. k .. ' failed to validate')
                     value = def.default
                 end
             else

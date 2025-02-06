@@ -45,3 +45,10 @@ name = "debugplus-api"
 source = "core.lua"
 before = "engine/controller.lua"
 name = "debugplus.core"
+
+[[patches]]
+[patches.module]
+source = "prof.lua"
+before = "engine/controller.lua"
+name = "debugplus.prof"
+
