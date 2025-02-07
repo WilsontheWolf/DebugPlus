@@ -14,10 +14,12 @@ local gameKeyRepeat = love.keyboard.hasKeyRepeat()
 local gameTextInput = love.keyboard.hasTextInput()
 local showNewLogs = config.getValue("showNewLogs")
 local firstConsoleRender = nil
+---@type string[]
 local history = {}
+---@type {index: number, val: string}
 local currentHistory = nil
+---@type {name: string, source: string, desc: string, shortDesc: string, exec: fun(args: string[], rawArgs: string, dp: table): string, string?, table?}[]
 local commands = nil
-local controller = nil
 local logOffset = 0
 
 commands = {{
@@ -348,10 +350,10 @@ commands = {{
                     rootC = root.consumeable
                 end
                 if #args < 2 then
-                    return "Please provide a key to set", "ERROR"   
+                    return "Please provide a key to set", "ERROR"
                 end
                 if #args < 3 then
-                    return "Please provide a value to set", "ERROR"   
+                    return "Please provide a value to set", "ERROR"
                 end
                 for i = 2, #args-2 do
                     root = root[args[i]]
@@ -656,7 +658,7 @@ function global.doConsoleRender()
         if not consoleOpen and age > showTime + fadeTime then
             break
         end
-        if not logger.levelMeta[v.level].shouldShow and not v.command then 
+        if not logger.levelMeta[v.level].shouldShow and not v.command then
             goto finishrender
         end
         if not v.command and config.getValue("onlyCommands") then
@@ -725,7 +727,7 @@ local function handleLogsChange(added)
 end
 
 logger.handleLogsChange = handleLogsChange
-config.configDefinition.showNewLogs.onUpdate = function(v) 
+config.configDefinition.showNewLogs.onUpdate = function(v)
     showNewLogs = v
 end
 
