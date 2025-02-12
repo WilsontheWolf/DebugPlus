@@ -3,6 +3,9 @@
 ## Features
 - Added a new profiler for use with newer luajit versions (see https://canary.discord.com/channels/1116389027176787968/1336473631483760791 [in [the balatro discord](https://discord.gg/balatro)])
 
+## Fixes
+- Tables with custom tostring methods had `hi` appended to them.
+
 # DebugPlus 1.3.1
 
 ## Fixes
