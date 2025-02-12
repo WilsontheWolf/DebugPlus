@@ -35,12 +35,12 @@ Todo list cause i have to much to remember
 - [x] SMODS Config Page
 - [x] Non-SMODS Config Page
 - [x] Split out logging so I can log good from config
+- [x] Tweak stringifyTable
+- [x] Allow more watcher types (possibly api for custom ones)
 - [ ] Better keybind ui
 - [ ] Arrow keys
     - [x] Up down
     - [ ] Left right
-- [ ] Allow more watcher types (possibly api for custom ones)
 - [ ] Better scripting  
 - [ ] Finalize whether dp.handleLog should exist or not
-- [ ] Tweak stringifyTable
 - [ ] Improve scrolling when logs are hidden

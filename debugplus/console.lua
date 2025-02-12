@@ -543,61 +543,61 @@ local function calcHeight(text, width)
 end
 
 local function hyjackErrorHandler()
-		local orig = love.errorhandler
-		if not orig then -- Vanilla
-			return -- Doesn't work with love.errhand (need love.errorhandler)
-		end
-		local function safeCall(func, ...)
-			local succ, res = pcall(func, ...)
-			if not succ then print("ERROR", res)
-			else return res end
-		end
-		function love.errorhandler(msg)
-			local ret = orig(msg)
-			orig_wheelmoved = nil
-			orig_textinput = nil
-			consoleOpen = false
-			inputText = ""
-			love.keyboard.setKeyRepeat(gameKeyRepeat)
-			love.keyboard.setTextInput(gameTextInput)
-			local justCrashed = true
+    local orig = love.errorhandler
+    if not orig then -- Vanilla
+        return -- Doesn't work with love.errhand (need love.errorhandler)
+    end
+    local function safeCall(func, ...)
+        local succ, res = pcall(func, ...)
+        if not succ then print("ERROR", res)
+        else return res end
+    end
+    function love.errorhandler(msg)
+        local ret = orig(msg)
+        orig_wheelmoved = nil
+        orig_textinput = nil
+        consoleOpen = false
+        inputText = ""
+        love.keyboard.setKeyRepeat(gameKeyRepeat)
+        love.keyboard.setTextInput(gameTextInput)
+        local justCrashed = true
 
-			local present = love.graphics.present
-			function love.graphics.present()
-				local r, g, b, a = love.graphics.getColor()
-				if justCrashed then
-					firstConsoleRender = love.timer.getTime()
-					justCrashed = false
-				end
-				safeCall(global.doConsoleRender)
-				love.graphics.setColor(r,g,b,a)
-				present()
-			end
+        local present = love.graphics.present
+        function love.graphics.present()
+            local r, g, b, a = love.graphics.getColor()
+            if justCrashed then
+                firstConsoleRender = love.timer.getTime()
+                justCrashed = false
+            end
+            safeCall(global.doConsoleRender)
+            love.graphics.setColor(r,g,b,a)
+            present()
+        end
 
-			return function()
-				love.event.pump()
+        return function()
+            love.event.pump()
 
-				local evts = {}
+            local evts = {}
 
-				for e, a, b, c in love.event.poll() do
-					if consoleOpen and e == "textinput" then
-						safeCall(textinput, a)
-					elseif consoleOpen and e == "wheelmoved" then
-						safeCall(wheelmoved, a, b)
-					elseif e == "keypressed" then
-						if safeCall(global.consoleHandleKey, a) then
-							table.insert(evts, {e,a,b,c})
-						end
-					else
-						table.insert(evts, {e,a,b,c})
-					end
-				end
-				for _,v in ipairs(evts) do -- Add back for the original handler
-					love.event.push(unpack(v))
-				end
-				return ret()
-			end
-		end
+            for e, a, b, c in love.event.poll() do
+                if consoleOpen and e == "textinput" then
+                    safeCall(textinput, a)
+                elseif consoleOpen and e == "wheelmoved" then
+                    safeCall(wheelmoved, a, b)
+                elseif e == "keypressed" then
+                    if safeCall(global.consoleHandleKey, a) then
+                        table.insert(evts, {e,a,b,c})
+                    end
+                else
+                    table.insert(evts, {e,a,b,c})
+                end
+            end
+            for _,v in ipairs(evts) do -- Add back for the original handler
+                love.event.push(unpack(v))
+            end
+            return ret()
+        end
+    end
 end
 
 function global.doConsoleRender()
