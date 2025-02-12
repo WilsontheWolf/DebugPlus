@@ -22,7 +22,7 @@ function global.stringifyTable(tab, depth, num, dec, indent)
         return tostring(tab)
     end
 	if (getmetatable(tab) or {}).__tostring then -- For tables with custom tostring values (such as a talisman number)
-		return tostring(tab) .. "hi"
+		return tostring(tab)
 	end
     local res = "Table:\n"
 	local count = 0
