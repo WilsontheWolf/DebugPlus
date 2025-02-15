@@ -510,29 +510,35 @@ function global.consoleHandleKey(key)
 
 end
 
-local orig_textinput = love.textinput
+local orig_textinput
 local function textinput(t)
-    if orig_textinput then
-        orig_textinput(t)
-    end -- That way if another mod uses this, I don't clobber it's implementation
     if not consoleOpen then
+        if orig_textinput then
+            orig_textinput(t)
+        end -- That way if another mod uses this, I don't clobber it's implementation
         return
     end
     inputText = inputText .. t
 end
-love.textinput = textinput
 
-local orig_wheelmoved = love.wheelmoved
+local orig_wheelmoved
 local function wheelmoved(x, y)
-    if orig_wheelmoved then
-        orig_wheelmoved(x, y)
-    end
     if not consoleOpen then
+        if orig_wheelmoved then
+            orig_wheelmoved(x, y)
+        end
         return
     end
     logOffset = math.min(math.max(logOffset + y, 0), #logger.logs - 1)
 end
-love.wheelmoved = wheelmoved
+
+local function hookStuffs()
+    orig_textinput = love.textinput
+    love.textinput = textinput
+
+    orig_wheelmoved = love.wheelmoved
+    love.wheelmoved = wheelmoved
+end
 
 local function calcHeight(text, width)
     local font = love.graphics.getFont()
@@ -624,7 +630,8 @@ function global.doConsoleRender()
     local bottom = height - padding * 2
     local now = love.timer.getTime()
     if firstConsoleRender == nil then
-		if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
+        if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
+        hookStuffs()
         firstConsoleRender = now
         logger.log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
     end
