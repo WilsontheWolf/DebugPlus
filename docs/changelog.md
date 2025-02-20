@@ -2,9 +2,11 @@
 
 ## Features
 - Added a new profiler for use with newer luajit versions (see https://canary.discord.com/channels/1116389027176787968/1336473631483760791 [in [the balatro discord](https://discord.gg/balatro)])
+- Eval now works properly for multiple returns
 
 ## Fixes
 - Tables with custom tostring methods had `hi` appended to them.
+- Rare crash with watcher
 
 # DebugPlus 1.3.1
 
