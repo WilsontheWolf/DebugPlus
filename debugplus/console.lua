@@ -82,11 +82,23 @@ commands = {{
         if not func then
             return "Syntax Error: " .. err, "ERROR"
         end
-        local success, res = pcall(func)
-        if not success then
-            return "Error: " .. res, "ERROR"
+        local res = {pcall(func)}
+        local success = table.remove(res, 1)
+        local resString = ""
+        if #res > 1 then
+            for k,v in ipairs(res) do
+                if k ~= 1 then
+                    resString = resString .. ", "
+                end
+                resString = resString .. util.stringifyTable(v)
+            end
+        else
+            resString = util.stringifyTable(res[1])
         end
-        return util.stringifyTable(res)
+        if not success then
+            return "Error: " .. resString, "ERROR"
+        end
+        return resString
     end
 }, {
     name = "money",

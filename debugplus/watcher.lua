@@ -232,7 +232,7 @@ local types = {
 }
 
 local function loadFile()
-    local info = love.filesystem.getInfo(file)
+    local info = love.filesystem.getInfo(file) or {}
     local showReloaded = modtime ~= nil
     if info.modtime == modtime then
         return
