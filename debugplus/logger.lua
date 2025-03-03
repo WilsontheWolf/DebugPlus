@@ -183,5 +183,13 @@ function global.debug(...)
     }, "[DebugPlus]", ...)
 end
 
+function global.createLogFn(name, level)
+    return function(...)
+        global.handleLogAdvanced({
+            colour = levelMeta[level].colour,
+            level = level,
+        }, "[" .. name .. "]", ...)
+    end
+end
 
 return global

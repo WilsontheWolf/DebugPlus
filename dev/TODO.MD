@@ -44,3 +44,5 @@ Todo list cause i have to much to remember
 - [ ] Better scripting  
 - [ ] Finalize whether dp.handleLog should exist or not
 - [ ] Improve scrolling when logs are hidden
+- [ ] Watch center config value
+- [ ] Ensure watcher is disabled on crash

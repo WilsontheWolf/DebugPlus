@@ -113,22 +113,22 @@ local configDefinition = {
 
 global.configDefinition = configDefinition
 
-local configPages = { -- TODO: implement paging, maybe only when I need to
+local configPages = {
     {
-		name = "Console",
+        name = "Console",
         "showNewLogs",
         "onlyCommands",
         "logLevel",
-		"processTables",
-		"stringifyPrint",
-		"hyjackErrorHandler",
+        "processTables",
+        "stringifyPrint",
+        "hyjackErrorHandler",
     },
-	{
-		name = "Misc",
+    {
+        name = "Misc",
         "debugMode",
         "ctrlKeybinds",
         "showHUD",
-	}
+    }
 }
 
 for k,v in pairs(configDefinition) do
