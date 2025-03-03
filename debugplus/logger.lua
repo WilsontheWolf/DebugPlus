@@ -37,23 +37,25 @@ local SMODSLevelMeta = {
 }
 
 function global.handleLogAdvanced(data, ...)
-	local succ, config = pcall(require, "debugplus.config")
-	local safe = safeMode or not succ
-	local stringifyPrint = safe or config.getValue("stringifyPrint")
-	if not stringifyPrint then
-    	old_print(...)
-	end
+    local succ, config = pcall(require, "debugplus.config")
+    local safe = safeMode or not succ
+    local stringifyPrint = safe or config.getValue("stringifyPrint")
+    if not stringifyPrint then
+        old_print(...)
+    end
     local _str = ""
-	local stringify = tostring
-	if safe or config.getValue("processTables") then
-		stringify = util.stringifyTable
-	end
-	for _, v in ipairs({...}) do
+    local stringify = tostring
+    if safe or config.getValue("processTables") then
+        stringify = util.stringifyTable
+    end
+    local args = util.pack(...)
+    for i = 1, args.n do
+        local v = args[i]
         _str = _str .. stringify(v) .. " "
     end
-	if stringifyPrint then
-		old_print(_str)
-	end
+    if stringifyPrint then
+        old_print(_str)
+    end
     local meta = {
         str = _str,
         time = love.timer.getTime(),

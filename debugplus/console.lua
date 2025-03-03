@@ -82,11 +82,13 @@ commands = {{
         if not func then
             return "Syntax Error: " .. err, "ERROR"
         end
-        local res = {pcall(func)}
+        local res = util.pack(pcall(func))
         local success = table.remove(res, 1)
+        res.n = res.n - 1
         local resString = ""
-        if #res > 1 then
-            for k,v in ipairs(res) do
+        if res.n > 1 then
+            for k = 1, res.n do
+                local v = res[k]
                 if k ~= 1 then
                     resString = resString .. ", "
                 end

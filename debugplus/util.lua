@@ -67,4 +67,8 @@ function global.trim(string)
     return string:match("^%s*(.-)%s*$")
 end
 
+function global.pack(...) -- TODO: Might be nice to make a version of ipairs that uses this
+    return { n = select("#", ...), ... }
+end
+
 return global
