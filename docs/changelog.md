@@ -1,20 +1,23 @@
 # DebugPlus 1.4.0
 
 ## Features
-- Added a new profiler for use with newer luajit versions (see https://canary.discord.com/channels/1116389027176787968/1336473631483760791 [in [the balatro discord](https://discord.gg/balatro)])
-- Eval now works properly for multiple returns
+- Added a new profiler for use with newer luajit versions (see https://canary.discord.com/channels/1116389027176787968/1336473631483760791 [in [the balatro discord](https://discord.gg/balatro)]).
+- Eval now works properly for multiple returns.
+- Adjust console hooks to play nicer with some other mods.
 
 ## Fixes
 - Tables with custom tostring methods had `hi` appended to them.
-- Rare crash with watcher
+- Rare crash with watcher.
+- Printing a `nil` would not display itself or any args past it.
+- Crash when registering a mod with the api.
 
 # DebugPlus 1.3.1
 
 ## Fixes
 - Fix a crash when the config loader logged.
-- Fixed a rare crash with the 1 and 2 keybinds
-- Fixed the console not receiving text input on some platforms
-- Fixed MacOS being unable to use some keybinds (by allowing ctrl or cmd to be used)
+- Fixed a rare crash with the 1 and 2 keybinds.
+- Fixed the console not receiving text input on some platforms.
+- Fixed MacOS being unable to use some keybinds (by allowing ctrl or cmd to be used).
 
 # DebugPlus 1.3.0
 
