@@ -257,6 +257,7 @@ local function makeEvent()
         no_delete = true,
         trigger = "after",
         delay = .5,
+        timer = "UPTIME",
         func = function()
             if not running then
                 return true
