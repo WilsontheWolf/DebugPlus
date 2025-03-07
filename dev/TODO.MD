@@ -7,6 +7,8 @@ Todo list cause i have to much to remember
 - [x] Log API
 - [x] Binding to id
 - [ ] Debug Hud Stuff
+- [ ] Command Running API
+- [ ] More advanced logging api's
 
 ## Commands
 - [x] eval

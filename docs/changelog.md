@@ -1,3 +1,8 @@
+# DebugPlus 1.4.1
+
+## Fixes
+- Fixes an issue where watch would stop automatically reloading when quitting to the main menu from a run.
+
 # DebugPlus 1.4.0
 
 ## Features
