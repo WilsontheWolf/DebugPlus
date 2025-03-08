@@ -168,5 +168,13 @@ See [examples/watch_joker.lua](../examples/watch_joker.lua) and [examples/watch_
 
 Running `watch shader <path>` will watch the provided shader file for changes and show a joker with the shader as an edition. This should just work with any edition shaders used for Steamodded. 
 
+Example
+
+```
+watch shader Mods/YourModName/assets/shaders/yourShader.fs
+```
+
+**Tip:** Check your slash direction, Windows typically uses `\` backslashes while other operating systems use `/` front slash characters.  This command expects front slashes.
+
 > [!NOTE]  
 > Due to a quirk with shaders, they have to be passed a variable with their name. DebugPlus uses some heuristics to guess the name. If DebugPlus fails to guess correctly, the shader will crash. If the game crashes with the watch command but not when used with Steamodded on an edition, please make a bug report.
