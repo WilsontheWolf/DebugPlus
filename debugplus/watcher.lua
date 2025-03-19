@@ -268,13 +268,21 @@ local function makeEvent()
     }
 end
 
+local function correctFile(file) -- Fixes issues with slashes
+    return file:gsub("^%.?[\\/]", ""):gsub("\\", "/")
+end
+
 function global.startWatching(_file, _type)
     if not _file then
         return nil, "No file"
     end
     local info = love.filesystem.getInfo(_file)
     if not info then
-        return nil, "File doesn't exist"
+        _file = correctFile(_file)
+        info = love.filesystem.getInfo(_file)
+        if not info then
+            return nil, "File doesn't exist"
+        end
     end
     if not (info.type == "file") then
         return nil, "Not a regular file"
