@@ -23,7 +23,8 @@ local function createLogger(name)
         debug = logger.createLogFn(name, "DEBUG"),
         info = logger.createLogFn(name, "INFO"),
         warn = logger.createLogFn(name, "WARN"),
-        error = logger.createLogFn(name, "ERROR"),  
+        error = logger.createLogFn(name, "ERROR"),
+        advanced = logger.handleLogAdvanced
     }
 end
 
