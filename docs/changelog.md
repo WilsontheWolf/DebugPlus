@@ -1,3 +1,9 @@
+# DebugPlus 1.4.2
+
+## Fixes
+- Fix an issue where `\`'s didn't work in the watch command.
+- Fix an issue where SMODS logs with spaces in their logger wouldn't be parsed.
+
 # DebugPlus 1.4.1
 
 ## Fixes
