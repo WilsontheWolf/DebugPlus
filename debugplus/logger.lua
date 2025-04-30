@@ -26,7 +26,7 @@ local levelMeta = {
     }
 }
 global.levelMeta = levelMeta
-local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: ([%S ]+) :: (.*)"
+local SMODSLogPattern = "[%d-]+ [%d:]+ :: (%S+) +:: ([%S ]-) :: (.*)"
 local SMODSLevelMeta = {
     TRACE = levelMeta.DEBUG,
     DEBUG = levelMeta.DEBUG,
