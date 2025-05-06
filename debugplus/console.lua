@@ -459,7 +459,7 @@ end
 
 function global.consoleHandleKey(key)
     if not consoleOpen then
-        if key == '/' or key == 'kp/' then
+        if love.keyboard.getScancodeFromKey(key) == '/' or key == 'kp/' then
             if util.isShiftDown() then
                 showNewLogs = not showNewLogs
             else
@@ -647,7 +647,7 @@ function global.doConsoleRender()
         if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
         hookStuffs()
         firstConsoleRender = now
-        logger.log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
+        logger.log("Press [" .. love.keyboard.getKeyFromScancode("/") .. "] to toggle console and press [shift] + [" .. love.keyboard.getKeyFromScancode("/") .. "] to toggle new log previews")
     end
     -- Input Box
     love.graphics.setColor(0, 0, 0, .5)
