@@ -459,8 +459,11 @@ end
 
 function global.consoleHandleKey(key)
     if not consoleOpen then
-        local scan = love.keyboard.getScancodeFromKey(key)
-        if scan == '/' or scan == 'kp/' then
+        local toCheck = key
+        if love.keyboard.getScancodeFromKey("/") == "unknown" then
+            toCheck = love.keyboard.getScancodeFromKey(key)
+        end
+        if toCheck == '/' or toCheck == 'kp/' then
             if util.isShiftDown() then
                 showNewLogs = not showNewLogs
             else
@@ -648,7 +651,10 @@ function global.doConsoleRender()
         if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
         hookStuffs()
         firstConsoleRender = now
-        local key = love.keyboard.getKeyFromScancode("/")
+        local key = "/"
+        if love.keyboard.getScancodeFromKey("/") == "unknown" then
+            key = love.keyboard.getKeyFromScancode("/")
+        end
         logger.log("Press [" .. key .. "] to toggle console and press [shift] + [" .. key .. "] to toggle new log previews")
     end
     -- Input Box
