@@ -59,10 +59,10 @@ commands = {{
         end
         if not cmd then
             return '"' .. cmdName .. '" could not be found. To see a list of all commands, run "help" without any args',
-                "ERROR"
+            "ERROR"
         end
         return cmd.name .. ":\n" .. cmd.desc .. "\n\nThis command can be run by typing '" .. cmd.name .. "' or '" ..
-                   cmd.source .. ":" .. cmd.name .. "'."
+        cmd.source .. ":" .. cmd.name .. "'."
     end
 }, {
     name = "eval",
@@ -417,8 +417,8 @@ local function runCommand()
 
     inputText = ""
     consoleOpen = false
-	love.keyboard.setKeyRepeat(gameKeyRepeat)
-	love.keyboard.setTextInput(gameTextInput)
+    love.keyboard.setKeyRepeat(gameKeyRepeat)
+    love.keyboard.setTextInput(gameTextInput)
 
     local cmd
     for i, c in ipairs(commands) do
@@ -459,7 +459,8 @@ end
 
 function global.consoleHandleKey(key)
     if not consoleOpen then
-        if key == '/' or key == 'kp/' then
+        local scan = love.keyboard.getScancodeFromKey(key)
+        if scan == '/' or scan == 'kp/' then
             if util.isShiftDown() then
                 showNewLogs = not showNewLogs
             else
@@ -471,10 +472,10 @@ function global.consoleHandleKey(key)
 
     if key == "escape" then
         consoleOpen = false
-		love.keyboard.setKeyRepeat(gameKeyRepeat)
-		love.keyboard.setTextInput(gameTextInput)
-		inputText = ""
-	end
+        love.keyboard.setKeyRepeat(gameKeyRepeat)
+        love.keyboard.setTextInput(gameTextInput)
+        inputText = ""
+    end
     -- This bit stolen from https://love2d.org/wiki/love.textinput
     if key == "backspace" then
         -- get the byte offset to the last UTF-8 character in the string.
@@ -629,10 +630,10 @@ function global.doConsoleRender()
             val = ""
         }
         logOffset = 0
-		gameKeyRepeat = love.keyboard.hasKeyRepeat()
-		gameTextInput = love.keyboard.hasTextInput()
-		love.keyboard.setKeyRepeat(true)
-		love.keyboard.setTextInput(true)
+        gameKeyRepeat = love.keyboard.hasKeyRepeat()
+        gameTextInput = love.keyboard.hasTextInput()
+        love.keyboard.setKeyRepeat(true)
+        love.keyboard.setTextInput(true)
     end
     if not consoleOpen and not showNewLogs then
         return
@@ -647,7 +648,8 @@ function global.doConsoleRender()
         if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
         hookStuffs()
         firstConsoleRender = now
-        logger.log("Press [/] to toggle console and press [shift] + [/] to toggle new log previews")
+        local key = love.keyboard.getKeyFromScancode("/")
+        logger.log("Press [" .. key .. "] to toggle console and press [shift] + [" .. key .. "] to toggle new log previews")
     end
     -- Input Box
     love.graphics.setColor(0, 0, 0, .5)
