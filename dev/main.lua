@@ -1,14 +1,14 @@
 local logger = require "debugplus.logger"
 logger.registerLogHandler()
 local console = require "debugplus.console"
-local utf8 = require("utf8")
+local Unicode = require "dev.unicode".Unicode
 
 local text
-local textInput = {"",""}
+local textInput = {Unicode.new(), Unicode.new()}
 local cursorPos = {0,0,0}
 
 local function processInput()
-	print(textInput[1] .. "_" .. textInput[2])
+	print(textInput[1]:toString() .. "_" .. textInput[2]:toString())
 end
 
 function love.draw()
@@ -25,39 +25,23 @@ end
 function love.keypressed(key)
 	local handle = console.consoleHandleKey(key)
 	if handle then
-		print(key)
+		-- print(key)
 		if key == "backspace" then
-			local byteoffset = utf8.offset(textInput[1], -1)
-
-			if byteoffset then
-				textInput[1] = string.sub(textInput[1], 1, byteoffset - 1)
-				processInput()
-			end
+			textInput[1] = textInput[1]:sub(1, -2)
+			processInput()
 		elseif key == "delete" then
-			local byteoffset = utf8.offset(textInput[2], 1)
-
-			if byteoffset then
-				textInput[2] = string.sub(textInput[2], byteoffset + 1)
-				processInput()
-			end
+			textInput[2] = textInput[2]:sub(2)
+			processInput()
 		elseif key == "left" then
-			local byteoffset = utf8.offset(textInput[1], -1)
-
-			if byteoffset then
-				local toMove = string.sub(textInput[1], byteoffset)
-				textInput[1] = string.sub(textInput[1], 1, byteoffset - 1)
-				textInput[2] = toMove .. textInput[2]
-				processInput()
-			end
+			local toMove = textInput[1]:sub(-1)
+			textInput[1] = textInput[1]:sub(1, -2)
+			textInput[2] = toMove .. textInput[2]
+			processInput()
 		elseif key == "right" then
-			local byteoffset = utf8.offset(textInput[2], 1)
-
-			if byteoffset then
-				local toMove = string.sub(textInput[2], byteoffset, 1)
-				textInput[2] = string.sub(textInput[2], byteoffset + 1)
-				textInput[1] = textInput[1] .. toMove
-				processInput()
-			end
+			local toMove = textInput[2]:sub(1, 1)
+			textInput[2] = textInput[2]:sub(2)
+			textInput[1] = textInput[1] .. toMove
+			processInput()
 		end
 	end
 end
@@ -104,10 +88,10 @@ renderInBox({"testing123\nhi mom", {colour = {1,0,1,1}, text = "_"}, "testing\n"
 
 function processInput() -- Note: reimplemntation
 	if true then
-		renderInBox({textInput[1], --[[{colour = {1,0,1,1}, text = "_"},]] textInput[2]}, 100)
+		renderInBox({textInput[1]:toString(), --[[{colour = {1,0,1,1}, text = "_"},]] textInput[2]:toString()}, 100)
 		local font = love.graphics.getFont()
 
-		local width, elements = font:getWrap(textInput[1], 100)
+		local width, elements = font:getWrap(textInput[1]:toString(), 100)
 		local lineHeight = font:getHeight()
 
 		print(width, elements)
@@ -140,3 +124,5 @@ end
 
 
 console.consoleHandleKey("/") -- open console
+
+print(Unicode.new("Hello mom. Here is an emoji (😊)"))

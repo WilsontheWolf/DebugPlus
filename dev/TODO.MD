@@ -48,3 +48,9 @@ Todo list cause i have to much to remember
 - [ ] Improve scrolling when logs are hidden
 - [ ] Watch center config value
 - [ ] Ensure watcher is disabled on crash
+
+## Misc
+
+- [ ] Fix profiler hud not showing when HUD off
+- [ ] Add more cards to watch shader
+- [ ] List of neat eval commands
