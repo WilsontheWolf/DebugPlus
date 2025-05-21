@@ -102,4 +102,14 @@ function Unicode:__len()
 	return #self.codes
 end
 
+function Unicode:backspace()
+	local code = table.remove(self.codes)
+	return code
+end
+
+function Unicode:del()
+	local code = table.remove(self.codes, 1)
+	return code
+end
+
 return M

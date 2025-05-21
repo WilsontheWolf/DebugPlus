@@ -27,10 +27,10 @@ function love.keypressed(key)
 	if handle then
 		-- print(key)
 		if key == "backspace" then
-			textInput[1] = textInput[1]:sub(1, -2)
+			textInput[1]:backspace()
 			processInput()
 		elseif key == "delete" then
-			textInput[2] = textInput[2]:sub(2)
+			textInput[2]:del()
 			processInput()
 		elseif key == "left" then
 			local toMove = textInput[1]:sub(-1)
@@ -88,13 +88,15 @@ renderInBox({"testing123\nhi mom", {colour = {1,0,1,1}, text = "_"}, "testing\n"
 
 function processInput() -- Note: reimplemntation
 	if true then
-		renderInBox({textInput[1]:toString(), --[[{colour = {1,0,1,1}, text = "_"},]] textInput[2]:toString()}, 100)
+		local maxWidth = 500
+		renderInBox({textInput[1]:toString(), --[[{colour = {1,0,1,1}, text = "_"},]] textInput[2]:toString()}, maxWidth)
 		local font = love.graphics.getFont()
 
-		local width, elements = font:getWrap(textInput[1]:toString(), 100)
+		local _, elements = font:getWrap(textInput[1]:toString(), maxWidth)
+		print(elements)
+		local width = font:getWidth(elements[#elements])
 		local lineHeight = font:getHeight()
 
-		print(width, elements)
 
 		cursorPos[1] = width + 10 -- x pos (naive approch)
 		cursorPos[2] = lineHeight * (#elements - 1) + 10-- y pos
@@ -112,8 +114,8 @@ function processInput() -- Note: reimplemntation
 			text:clear()
 		end
 
-		text:addf(textInput[1], wrapLimit, "left", 0, 0)
-		text:addf(textInput[2], wrapLimit, "left", 0, 0)
+		text:addf(textInput[1]:toString(), wrapLimit, "left", 0, 0)
+		text:addf(textInput[2]:toString(), wrapLimit, "left", 0, 0)
 
 		print(text:getDimensions()) -- width, height
 		-- print(font:getWrap(ct, wrapLimit)) -- width, table of elements
