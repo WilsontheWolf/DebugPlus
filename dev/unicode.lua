@@ -1,4 +1,5 @@
 local utf8 = require "utf8"
+local util = require "debugplus.util"
 local M = {}
 
 local Unicode = {}
@@ -6,6 +7,7 @@ M.Unicode = Unicode
 Unicode.__index = Unicode
 
 local function toCodes(str)
+	-- TODO: Is this loop nessicary?
 	local obj = {}
 	for _, c in utf8.codes(str) do
 		table.insert(obj, c)
@@ -26,6 +28,14 @@ local function getEndPos(pos, len)
 	if pos >= 0 then return pos end
 	if pos < -len then return 0 end
 	return len + pos + 1
+end
+
+local nonWords = toCodes(" \t\n-_<>(){}[]:;/\\.!?|")
+
+local nonWordLookup = {}
+
+for _, v in ipairs(nonWords) do
+	nonWordLookup[v] = true
 end
 
 function Unicode.new(inital)
@@ -104,12 +114,84 @@ end
 
 function Unicode:backspace()
 	local code = table.remove(self.codes)
-	return code
+	if not code then return nil end
+	return utf8.char(code)
 end
 
 function Unicode:del()
 	local code = table.remove(self.codes, 1)
-	return code
+	if not code then return nil end
+	return utf8.char(code)
+end
+
+function Unicode:append(chars)
+	local codes = self.codes
+	for _, c in utf8.codes(chars) do
+		table.insert(codes, c)
+	end
+end
+
+function Unicode:prepend(chars)
+	local codes = self.codes
+	local i = 1
+	for _, c in utf8.codes(chars) do
+		table.insert(codes, i, c)
+		i = i + 1
+	end
+end
+
+function Unicode:backspaceWord()
+	local res = {}
+	local codes = self.codes
+	local firstPart = true
+
+	local count = #codes
+
+	while true do
+		if count == 0 then
+			return utf8.char(unpack(res))
+		end
+		local code = codes[count]
+		if firstPart then
+			if not nonWordLookup[code] then
+				firstPart = false
+			end
+		elseif nonWordLookup[code] then
+			print(utf8.char(unpack(res)))
+			print(self)
+			return utf8.char(unpack(res))
+		end
+		table.remove(codes)
+		count = count - 1
+		table.insert(res, 1, code)
+	end
+end
+
+function Unicode:delWord()
+	local res = {}
+	local codes = self.codes
+	local firstPart = true
+
+	local count = #codes
+
+	while true do
+		if count == 0 then
+			return utf8.char(unpack(res))
+		end
+		local code = codes[1]
+		if firstPart then
+			if not nonWordLookup[code] then
+				firstPart = false
+			end
+		elseif nonWordLookup[code] then
+			print(utf8.char(unpack(res)))
+			print(self)
+			return utf8.char(unpack(res))
+		end
+		table.remove(codes, 1)
+		count = count - 1
+		table.insert(res, code)
+	end
 end
 
 return M

@@ -2,6 +2,7 @@ local logger = require "debugplus.logger"
 logger.registerLogHandler()
 local console = require "debugplus.console"
 local Unicode = require "dev.unicode".Unicode
+local util = require "debugplus.util"
 
 local text
 local textInput = {Unicode.new(), Unicode.new()}
@@ -27,21 +28,41 @@ function love.keypressed(key)
 	if handle then
 		-- print(key)
 		if key == "backspace" then
-			textInput[1]:backspace()
+			if util.isCtrlDown() then
+				textInput[1]:backspaceWord()
+			else
+				textInput[1]:backspace()
+			end
 			processInput()
 		elseif key == "delete" then
-			textInput[2]:del()
+			if util.isCtrlDown() then
+				textInput[2]:delWord()
+			else
+				textInput[2]:del()
+			end
 			processInput()
 		elseif key == "left" then
-			local toMove = textInput[1]:sub(-1)
-			textInput[1] = textInput[1]:sub(1, -2)
-			textInput[2] = toMove .. textInput[2]
-			processInput()
+			local toMove
+			if util.isCtrlDown() then
+				toMove = textInput[1]:backspaceWord()
+			else
+				toMove = textInput[1]:backspace()
+			end
+			if toMove then
+				textInput[2]:prepend(toMove)
+				processInput()
+			end
 		elseif key == "right" then
-			local toMove = textInput[2]:sub(1, 1)
-			textInput[2] = textInput[2]:sub(2)
-			textInput[1] = textInput[1] .. toMove
-			processInput()
+			local toMove
+			if util.isCtrlDown() then
+				toMove = textInput[2]:delWord()
+			else
+				toMove = textInput[2]:del()
+			end
+			if toMove then
+				textInput[1]:append(toMove)
+				processInput()
+			end
 		end
 	end
 end
@@ -124,7 +145,7 @@ function processInput() -- Note: reimplemntation
 end
 
 
-
+love.keyboard.setKeyRepeat(true)
 console.consoleHandleKey("/") -- open console
 
 print(Unicode.new("Hello mom. Here is an emoji (😊)"))
