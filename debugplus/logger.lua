@@ -86,7 +86,7 @@ function global.handleLogAdvanced(data, ...)
     end
     if not meta.colour then meta.colour = levelMeta[meta.level].colour end
 
-    -- Dirty hack to work better with multiline text
+    -- HACK: Dirty hack to work better with multiline text
     if string.match(meta.str, "\n") then
         local first = true
         for w in string.gmatch(meta.str, "[^\n]+") do

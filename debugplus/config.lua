@@ -40,11 +40,11 @@ local configDefinition = {
 		},
         -- Most of the time I wouldn't define onUpdate here for something in another module, 
         -- but I need to avoid circular dependencies and want the logger here.
-        onUpdate = function(v) 
+        onUpdate = function(v)
             for k, v in pairs(logger.levelMeta) do
                 v.shouldShow = false
             end
-            
+
             logger.levelMeta.ERROR.shouldShow = true
             if v == "ERROR" then return logger.handleLogsChange() end
             logger.levelMeta.WARN.shouldShow = true
@@ -52,7 +52,7 @@ local configDefinition = {
             logger.levelMeta.INFO.shouldShow = true
             if v == "INFO" then return logger.handleLogsChange() end
             logger.levelMeta.DEBUG.shouldShow = true
-            logger.handleLogsChange() 
+            logger.handleLogsChange()
         end
     },
     showNewLogs = {
@@ -61,7 +61,7 @@ local configDefinition = {
         default = true,
         info = {
             "Show a message when something is logged. Can also press shift + / to temporarily toggle."
-        } 
+        }
     },
     onlyCommands = {
         label = "Only Show Commands",

@@ -1,5 +1,4 @@
 local utf8 = require "utf8"
-local util = require "debugplus.util"
 local M = {}
 
 local Unicode = {}
@@ -157,8 +156,6 @@ function Unicode:backspaceWord()
 				firstPart = false
 			end
 		elseif nonWordLookup[code] then
-			print(utf8.char(unpack(res)))
-			print(self)
 			return utf8.char(unpack(res))
 		end
 		table.remove(codes)
@@ -184,8 +181,6 @@ function Unicode:delWord()
 				firstPart = false
 			end
 		elseif nonWordLookup[code] then
-			print(utf8.char(unpack(res)))
-			print(self)
 			return utf8.char(unpack(res))
 		end
 		table.remove(codes, 1)
@@ -193,5 +188,7 @@ function Unicode:delWord()
 		table.insert(res, code)
 	end
 end
+
+M.new = Unicode.new
 
 return M
