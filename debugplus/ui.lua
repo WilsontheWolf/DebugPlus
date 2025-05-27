@@ -1,5 +1,5 @@
 local util = require "debugplus.util"
-local Unicode = require "dev.unicode"
+local Unicode = require "debugplus.unicode"
 
 local M = {}
 
@@ -8,6 +8,7 @@ TextInput.__index = TextInput
 M.TextInput = TextInput
 
 function TextInput.new(width, font)
+	assert(type(width) == "number", "Width must be a number")
 	font = font or love.graphics.getFont()
 	local self = setmetatable({}, TextInput)
 	self.font = font
@@ -112,6 +113,12 @@ function TextInput:clear()
 	self.dirty = true
 end
 
+function TextInput:set(str)
+	self.input1 = Unicode.new(str)
+	self.input2 = Unicode.new()
+	self.dirty = true
+end
+
 function TextInput:draw(x, y)
 	if self.dirty then
 		self:process()
@@ -123,6 +130,10 @@ function TextInput:draw(x, y)
 		local height = self.lineHeight
 		love.graphics.rectangle("fill", cursor.x + x, cursor.y + y, width, height)
 	end
+end
+
+function TextInput:toString()
+	return self.input1:toString() .. self.input2:toString()
 end
 
 return M

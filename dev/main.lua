@@ -1,7 +1,7 @@
 local logger = require "debugplus.logger"
 logger.registerLogHandler()
 local console = require "debugplus.console"
-local ui = require "dev.ui"
+local ui = require "debugplus.ui"
 
 local input = ui.TextInput.new(500)
 

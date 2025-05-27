@@ -42,6 +42,12 @@ name = "debugplus-api"
 
 [[patches]]
 [patches.module]
+source = "debugplus/api.lua"
+before = "main.lua"
+name = "debugplus.api"
+
+[[patches]]
+[patches.module]
 source = "debugplus/core.lua"
 before = "engine/controller.lua"
 name = "debugplus.core"
@@ -52,3 +58,14 @@ source = "debugplus/prof.lua"
 before = "engine/controller.lua"
 name = "debugplus.prof"
 
+[[patches]]
+[patches.module]
+source = "debugplus/ui.lua"
+before = "main.lua"
+name = "debugplus.ui"
+
+[[patches]]
+[patches.module]
+source = "debugplus/unicode.lua"
+before = "main.lua"
+name = "debugplus.unicode"
