@@ -346,8 +346,26 @@ function global.handleKeys(controller, key, dt)
 
     if key == "1" or key == "2" then -- Reload any tooltips when unlocking/discovering stuff
         if _element and _element.stop_hover and _element.hover then
-            _element:stop_hover()
-            _element:hover()
+            -- Check if this is an edition card to avoid the nil edition error
+            if _element.config and _element.config.center and
+               _element.config.center.set == "Edition" then
+                -- For editions, make sure edition exists and update collection
+                local editionKey = _element.config.center.key
+                if editionKey then
+                    -- Ensure the edition is properly discovered/unlocked
+                    if not G.GAME.collection then G.GAME.collection = {} end
+                    if not G.GAME.collection.edition then G.GAME.collection.edition = {} end
+                    G.GAME.collection.edition[editionKey] = true
+                    -- Let user know shader will appear when reopening
+                    log("Unlocked " .. editionKey .. " - shader will appear when you reopen this section")
+                    -- Save the game progress
+                    G:save_progress()
+                end
+                -- Make sure edition exists before hovering to avoid nil error
+                if _element.edition == nil then
+                    _element.edition = {}
+                end
+            end
         end
     end
 
