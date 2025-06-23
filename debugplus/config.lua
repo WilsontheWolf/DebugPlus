@@ -35,9 +35,9 @@ local configDefinition = {
         default = "INFO",
         values = {"ERROR", "WARN", "INFO", "DEBUG"},
         info = {
-			"Only shows you logs of a certain level. This setting ignore command logs.",
-			"Will show all logs for the selected level and higher."
-		},
+            "Only shows you logs of a certain level. This setting ignore command logs.",
+            "Will show all logs for the selected level and higher."
+        },
         -- Most of the time I wouldn't define onUpdate here for something in another module, 
         -- but I need to avoid circular dependencies and want the logger here.
         onUpdate = function(v)
@@ -78,37 +78,56 @@ local configDefinition = {
     -- Hidden config for rn. Even though they are hidden at the default logging level, 
     -- they are so frequent is starts clearing normal logs if left run for a bit.
     -- This option was added so if someone does want them, they can be reenabled. 
-    enableLongDT = { 
+    enableLongDT = {
         label = "Enable Long DT Messages",
         type = "toggle",
         default = false,
         info = {}
     },
-	processTables = {
-		label = "Automatically Expand Printed Tables",
-		type = "toggle",
-		default = true,
-		info = {"When a table is printed, expand it's contents (like in the eval command) instead of just strigifying it."}
-	},
-	stringifyPrint = {
-		label = "Process Arguments Before Logging",
-		type = "toggle",
-		default = true,
-		info = {
-			"When this is enabled and something is printed to the lovely console/log DebugPlus will handle the processing of the args before logging them.",
-			"This allows the 'Automatically Expand Printed Tables' option to also show up in those logs."
-		}
-	},
-	hyjackErrorHandler = {
-		label = "Console In Crash Handler",
-		type = "toggle",
-		default = true,
-		info = {
-			"When this is toggled, DebugPlus's console will be accessible in the error handler.",
-			"Requires Steamodded (or another tool to replace the error handler) to function",
-			"Requires a restart for the toggle to take effect"
-		}
-	}
+    processTables = {
+        label = "Automatically Expand Printed Tables",
+        type = "toggle",
+        default = true,
+        info = {"When a table is printed, expand it's contents (like in the eval command) instead of just strigifying it."}
+    },
+    stringifyPrint = {
+        label = "Process Arguments Before Logging",
+        type = "toggle",
+        default = true,
+        info = {
+            "When this is enabled and something is printed to the lovely console/log DebugPlus will handle the processing of the args before logging them.",
+            "This allows the 'Automatically Expand Printed Tables' option to also show up in those logs."
+        }
+    },
+    hyjackErrorHandler = {
+        label = "Console In Crash Handler",
+        type = "toggle",
+        default = true,
+        info = {
+            "When this is toggled, DebugPlus's console will be accessible in the error handler.",
+            "Requires Steamodded (or another tool to replace the error handler) to function",
+            "Requires a restart for the toggle to take effect"
+        }
+    },
+    commandLogEnabled = {
+        label = "Store Command History",
+        type = "toggle",
+        default = true,
+        info = {
+            "When this is enabled, DebugPlus's console will store your run commands",
+            "so they can be used when the game is restarted."
+        }
+    },
+    commandLogMax = {
+        label = "Max History Size",
+        type = "range",
+        default = 100,
+        min = 1,
+        max = 1000,
+        info = {
+            "Controls the number of commands to save to disk.",
+        }
+    },
 }
 
 global.configDefinition = configDefinition
@@ -122,6 +141,8 @@ local configPages = {
         "processTables",
         "stringifyPrint",
         "hyjackErrorHandler",
+        "commandLogEnabled",
+        "commandLogMax",
     },
     {
         name = "Misc",
@@ -148,11 +169,7 @@ local function parseConfigValue(val)
         return false
     end
     if val:sub(1, 1) == '"' and val:sub(#val) == '"' then
-        return val:sub(2, #val - 1):gsub("\\(.?)", {
-            ["\\"] = "\\",
-            n = "\n",
-            r = "\r"
-        })
+        return util.unescapeSimple(val:sub(2, #val - 1))
     end
     if tonumber(val) then
         return tonumber(val)
@@ -171,7 +188,7 @@ local function stringifyConfigValue(val)
         return "false"
     end
     if type(val) == "string" then
-        return '"' .. val:gsub("\\", "\\\\"):gsub("\n", "\\n"):gsub("\r", "\\r") .. '"'
+        return '"' .. util.escapeSimple(val) .. '"'
     end
     if type(val) == "number" then
         return string.format("%g", val)
@@ -240,7 +257,7 @@ local function updateSaveFile()
 end
 
 
-function global.setValue(key, value) 
+function global.setValue(key, value)
     local def = configDefinition[key]
     if not def then return end
     if configTypes[def.type] and configTypes[def.type].validate then
@@ -308,6 +325,43 @@ configTypes = {
             })
         end
     },
+    range = {
+        validate = function(data, def)
+            if type(data) ~= "number" then return false end
+            if def.max and data > def.max then return false end
+            if def.min and data < def.min then return false end
+            return true
+        end,
+        render = function(def)
+            -- TODO: Fix title size, fix info not showing
+            local ret = create_slider({
+                label = def.label,
+                ref_table = configMemory[def.key],
+                ref_value = "value",
+                callback = "DP_conf_slider_callback",
+                dp_key = def.key,
+                w = 4,
+                h = 0.4,
+                label_scale = 0.4, -- Matches the other config values
+                min = def.min,
+                max = def.max,
+            })
+            if def.info then 
+                local info = {}
+                for k, v in ipairs(def.info) do 
+                    table.insert(info, {n=G.UIT.R, config={align = "cm", minh = 0.05}, nodes={
+                        {n=G.UIT.T, config={text = v, scale = 0.25, colour = G.C.UI.TEXT_LIGHT}}
+                    }})
+                end
+                info =  {n=G.UIT.R, config={align = "cm", minh = 0.05}, nodes=info}
+                ret = { n = G.UIT.R, config={align = "cm"}, nodes={
+                    ret,
+                    info,
+                }}
+            end
+            return ret
+        end
+    },
 }
 
 local function getDefaultsObject()
@@ -363,9 +417,12 @@ local function generateMemory()
 end
 
 function global.generateConfigTab(arg)
-	local index = arg.index or 1
+    local index = arg.index or 1
     function G.FUNCS.DP_conf_select_callback(e)
         global.setValue(e.cycle_config.dp_key, e.to_val)
+    end
+    function G.FUNCS.DP_conf_slider_callback(e)
+        global.setValue(e.dp_key, e.ref_table[e.ref_value])
     end
     local nodes = {}
     for k,v in ipairs(configPages[index]) do
@@ -388,40 +445,40 @@ function global.generateConfigTab(arg)
 end
 
 function global.generateConfigTabs(source)
-	local tab = {}
-	for i,v in ipairs(configPages) do
-		table.insert(tab, {
-			label = v.name,
-			tab_definition_function = global.generateConfigTab,
-			tab_definition_function_args = {source = source, index = i }
-		})
-	end
-	return tab
+    local tab = {}
+    for i,v in ipairs(configPages) do
+        table.insert(tab, {
+            label = v.name,
+            tab_definition_function = global.generateConfigTab,
+            tab_definition_function_args = {source = source, index = i }
+        })
+    end
+    return tab
 end
 
 function global.fakeConfigTab()
-	local tabs = global.generateConfigTabs("lovely")
-	tabs[1].chosen = true
-	G.FUNCS.overlay_menu({
-		definition = create_UIBox_generic_options({
-			back_func = "settings",
-			contents = {create_tabs({
-				snap_to_nav = true,
-				-- colour = {.65, .36, 1, 1},
-				tabs = tabs,
-				tab_h = 7.05,
-				tab_alignment = 'tm',
-			})}
-		})
-	})
-	return {}
+    local tabs = global.generateConfigTabs("lovely")
+    tabs[1].chosen = true
+    G.FUNCS.overlay_menu({
+        definition = create_UIBox_generic_options({
+            back_func = "settings",
+            contents = {create_tabs({
+                snap_to_nav = true,
+                -- colour = {.65, .36, 1, 1},
+                tabs = tabs,
+                tab_h = 7.05,
+                tab_alignment = 'tm',
+            })}
+        })
+    })
+    return {}
 end
 
 generateMemory()
 
 -- if debug.getinfo(1).source:match("@.*") then -- For when running under watch
---     logger.log("DebugPlus config in watch")
---     return global.generateConfigTab() -- For watch config_tab
+--      logger.log("DebugPlus config in watch")
+--     return global.generateConfigTab({}) -- For watch config_tab
 -- end
 
 return global
