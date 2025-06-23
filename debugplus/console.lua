@@ -398,6 +398,28 @@ commands = {{
 }}
 local input = ui.TextInput.new(0)
 
+local function loadHistory()
+    if not config.getValue("commandHistory") then return end
+    local content = love.filesystem.read("config/DebugPlus.history.jkr")
+    if not content then
+        return
+    end
+    local t = {}
+    for str in string.gmatch(content, "([^\n\r]+)") do
+        table.insert(history, 1, util.unescapeSimple(str))
+    end
+end
+
+local function saveHistory()
+    local max = config.getValue("commandHistoryMax")
+    local str = ""
+    for i = math.min(#history, max), 1, -1 do
+        if str ~= "" then str = str .. "\n" end
+        str = str .. util.escapeSimple(history[i])
+    end
+    love.filesystem.write("config/DebugPlus.history.jkr", str)
+end
+
 local function closeConsole()
     input:clear()
     consoleOpen = false
@@ -415,6 +437,10 @@ local function runCommand()
     logger.handleLog({1, 0, 1}, "INFO", "> " .. inputText)
     if history[1] ~= inputText then
         table.insert(history, 1, inputText)
+    end
+
+    if config.getValue("commandHistory") then
+        saveHistory()
     end
 
     local cmdName = string.lower(string.gsub(inputText, "^(%S+).*", "%1"))
@@ -639,6 +665,7 @@ function global.doConsoleRender()
     local now = love.timer.getTime()
     if firstConsoleRender == nil then
         if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
+        loadHistory()
         hookStuffs()
         firstConsoleRender = now
         local key = "/"

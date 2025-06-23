@@ -109,7 +109,7 @@ local configDefinition = {
             "Requires a restart for the toggle to take effect"
         }
     },
-    commandLogEnabled = {
+    commandHistory = {
         label = "Store Command History",
         type = "toggle",
         default = true,
@@ -118,7 +118,7 @@ local configDefinition = {
             "so they can be used when the game is restarted."
         }
     },
-    commandLogMax = {
+    commandHistoryMax = {
         label = "Max History Size",
         type = "range",
         default = 100,
@@ -141,8 +141,8 @@ local configPages = {
         "processTables",
         "stringifyPrint",
         "hyjackErrorHandler",
-        "commandLogEnabled",
-        "commandLogMax",
+        "commandHistory",
+        "commandHistoryMax",
     },
     {
         name = "Misc",
@@ -333,7 +333,6 @@ configTypes = {
             return true
         end,
         render = function(def)
-            -- TODO: Fix title size, fix info not showing
             local ret = create_slider({
                 label = def.label,
                 ref_table = configMemory[def.key],
@@ -346,9 +345,9 @@ configTypes = {
                 min = def.min,
                 max = def.max,
             })
-            if def.info then 
+            if def.info then
                 local info = {}
-                for k, v in ipairs(def.info) do 
+                for k, v in ipairs(def.info) do
                     table.insert(info, {n=G.UIT.R, config={align = "cm", minh = 0.05}, nodes={
                         {n=G.UIT.T, config={text = v, scale = 0.25, colour = G.C.UI.TEXT_LIGHT}}
                     }})
@@ -422,7 +421,7 @@ function global.generateConfigTab(arg)
         global.setValue(e.cycle_config.dp_key, e.to_val)
     end
     function G.FUNCS.DP_conf_slider_callback(e)
-        global.setValue(e.dp_key, e.ref_table[e.ref_value])
+        global.setValue(e.dp_key, math.floor(e.ref_table[e.ref_value]))
     end
     local nodes = {}
     for k,v in ipairs(configPages[index]) do

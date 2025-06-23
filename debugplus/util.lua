@@ -87,11 +87,12 @@ function global.pack(...) -- TODO: Might be nice to make a version of ipairs tha
 end
 
 function global.unescapeSimple(str)
-    return str:gsub("\\(.?)", {
+    local r = str:gsub("\\(.?)", {
 	["\\"] = "\\",
 	n = "\n",
 	r = "\r"
     })
+    return r
 end
 
 function global.escapeSimple(str)
