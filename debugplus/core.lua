@@ -147,12 +147,20 @@ function global.handleKeys(controller, key, dt)
             end
             _card:remove()
             if _card.playing_card and G.jokers then
-                for j = 1, #G.jokers.cards do
-                    eval_card(G.jokers.cards[j], {
+                if SMODS and SMODS.calculate_context then
+                    SMODS.calculate_context{
                         cardarea = G.jokers,
                         remove_playing_cards = true,
                         removed = {_card}
-                    })
+                    }
+                else
+                    for j = 1, #G.jokers.cards do
+                        eval_card(G.jokers.cards[j], {
+                            cardarea = G.jokers,
+                            remove_playing_cards = true,
+                            removed = {_card}
+                        })
+                    end
                 end
             end
         end
