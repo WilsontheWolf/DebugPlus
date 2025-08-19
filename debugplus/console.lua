@@ -778,4 +778,8 @@ config.configDefinition.showNewLogs.onUpdate = function(v)
     showNewLogs = v
 end
 
+function global.isConsoleFocused() -- For mods to disable keys
+    return consoleOpen
+end
+
 return global
