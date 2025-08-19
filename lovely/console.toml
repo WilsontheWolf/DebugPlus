@@ -34,15 +34,3 @@ end
 '''
 match_indent = true
 overwrite = true
-
-[[patches]]
-[patches.pattern]
-target = "main.lua"
-pattern = 'function love.keypressed(key)'
-position = "after"
-payload = '''
-local console = require("debugplus.console")
-if not console.consoleHandleKey(key) then return end
-'''
-match_indent = true
-overwrite = false

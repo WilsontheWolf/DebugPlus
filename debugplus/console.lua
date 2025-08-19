@@ -489,11 +489,12 @@ local function runCommand()
     end
 end
 
-function global.consoleHandleKey(key)
+local orig_keypressed
+local function consoleHandleKey(key, scancode, isrepeat)
     if not consoleOpen then
         local toCheck = key
         if love.keyboard.getScancodeFromKey("/") == "unknown" then
-            toCheck = love.keyboard.getScancodeFromKey(key)
+            toCheck = scancode
         end
         if toCheck == '/' or toCheck == 'kp/' then
             if util.isShiftDown() then
@@ -502,7 +503,10 @@ function global.consoleHandleKey(key)
                 openNextFrame = true -- This is to prevent the keyboard handler from typing this key
             end
         end
-        return true
+        if orig_keypressed then
+            return orig_keypressed(key, scancode, isrepeat)
+        end
+        return
     end
 
     if key == "escape" then
@@ -575,6 +579,9 @@ local function hookStuffs()
 
     orig_wheelmoved = love.wheelmoved
     love.wheelmoved = wheelmoved
+
+    orig_keypressed = love.keypressed
+    love.keypressed = consoleHandleKey
 end
 
 local function calcHeight(text, width)
@@ -625,7 +632,7 @@ local function hyjackErrorHandler()
                 elseif consoleOpen and e == "wheelmoved" then
                     safeCall(wheelmoved, a, b)
                 elseif e == "keypressed" then
-                    if safeCall(global.consoleHandleKey, a) then
+                    if safeCall(consoleHandleKey, a) then
                         table.insert(evts, {e,a,b,c})
                     end
                 else
@@ -778,7 +785,7 @@ config.configDefinition.showNewLogs.onUpdate = function(v)
     showNewLogs = v
 end
 
-function global.isConsoleFocused() -- For mods to disable keys
+function global.isConsoleFocused() -- For mods to disable keys.
     return consoleOpen
 end
 
