@@ -121,9 +121,9 @@ local configDefinition = {
     commandHistoryMax = {
         label = "Max History Size",
         type = "range",
-        default = 100,
+        default = 100000,
         min = 1,
-        max = 1000,
+        max = 1000000,
         info = {
             "Controls the number of commands to save to disk.",
         }
@@ -142,7 +142,7 @@ local configPages = {
         "stringifyPrint",
         "hyjackErrorHandler",
         "commandHistory",
-        "commandHistoryMax",
+        -- "commandHistoryMax", -- NOTE: Likely not worth letting the user config it.
     },
     {
         name = "Misc",
