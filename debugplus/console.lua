@@ -506,7 +506,7 @@ local function consoleHandleKey(key, scancode, isrepeat)
         if orig_keypressed then
             return orig_keypressed(key, scancode, isrepeat)
         end
-        return
+        return true
     end
 
     if key == "escape" then
@@ -606,6 +606,7 @@ local function hyjackErrorHandler()
         local ret = orig(msg)
         orig_wheelmoved = nil
         orig_textinput = nil
+        orig_keypressed = nil
         closeConsole()
         local justCrashed = true
 
