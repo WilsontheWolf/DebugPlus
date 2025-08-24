@@ -1,3 +1,8 @@
+# DebugPlus 1.5.1
+
+## Fixes
+- Fixed a bug where the crash handler would not receive keyboard input when "Console In Crash Handler" is enabled.
+
 # DebugPlus 1.5.0
 
 ## Features
