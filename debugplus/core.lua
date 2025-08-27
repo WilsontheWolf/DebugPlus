@@ -407,6 +407,12 @@ function global.registerButtons()
             add_tag(Tag('tag_double', false, 'Big'))
         end
     end
+    G.FUNCS.DT_add_joker_slot = function()
+        if G.STAGE == G.STAGES.RUN and G.jokers then
+            G.jokers.config.card_limit = G.jokers.config.card_limit + 1
+            logger.log("Added joker slot. New limit:", G.jokers.config.card_limit)
+        end
+    end
 end
 
 function global.togglePerfUI()
