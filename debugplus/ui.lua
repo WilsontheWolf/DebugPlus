@@ -27,7 +27,7 @@ function TextInput:process()
 	local font = self.font
 	local _, wrap = font:getWrap(self.input1:toString(), self.width)
 
-	local lastLine = table.remove(wrap)
+	local lastLine = table.remove(wrap) or ""
 
 	self.cursorPos.x = font:getWidth(lastLine)
 	self.cursorPos.y = self.lineHeight * (#wrap)
