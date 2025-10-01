@@ -417,6 +417,7 @@ local function saveHistory()
         if str ~= "" then str = str .. "\n" end
         str = str .. util.escapeSimple(history[i])
     end
+    love.filesystem.createDirectory("config")
     love.filesystem.write("config/DebugPlus.history.jkr", str)
 end
 

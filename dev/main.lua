@@ -2,7 +2,8 @@ local logger = require "debugplus.logger"
 logger.registerLogHandler()
 local console = require "debugplus.console"
 local ui = require "debugplus.ui"
-
+local test = "hi"
+test:gsub()
 local input = ui.TextInput.new(500)
 
 function love.draw()
@@ -13,10 +14,10 @@ function love.draw()
 end
 
 function love.keypressed(key)
-	local handle = console.consoleHandleKey(key)
-	if handle then
-		input:keypressed(key)
-	end
+	-- local handle = console.consoleHandleKey(key)
+	-- if handle then
+	-- 	input:keypressed(key)
+	-- end
 end
 
 function love.textinput(t)
@@ -24,4 +25,4 @@ function love.textinput(t)
 end
 
 love.keyboard.setKeyRepeat(true)
-console.consoleHandleKey("/") -- open console
+-- console.consoleHandleKey("/") -- open console
