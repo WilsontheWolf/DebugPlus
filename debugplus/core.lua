@@ -392,6 +392,77 @@ function global.handleKeys(controller, key, dt)
     end
 end
 
+local function getFilePath(filename)
+    -- If path contains directory separators, treat as relative path from game root
+    -- This allows loading from mod directories: "Mods/MyMod/fixtures/test.jkr"
+    if filename:match("[/\\]") then
+        return filename
+    end
+    -- Otherwise, treat as simple filename in profile directory
+    return G.SETTINGS.profile .. '/' .. filename
+end
+
+function global.saveGameState(filename)
+    if G.STAGE ~= G.STAGES.RUN then
+        return false, "Can only save during a run", nil
+    end
+
+    if G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.PLANET_PACK or
+       G.STATE == G.STATES.SPECTRAL_PACK or G.STATE == G.STATES.STANDARD_PACK or
+       G.STATE == G.STATES.BUFFOON_PACK or G.STATE == G.STATES.SMODS_BOOSTER_OPENED then
+        return false, "Cannot save while opening booster packs", nil
+    end
+
+    save_run()
+    local relative_path = getFilePath(filename)
+    compress_and_save(relative_path, G.ARGS.save_run)
+
+    -- Get absolute path for display
+    local save_dir = love.filesystem.getSaveDirectory()
+    local absolute_path = save_dir .. '/' .. relative_path
+
+    return true, "Saved successfully", absolute_path
+end
+
+function global.loadGameState(filename)
+    local relative_path = getFilePath(filename)
+    local save_data = get_compressed(relative_path)
+
+    -- Get absolute path for display
+    local save_dir = love.filesystem.getSaveDirectory()
+    local absolute_path = save_dir .. '/' .. relative_path
+
+    if save_data == nil then
+        return false, "Save file not found", absolute_path
+    end
+
+    G:delete_run()
+    G.SAVED_GAME = STR_UNPACK(save_data)
+    G:start_run({savetext = G.SAVED_GAME})
+    return true, "Loaded successfully", absolute_path
+end
+
+function global.listGameStates()
+    local profile_path = G.SETTINGS.profile
+    local files = love.filesystem.getDirectoryItems(profile_path)
+    local game_states = {}
+    local save_dir = love.filesystem.getSaveDirectory()
+
+    for _, file in ipairs(files) do
+        if string.match(file, "%.jkr$") then
+            -- Strip .jkr extension from name
+            local name = string.gsub(file, "%.jkr$", "")
+            local absolute_path = save_dir .. '/' .. profile_path .. '/' .. file
+            table.insert(game_states, {name = name, path = absolute_path})
+        end
+    end
+
+    -- Sort alphabetically by name
+    table.sort(game_states, function(a, b) return a.name < b.name end)
+
+    return game_states
+end
+
 function global.registerButtons()
     G.FUNCS.DT_win_blind = function()
         if G.STATE ~= G.STATES.SELECTING_HAND then
