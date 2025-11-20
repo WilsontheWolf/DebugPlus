@@ -663,14 +663,6 @@ function global.doConsoleRender()
         love.keyboard.setKeyRepeat(true)
         love.keyboard.setTextInput(true)
     end
-    if not consoleOpen and not showNewLogs then
-        return
-    end
-    -- Setup
-    local width, height = love.graphics.getDimensions()
-    local padding = 10
-    local lineWidth = width - padding * 2
-    local bottom = height - padding * 2
     local now = love.timer.getTime()
     if firstConsoleRender == nil then
         if config.getValue("hyjackErrorHandler") then hyjackErrorHandler() end
@@ -683,6 +675,14 @@ function global.doConsoleRender()
         end
         logger.log("Press [" .. key .. "] to toggle console and press [shift] + [" .. key .. "] to toggle new log previews")
     end
+    if not consoleOpen and not showNewLogs then
+        return
+    end
+    -- Setup
+    local width, height = love.graphics.getDimensions()
+    local padding = 10
+    local lineWidth = width - padding * 2
+    local bottom = height - padding * 2
     -- Input Box
     love.graphics.setColor(0, 0, 0, .5)
     if consoleOpen then
