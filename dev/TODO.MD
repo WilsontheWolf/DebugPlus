@@ -39,18 +39,18 @@ Todo list cause i have to much to remember
 - [x] Split out logging so I can log good from config
 - [x] Tweak stringifyTable
 - [x] Allow more watcher types (possibly api for custom ones)
-- [ ] Better keybind ui
-- [ ] Arrow keys
+- [x] Arrow keys
     - [x] Up down
-    - [ ] Left right
+    - [x] Left right
+- [x] Ensure watcher is disabled on crash
+- [ ] Better keybind ui
 - [ ] Better scripting  
 - [ ] Finalize whether dp.handleLog should exist or not
 - [ ] Improve scrolling when logs are hidden
 - [ ] Watch center config value
-- [ ] Ensure watcher is disabled on crash
-
-## Misc
-
 - [ ] Fix profiler hud not showing when HUD off
 - [ ] Add more cards to watch shader
 - [ ] List of neat eval commands
+- [ ] Warning for ctrl if user doesn't press keys
+- [ ] Investigate slow performance with big command history.
+- [ ] Fix watch shader not working with _ names

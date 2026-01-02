@@ -398,27 +398,42 @@ commands = {{
 }}
 local input = ui.TextInput.new(0)
 
+local function fullSaveHistory()
+        local max = config.getValue("commandHistoryMax")
+        local str = ""
+        for i = math.min(#history, max), 1, -1 do
+            if str ~= "" then str = str .. "\n" end
+            str = str .. util.escapeSimple(history[i])
+        end
+        love.filesystem.createDirectory("config")
+        love.filesystem.write("config/DebugPlus.history.jkr", str)
+end
+
 local function loadHistory()
     if not config.getValue("commandHistory") then return end
     local content = love.filesystem.read("config/DebugPlus.history.jkr")
     if not content then
         return
     end
-    local t = {}
     for str in string.gmatch(content, "([^\n\r]+)") do
         table.insert(history, 1, util.unescapeSimple(str))
     end
+    -- HACK: This is pretty slow and eats a lot of memory.
+    -- I reduced the history limit to avoid it being a big issue.
+    -- TODO: Investiage LuaJIT string.buffer
+    if #history > config.getValue("commandHistoryMax") then
+        fullSaveHistory()
+    end
 end
 
-local function saveHistory()
-    local max = config.getValue("commandHistoryMax")
-    local str = ""
-    for i = math.min(#history, max), 1, -1 do
-        if str ~= "" then str = str .. "\n" end
-        str = str .. util.escapeSimple(history[i])
+local function saveHistory(latest)
+    local file = "config/DebugPlus.history.jkr"
+    local fs = love.filesystem
+    if fs.getInfo(file) then
+        fs.append(file, "\n" .. util.escapeSimple(latest))
+    else
+        fullSaveHistory()
     end
-    love.filesystem.createDirectory("config")
-    love.filesystem.write("config/DebugPlus.history.jkr", str)
 end
 
 local function closeConsole()
@@ -438,10 +453,9 @@ local function runCommand()
     logger.handleLog({1, 0, 1}, "INFO", "> " .. inputText)
     if history[1] ~= inputText then
         table.insert(history, 1, inputText)
-    end
-
-    if config.getValue("commandHistory") then
-        saveHistory()
+        if config.getValue("commandHistory") then
+            saveHistory(inputText)
+        end
     end
 
     local cmdName = string.lower(string.gsub(inputText, "^(%S+).*", "%1"))
