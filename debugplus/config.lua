@@ -123,7 +123,7 @@ local configDefinition = {
         type = "range",
         default = 10000,
         min = 1,
-        max = 20000,
+        max = 1000000,
         info = {
             "Controls the number of commands to save to disk.",
         }

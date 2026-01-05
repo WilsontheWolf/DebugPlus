@@ -400,13 +400,13 @@ local input = ui.TextInput.new(0)
 
 local function fullSaveHistory()
         local max = config.getValue("commandHistoryMax")
-        local str = ""
+        local str = {}
         for i = math.min(#history, max), 1, -1 do
-            if str ~= "" then str = str .. "\n" end
-            str = str .. util.escapeSimple(history[i])
+            local val = util.escapeSimple(history[i])
+            table.insert(str, val)
         end
         love.filesystem.createDirectory("config")
-        love.filesystem.write("config/DebugPlus.history.jkr", str)
+        love.filesystem.write("config/DebugPlus.history.jkr", table.concat(str, "\n"))
 end
 
 local function loadHistory()
@@ -418,9 +418,6 @@ local function loadHistory()
     for str in string.gmatch(content, "([^\n\r]+)") do
         table.insert(history, 1, util.unescapeSimple(str))
     end
-    -- HACK: This is pretty slow and eats a lot of memory.
-    -- I reduced the history limit to avoid it being a big issue.
-    -- TODO: Investiage LuaJIT string.buffer
     if #history > config.getValue("commandHistoryMax") then
         fullSaveHistory()
     end
