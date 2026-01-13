@@ -67,6 +67,7 @@ position = "after"
 payload = '''
 UIBox_button{ label = {"Win Blind"}, button = "DT_win_blind", minw = 1.7, minh = 0.4, scale = 0.35},
 UIBox_button{ label = {"Double Tag"}, button = "DT_double_tag", minw = 1.7, minh = 0.4, scale = 0.35},
+UIBox_button{ label = {"+ Joker Slot"}, button = "DT_add_joker_slot", minw = 1.7, minh = 0.4, scale = 0.35},
 '''
 match_indent = true
 overwrite = false
