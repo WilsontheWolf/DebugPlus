@@ -395,6 +395,63 @@ commands = {{
             return "This command only works while hovering over a card. Rerun it while hovering over a card.", "ERROR"
         end
     end
+}, {
+    name = "gamestate",
+    source = "debugplus",
+    shortDesc = "Save, load, or list game states",
+    desc = "Save, load, or list game states.\nUsage:\ngamestate save <name> - Saves current game state to <name>.jkr\ngamestate load <name> - Loads game state from <name>.jkr\ngamestate list - Lists all available game state files\n\nExample:\ngamestate save after_boss1\ngamestate load after_boss1\ngamestate list",
+    exec = function(args, rawArgs, dp)
+        local core = require("debugplus.core")
+
+        if not args[1] then
+            return "Usage: gamestate <save|load|list> [name]", "ERROR"
+        end
+
+        local action = string.lower(args[1])
+
+        if action == "list" then
+            local game_states = core.listGameStates()
+            if #game_states == 0 then
+                return "No game state files found"
+            end
+
+            local output = "Available game states:"
+            for _, state in ipairs(game_states) do
+                output = output .. "\n" .. state.name .. ": " .. state.path
+            end
+            return output
+        end
+
+        local name = args[2]
+        if not name then
+            return "Please provide a name for the game state", "ERROR"
+        end
+
+        -- Validate name (alphanumeric, dash, underscore only)
+        if not string.match(name, "^[a-zA-Z0-9_-]+$") then
+            return "Game state name can only contain letters, numbers, dashes, and underscores", "ERROR"
+        end
+
+        local filename = name .. ".jkr"
+
+        if action == "save" then
+            local success, message, filepath = core.saveGameState(filename)
+            if success then
+                return "Saved game state to: " .. filepath
+            else
+                return "Failed to save: " .. message, "ERROR"
+            end
+        elseif action == "load" then
+            local success, message, filepath = core.loadGameState(filename)
+            if success then
+                return "Loaded game state from: " .. filepath
+            else
+                return "Failed to load: " .. message, "ERROR"
+            end
+        else
+            return "Invalid action. Use 'save', 'load', or 'list'", "ERROR"
+        end
+    end
 }}
 local input = ui.TextInput.new(0)
 
