@@ -1,5 +1,4 @@
 local util = require("debugplus.util")
-local utf8 = require("utf8")
 local watcher = require("debugplus.watcher")
 local config = require("debugplus.config")
 local logger = require("debugplus.logger")
@@ -685,6 +684,7 @@ function global.doConsoleRender()
             key = love.keyboard.getKeyFromScancode("/")
         end
         logger.log("Press [" .. key .. "] to toggle console and press [shift] + [" .. key .. "] to toggle new log previews")
+        input:newFont()
     end
     if not consoleOpen and not showNewLogs then
         return

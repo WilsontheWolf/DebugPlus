@@ -23,6 +23,15 @@ function TextInput.new(width, font)
 	return self
 end
 
+function TextInput:newFont(font)
+	font = font or love.graphics.getFont()
+	if font == self.font then return end
+	self.font = font
+	self.lineHeight = font:getHeight()
+	self.text:setFont(font)
+	self.dirty = true
+end
+
 function TextInput:process()
 	local font = self.font
 	local _, wrap = font:getWrap(self.input1:toString(), self.width)
