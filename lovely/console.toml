@@ -1,25 +1,10 @@
 [manifest]
 version = "1.0.0"
 dump_lua = true
-priority = 0
+priority = -15
 
 
 # Console Stuff:
-
-[[patches]]
-[patches.pattern]
-target = "main.lua"
-pattern = 'require "engine/object"'
-position = "before"
-payload = '''
-do
-    local logger = require("debugplus.logger")
-    logger.registerLogHandler()
-end
-'''
-match_indent = true
-overwrite = true
-
 [[patches]]
 [patches.pattern]
 target = "main.lua"
@@ -34,3 +19,10 @@ end
 '''
 match_indent = true
 overwrite = true
+
+[[patches]]
+[patches.module]
+source = "debugplus/lovelyLoadModule.lua"
+before = "main.lua"
+name = "debugplus.lovelyLoadModule"
+load_now = true

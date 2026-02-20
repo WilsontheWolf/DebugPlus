@@ -10,25 +10,25 @@ local modIDs = {
 -- API versions:
 -- 1: Initial release 
 
-function global.isVersionCompatible(version) 
+function global.isVersionCompatible(version)
     if version == 1 then
         return true
     end
     return false
 end
 
-local function createLogger(name) 
+local function createLogger(name)
     return {
         log = logger.createLogFn(name, "INFO"),
         debug = logger.createLogFn(name, "DEBUG"),
         info = logger.createLogFn(name, "INFO"),
         warn = logger.createLogFn(name, "WARN"),
-        error = logger.createLogFn(name, "ERROR"),  
+        error = logger.createLogFn(name, "ERROR"),
     }
 end
 
-local function createCommandRegister(id) 
-    return function (options) 
+local function createCommandRegister(id)
+    return function (options)
         return console.registerCommand(id, options)
     end
 end
