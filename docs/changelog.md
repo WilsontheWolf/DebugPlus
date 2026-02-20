@@ -1,3 +1,13 @@
+# DebugPlus 1.5.2
+
+## Fixes
+- Fixed a crash when loaded under love 12
+- Fixed an issue where command history would not be saved if you did not have a config folder
+- Fixed an issue where the console could not be opened if the Show New Logs config option was off when started up
+- Fixed some perfomance issues related to large history files
+- Fixed an issue where the console text input would use the wrong font if something loaded the api too early
+- Load logging hooks later to catch logs from newer SMODS preflight
+
 # DebugPlus 1.5.1
 
 ## Fixes
