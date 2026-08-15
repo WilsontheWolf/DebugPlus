@@ -197,6 +197,47 @@ function Unicode:delWord()
 	end
 end
 
+local newLine = toCodes("\n")[1]
+
+function Unicode:backspaceLine()
+	local res = {}
+	local codes = self.codes
+	local count = #codes
+
+	while true do
+		if count == 0 then
+			return toStr(res)
+		end
+		local code = codes[count]
+		if code == newLine then
+			return toStr(res)
+		end
+		table.remove(codes)
+		count = count - 1
+		table.insert(res, 1, code)
+	end
+end
+
+function Unicode:delLine()
+	local res = {}
+	local codes = self.codes
+
+	local count = #codes
+
+	while true do
+		if count == 0 then
+			return toStr(res)
+		end
+		local code = codes[1]
+		if code == newLine then
+			return toStr(res)
+		end
+		table.remove(codes, 1)
+		count = count - 1
+		table.insert(res, code)
+	end
+end
+
 M.new = Unicode.new
 
 return M

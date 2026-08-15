@@ -100,6 +100,18 @@ function TextInput:keypressed(key)
 			input1:append(toMove)
 			self.dirty = true
 		end
+	elseif key == "home" then
+		local toMove = input1:backspaceLine()
+		if toMove then
+			input2:prepend(toMove)
+			self.dirty = true
+		end
+	elseif key == "end" then
+		local toMove = input2:delLine()
+		if toMove then
+			input1:append(toMove)
+			self.dirty = true
+		end
 	end
 end
 

@@ -43,6 +43,7 @@ Todo list cause i have to much to remember
     - [x] Up down
     - [x] Left right
 - [x] Ensure watcher is disabled on crash
+- [x] Investigate slow performance with big command history.
 - [ ] Better keybind ui
 - [ ] Better scripting  
 - [ ] Finalize whether dp.handleLog should exist or not
@@ -52,5 +53,8 @@ Todo list cause i have to much to remember
 - [ ] Add more cards to watch shader
 - [ ] List of neat eval commands
 - [ ] Warning for ctrl if user doesn't press keys
-- [ ] Investigate slow performance with big command history.
 - [ ] Fix watch shader not working with _ names
+- [ ] Update font system
+  - [ ] Custom font
+  - [ ] Custom px size
+  - [ ] Need to update the text input system when it's changed
