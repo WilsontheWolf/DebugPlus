@@ -3,6 +3,7 @@ local watcher = require("debugplus.watcher")
 local config = require("debugplus.config")
 local logger = require("debugplus.logger")
 local ui = require "debugplus.ui"
+local font = require"debugplus.font"
 
 local global = {}
 
@@ -395,7 +396,7 @@ commands = {{
         end
     end
 }}
-local input = ui.TextInput.new(0)
+local input = ui.TextInput.new(0, font.getFont())
 
 local function fullSaveHistory()
         local max = config.getValue("commandHistoryMax")
@@ -596,7 +597,7 @@ local function hookStuffs()
 end
 
 local function calcHeight(text, width)
-    local font = love.graphics.getFont()
+    local font = font.getFont() -- TODO: think of a better name for this
     local rw, lines = font:getWrap(text, width)
     local lineHeight = font:getHeight()
 
@@ -685,7 +686,7 @@ function global.doConsoleRender()
             key = love.keyboard.getKeyFromScancode("/")
         end
         logger.log("Press [" .. key .. "] to toggle console and press [shift] + [" .. key .. "] to toggle new log previews")
-        input:newFont()
+        input:newFont(font:getFont())
     end
     if not consoleOpen and not showNewLogs then
         return
@@ -753,7 +754,7 @@ function global.doConsoleRender()
         end
         love.graphics.setColor(v.colour[1], v.colour[2], v.colour[3], opacityPercent)
 
-        love.graphics.printf(msg, padding * 2, bottom, lineWidth - padding * 2)
+        love.graphics.printf(msg, font.getFont(), padding * 2, bottom, lineWidth - padding * 2)
         ::finishrender::
     end
 end

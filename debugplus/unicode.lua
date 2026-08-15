@@ -14,6 +14,14 @@ local function toCodes(str)
 	return obj
 end
 M.toCodes = toCodes
+-- Can handle codes larger than unpack
+local function toStr(codes)
+	local res = {}
+	for _, code in ipairs(codes) do
+		table.insert(res, utf8.char(code))
+	end
+	return table.concat(res)
+end
 
 local function getStartPos(pos, len)
 	if pos > 0 then return pos end
@@ -60,7 +68,7 @@ function Unicode._new()
 end
 
 function Unicode:toString()
-	return utf8.char(unpack(self.codes))
+	return toStr(self.codes)
 end
 
 Unicode.__tostring = Unicode.toString
@@ -148,7 +156,7 @@ function Unicode:backspaceWord()
 
 	while true do
 		if count == 0 then
-			return utf8.char(unpack(res))
+			return toStr(res)
 		end
 		local code = codes[count]
 		if firstPart then
@@ -156,7 +164,7 @@ function Unicode:backspaceWord()
 				firstPart = false
 			end
 		elseif nonWordLookup[code] then
-			return utf8.char(unpack(res))
+			return toStr(res)
 		end
 		table.remove(codes)
 		count = count - 1
@@ -173,7 +181,7 @@ function Unicode:delWord()
 
 	while true do
 		if count == 0 then
-			return utf8.char(unpack(res))
+			return toStr(res)
 		end
 		local code = codes[1]
 		if firstPart then
@@ -181,7 +189,7 @@ function Unicode:delWord()
 				firstPart = false
 			end
 		elseif nonWordLookup[code] then
-			return utf8.char(unpack(res))
+			return toStr(res)
 		end
 		table.remove(codes, 1)
 		count = count - 1

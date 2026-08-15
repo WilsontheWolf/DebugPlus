@@ -69,3 +69,9 @@ name = "debugplus.ui"
 source = "debugplus/unicode.lua"
 before = "main.lua"
 name = "debugplus.unicode"
+
+[[patches]]
+[patches.module]
+source = "debugplus/font.lua"
+before = "main.lua"
+name = "debugplus.font"
