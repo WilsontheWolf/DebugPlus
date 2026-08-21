@@ -65,8 +65,8 @@ target = "functions/UI_definitions.lua"
 pattern = 'UIBox_button{ label = {"Background"}, button = "DT_toggle_background", minw = 1.7, minh = 0.4, scale = 0.35},'
 position = "after"
 payload = '''
-UIBox_button{ label = {"Win Blind"}, button = "DT_win_blind", minw = 1.7, minh = 0.4, scale = 0.35},
-UIBox_button{ label = {"Double Tag"}, button = "DT_double_tag", minw = 1.7, minh = 0.4, scale = 0.35},
+UIBox_button{ label = {localize("k_debugplus29")}, button = "DT_win_blind", minw = 1.7, minh = 0.4, scale = 0.35},
+UIBox_button{ label = {localize("k_debugplus30")}, button = "DT_double_tag", minw = 1.7, minh = 0.4, scale = 0.35},
 '''
 match_indent = true
 overwrite = false
@@ -79,40 +79,40 @@ position = "at"
 # This patch is super jank 
 # when lovely supports regex, move the save state to it's own block.
 payload = '''
-    {n=G.UIT.T, config={text = "hold [" .. require("debugplus.util").ctrlText .. "] (togglable in config)", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus7"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "and press [Q] to cycle Edition", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus8"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }}, 
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [W] to cycle Enhancement", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus9"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [E] to cycle Seal", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus10"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [A/S/D] to toggle Eternal/Perishable/Rental", scale = 0.2, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus11"), scale = 0.2, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [F] to toggle Coupon (make free)", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus12"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [R/C] to destroy/copy card", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus13"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [M] to reload atlases", scale = 0.25, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus14"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [UP/DOWN] to cycle rank", scale = 0.2, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus15"), scale = 0.2, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.00}, nodes={
-    {n=G.UIT.T, config={text = "press [RIGHT/LEFT] to cycle suit", scale = 0.2, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus16"), scale = 0.2, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.05}, nodes={
-    {n=G.UIT.T, config={text = "press [z] plus [1-3] to save a save state", scale = 0.2, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus17"), scale = 0.2, colour = G.C.WHITE, shadow = true}}
 }},
 {n=G.UIT.R, config={align = "cm", padding = 0.00}, nodes={
-    {n=G.UIT.T, config={text = "press [x] plus [1-3] to load a save state", scale = 0.2, colour = G.C.WHITE, shadow = true}}
+    {n=G.UIT.T, config={text = localize("k_debugplus18"), scale = 0.2, colour = G.C.WHITE, shadow = true}}
 '''
 match_indent = true
 overwrite = true
