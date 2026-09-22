@@ -1,0 +1,301 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "While in collection, hover over a card", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus1"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "and press the following keys:", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus2"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "[1] Unlock", scale = 0.25, colour = G.C.WHITE}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus3"), scale = 0.25, colour = G.C.WHITE}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "[2] Discover", scale = 0.25, colour = G.C.WHITE}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus4"), scale = 0.25, colour = G.C.WHITE}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "[3] Spawn", scale = 0.25, colour = G.C.WHITE}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus5"), scale = 0.25, colour = G.C.WHITE}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "Hover over any Joker/Playing card", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus6"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "Press [H] to isolate background", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus19"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "Press [J] to play splash animation", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus20"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "Press [8] to toggle cursor", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus21"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '{n=G.UIT.T, config={text = "Press [9] to toggle all tooltips", scale = 0.25, colour = G.C.WHITE, shadow = true}}'
+position = "at"
+payload = '''
+{n=G.UIT.T, config={text = localize("k_debugplus22"), scale = 0.25, colour = G.C.WHITE, shadow = true}}
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"+1 Round"}, button = "DT_add_round", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus23")}, button = "DT_add_round", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"+1 Ante"}, button = "DT_add_ante", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus24")}, button = "DT_add_ante", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"+1 Hand"}, button = "DT_add_hand", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus25")}, button = "DT_add_hand", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"+1 Discard"}, button = "DT_add_discard", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus26")}, button = "DT_add_discard", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Boss Reroll"}, button = "DT_reroll_boss", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus27")}, button = "DT_reroll_boss", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Background"}, button = "DT_toggle_background", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus28")}, button = "DT_toggle_background", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Win Blind"}, button = "DT_win_blind", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus29")}, button = "DT_win_blind", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Double Tag"}, button = "DT_double_tag", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus30")}, button = "DT_double_tag", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"+10 chips"}, button = "DT_add_chips", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus31")}, button = "DT_add_chips", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"+10 mult"}, button = "DT_add_mult", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus32")}, button = "DT_add_mult", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"X2 chips"}, button = "DT_x_chips", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus33")}, button = "DT_x_chips", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"X10 mult"}, button = "DT_x_mult", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus34")}, button = "DT_x_mult", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Win this Run"}, button = "DT_win_game", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus35")}, button = "DT_win_game", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Lose this Run"}, button = "DT_lose_game", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus36")}, button = "DT_lose_game", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Reset"}, button = "DT_chip_mult_reset", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus37")}, button = "DT_chip_mult_reset", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Jimbo"}, button = "DT_jimbo_toggle", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus38")}, button = "DT_jimbo_toggle", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = 'UIBox_button{ label = {"Jimbo talk"}, button = "DT_jimbo_talk", minw = 1.7, minh = 0.4, scale = 0.35},'
+position = "at"
+payload = '''
+UIBox_button{ label = {localize("k_debugplus39")}, button = "DT_jimbo_talk", minw = 1.7, minh = 0.4, scale = 0.35},
+'''
+match_indent = true
+overwrite = true
