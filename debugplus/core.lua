@@ -311,7 +311,6 @@ function global.handleKeys(controller, key, dt)
         end
         if key == "3" then
             if G.STATE == G.STATES.BLIND_SELECT then
-                if not G.blind_select_opts then return end
                 local par = G.blind_select_opts.boss.parent
                 G.GAME.round_resets.blind_choices.Boss = _blind.key
 
