@@ -81,6 +81,8 @@ logger.log("Hi")
 
 DebugPlus provides an API to register commands to be able to run in the console. You can register a command from a [registered mod](#registering-an-id) using `addCommand` like so:
 
+Commands are registered directly with the API; DebugPlus does not require or scan a `Commands` folder. A mod can register commands from any Lua file it loads.
+
 ```lua
 debugplus.addCommand({
     name = "test",
@@ -98,6 +100,9 @@ Here is a brief list of the properties on the object passed to addCommand:
 - shortDesc - A short description of your command. Shown when running `help` without any arguments.
 - desc - The full description of your command. It's a good idea to add usage examples in here. Show when running `help` with your command as an argument.
 - exec - The function that is run when running your command.
+- autocomplete - Optional function called with `(args, argumentIndex, prefix)` that returns a list of completion strings for the current argument.
+
+The autocomplete callback is optional. Commands without one still register and run normally.
 
 The arguments passed to exec are:
 

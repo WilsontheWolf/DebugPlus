@@ -3,7 +3,6 @@ local watcher = require("debugplus.watcher")
 local config = require("debugplus.config")
 local logger = require("debugplus.logger")
 local ui = require "debugplus.ui"
-local font = require"debugplus.font"
 
 local global = {}
 
@@ -19,6 +18,7 @@ local firstConsoleRender = nil
 local history = {}
 ---@type {index: number, val: string}
 local currentHistory = nil
+local autocompleteState = nil
 ---@type {name: string, source: string, desc: string, shortDesc: string, exec: fun(args: string[], rawArgs: string, dp: table): string, string?, table?}[]
 local commands = nil
 local logOffset = 0
@@ -26,6 +26,7 @@ local logOffset = 0
 commands = {{
     name = "echo",
     source = "debugplus",
+    sourceName = "DebugPlus",
     shortDesc = "Repeat's what you say",
     desc = "Mostly just a testing command. Outputs what you input.",
     exec = function(args, rawArgs, dp)
@@ -34,16 +35,37 @@ commands = {{
 }, {
     name = "help",
     source = "debugplus",
+    sourceName = "DebugPlus",
     shortDesc = "Get command info",
     desc = "Get's help about commands. When run without args, lists all commands and their short descriptions. When run with a command name, shows info about that command.",
     exec = function(args, rawArgs, dp)
         local toLookup = args[1]
         if not toLookup then
-            local out = "Help:\nBelow is a list of commands.\n"
-            for k, v in ipairs(commands) do
-                out = out .. v.name .. ": " .. v.shortDesc .. "\n"
+            local groups = {}
+            local group_names = {}
+            local source_names = {}
+            for _, command in ipairs(commands) do
+                local source_id = command.source:lower()
+                if not groups[source_id] then
+                    groups[source_id] = {}
+                    source_names[source_id] = source_id == "debugplus" and "DebugPlus" or command.sourceName or command.source
+                    table.insert(group_names, source_id)
+                end
+                table.insert(groups[source_id], command)
             end
-            out = out .. "\nFor more information about a specific command, run 'help <commandName>'"
+
+            table.sort(group_names)
+            local out = "Available commands:"
+            for _, source_id in ipairs(group_names) do
+                table.sort(groups[source_id], function(a, b)
+                    return a.name < b.name
+                end)
+                out = out .. "\n\n" .. source_names[source_id] .. ":"
+                for _, command in ipairs(groups[source_id]) do
+                    out = out .. "\n  " .. command.name .. " - " .. command.shortDesc
+                end
+            end
+            out = out .. "\n\nFor details, run 'help <commandName>'."
             return out
         end
         local cmdName = string.lower(string.gsub(toLookup, "^(%S+).*", "%1"))
@@ -396,7 +418,7 @@ commands = {{
         end
     end
 }}
-local input = ui.TextInput.new(0, font.getFont())
+local input = ui.TextInput.new(0)
 
 local function fullSaveHistory()
         local max = config.getValue("commandHistoryMax")
@@ -435,10 +457,140 @@ end
 
 local function closeConsole()
     input:clear()
+    autocompleteState = nil
     consoleOpen = false
     love.keyboard.setKeyRepeat(gameKeyRepeat)
     love.keyboard.setTextInput(gameTextInput)
 
+end
+
+local function fuzzyMatch(candidate, query)
+    candidate = string.lower(candidate)
+    query = string.lower(query)
+    if query == "" or string.find(candidate, query, 1, true) then
+        return true
+    end
+
+    local candidateIndex = 1
+    for queryIndex = 1, #query do
+        local found = string.find(candidate, query:sub(queryIndex, queryIndex), candidateIndex, true)
+        if not found then
+            return false
+        end
+        candidateIndex = found + 1
+    end
+    return true
+end
+
+local function getAutocompleteContext()
+    local before = input.input1:toString()
+    local after = input.input2:toString()
+    local head, prefix = before:match("^(.*%s)(%S*)$")
+    if not head then
+        head = ""
+        prefix = before
+    end
+    local suffix = after:match("^(%S*)") or ""
+    local tail = after:sub(#suffix + 1)
+    local tokens = {}
+    for token in head:gmatch("%S+") do
+        table.insert(tokens, token)
+    end
+
+    local candidates = {}
+    if #tokens == 0 then
+        for _, command in ipairs(commands) do
+            table.insert(candidates, command.name)
+        end
+    else
+        local command_name = string.lower(tokens[1])
+        local command
+        for _, candidate in ipairs(commands) do
+            if candidate.name == command_name or candidate.source .. ":" .. candidate.name == command_name then
+                command = candidate
+                break
+            end
+        end
+        if command and command.autocomplete then
+            local args = {}
+            for index = 2, #tokens do
+                table.insert(args, tokens[index])
+            end
+            local success, results = pcall(command.autocomplete, args, #args + 1, prefix)
+            if success and type(results) == "table" then
+                candidates = results
+            end
+        end
+    end
+
+    local suggestions = {}
+    local seen = {}
+    for _, candidate in ipairs(candidates) do
+        if type(candidate) == "string" and fuzzyMatch(candidate, prefix) then
+            local normalized = candidate:lower()
+            if not seen[normalized] then
+                seen[normalized] = true
+                table.insert(suggestions, candidate)
+            end
+        end
+    end
+    table.sort(suggestions, function(a, b)
+        local a_starts = a:lower():sub(1, #prefix) == prefix:lower()
+        local b_starts = b:lower():sub(1, #prefix) == prefix:lower()
+        if a_starts ~= b_starts then
+            return a_starts
+        end
+        return a:lower() < b:lower()
+    end)
+    return suggestions, head, tail
+end
+
+local function currentAutocompleteState()
+    local current = input:toString()
+    if autocompleteState and
+        (autocompleteState.original == current or autocompleteState.applied == current) then
+        return autocompleteState
+    end
+
+    local suggestions, head, tail = getAutocompleteContext()
+    if #suggestions == 0 then
+        autocompleteState = nil
+        return nil
+    end
+
+    autocompleteState = {
+        suggestions = suggestions,
+        head = head,
+        tail = tail,
+        index = 1,
+        original = current
+    }
+    return autocompleteState
+end
+
+local function cycleAutocomplete(direction)
+    local state = currentAutocompleteState()
+    if not state then
+        return false
+    end
+
+    state.index = (state.index - 1 + direction) % #state.suggestions + 1
+    return true
+end
+
+local function autocompleteInput()
+    local state = currentAutocompleteState()
+    if not state then
+        return false
+    end
+
+    if state.applied == input:toString() then
+        state.index = state.index % #state.suggestions + 1
+    end
+    local replacement = state.head .. state.suggestions[state.index] .. state.tail
+    state.applied = replacement
+    input:set(replacement)
+    return true
 end
 
 local function runCommand()
@@ -525,6 +677,21 @@ local function consoleHandleKey(key, scancode, isrepeat)
         closeConsole()
     end
 
+    if key == "tab" then
+        autocompleteInput()
+        return
+    end
+
+    if key == "up" and cycleAutocomplete(-1) then
+        return
+    end
+
+    if key == "down" and cycleAutocomplete(1) then
+        return
+    end
+
+    autocompleteState = nil
+
     if key == "return" then
         if util.isShiftDown() then
             input:textinput("\n")
@@ -571,6 +738,7 @@ local function textinput(t)
         end -- That way if another mod uses this, I don't clobber it's implementation
         return
     end
+    autocompleteState = nil
     input:textinput(t)
 end
 
@@ -597,7 +765,7 @@ local function hookStuffs()
 end
 
 local function calcHeight(text, width)
-    local font = font.getFont() -- TODO: think of a better name for this
+    local font = love.graphics.getFont()
     local rw, lines = font:getWrap(text, width)
     local lineHeight = font:getHeight()
 
@@ -686,7 +854,7 @@ function global.doConsoleRender()
             key = love.keyboard.getKeyFromScancode("/")
         end
         logger.log("Press [" .. key .. "] to toggle console and press [shift] + [" .. key .. "] to toggle new log previews")
-        input:newFont(font:getFont())
+        input:newFont()
     end
     if not consoleOpen and not showNewLogs then
         return
@@ -706,8 +874,38 @@ function global.doConsoleRender()
         love.graphics.setColor(1, 1, 1, 1)
         input:draw(padding * 2, bottom - inputHeight + padding * 2)
 
+        local state = util.trim(input:toString()) ~= "" and currentAutocompleteState() or nil
+        local suggestions = state and state.suggestions or {}
+        local suggestionCount = math.min(#suggestions, 5)
+        local suggestionLineHeight = love.graphics.getFont():getHeight() + 2
+        local suggestionHeight = suggestionCount > 0 and suggestionCount * suggestionLineHeight + padding or 0
+        if suggestionCount > 0 then
+            local inputTop = bottom - inputHeight + padding
+            local suggestionY = inputTop - suggestionHeight - 4
+            local selected = state and state.index or 1
+            love.graphics.setColor(0, 0, 0, 0.78)
+            love.graphics.rectangle("fill", padding, suggestionY, lineWidth, suggestionHeight, 4, 4)
+            for index = 1, suggestionCount do
+                if index == selected then
+                    love.graphics.setColor(1, 1, 1, 0.16)
+                    love.graphics.rectangle(
+                        "fill",
+                        padding + 3,
+                        suggestionY + (index - 1) * suggestionLineHeight + 2,
+                        lineWidth - 6,
+                        suggestionLineHeight
+                    )
+                end
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.print(
+                    suggestions[index],
+                    padding * 2,
+                    suggestionY + (index - 1) * suggestionLineHeight + 2
+                )
+            end
+        end
 
-        bottom = bottom - inputHeight - padding
+        bottom = bottom - inputHeight - padding - suggestionHeight - (suggestionCount > 0 and 4 or 0)
     end
 
     -- Main window
@@ -754,7 +952,7 @@ function global.doConsoleRender()
         end
         love.graphics.setColor(v.colour[1], v.colour[2], v.colour[3], opacityPercent)
 
-        love.graphics.printf(msg, font.getFont(), padding * 2, bottom, lineWidth - padding * 2)
+        love.graphics.printf(msg, padding * 2, bottom, lineWidth - padding * 2)
         ::finishrender::
     end
 end
@@ -763,8 +961,8 @@ function global.registerCommand(id, options)
     if not options then
         error("Options must be provided")
     end
-    if not options.name and not string.match(options.name, "^[%l%d_-]$") then
-        error("Options.name must be provided and match pattern `^[%l%d_-]$`.")
+    if type(options.name) ~= "string" or not string.match(options.name, "^[%l%d_-]+$") then
+        error("Options.name must contain only lowercase letters, numbers, underscores, and hyphens.")
     end
     if not options.exec or type(options.exec) ~= "function" then
         error("Options.exec must be a function")
@@ -775,10 +973,15 @@ function global.registerCommand(id, options)
     if not options.desc or type(options.desc) ~= "string" then
         error("Options.desc must be a string")
     end
+    if options.autocomplete ~= nil and type(options.autocomplete) ~= "function" then
+        error("Options.autocomplete must be a function")
+    end
     local cmd = {
         source = id,
+        sourceName = options.sourceName or (id == "debugplus" and "DebugPlus" or id),
         name = options.name,
         exec = options.exec,
+        autocomplete = options.autocomplete,
         shortDesc = options.shortDesc,
         desc = options.desc
     }

@@ -4,7 +4,8 @@ local logger = require("debugplus.logger")
 local global = {}
 local modIDs = {
     debugplus = {
-        internal = true
+        internal = true,
+        name = "DebugPlus"
     }
 }
 -- API versions:
@@ -27,8 +28,9 @@ local function createLogger(name)
     }
 end
 
-local function createCommandRegister(id)
+local function createCommandRegister(id, name)
     return function (options)
+        options.sourceName = name
         return console.registerCommand(id, options)
     end
 end
@@ -41,9 +43,12 @@ function global.registerID(name)
     if modIDs[id] then
         return false, "ID " .. id .." already exists"
     end
+    modIDs[id] = {
+        name = name
+    }
     local ret = {
         logger = createLogger(name),
-        addCommand = createCommandRegister(id)
+        addCommand = createCommandRegister(id, name)
     }
     return ret
 end
